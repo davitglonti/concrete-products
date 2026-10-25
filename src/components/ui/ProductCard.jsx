@@ -100,6 +100,12 @@ export default function ProductCard({ product }) {
         {/* Primary Image */}
         <img
           src={primaryImage}
+          srcSet={
+            primaryImage.includes("w=800")
+              ? `${primaryImage.replace("w=800", "w=420&q=70")} 420w, ${primaryImage} 800w`
+              : undefined
+          }
+          sizes="(max-width: 640px) 50vw, 360px"
           alt={product.name}
           loading="lazy"
           className={`w-full h-full object-cover transition-all duration-500 ${
@@ -115,6 +121,12 @@ export default function ProductCard({ product }) {
         {hasMultiple && (
           <img
             src={secondaryImage}
+            srcSet={
+              secondaryImage.includes("w=800")
+                ? `${secondaryImage.replace("w=800", "w=420&q=70")} 420w, ${secondaryImage} 800w`
+                : undefined
+            }
+            sizes="(max-width: 640px) 50vw, 360px"
             alt={`${product.name} - ხედი 2`}
             loading="lazy"
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
@@ -200,7 +212,7 @@ export default function ProductCard({ product }) {
           <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3.5 border-t border-stone-100 dark:border-stone-800 flex items-end justify-between gap-2">
             {/* Price display */}
             <div className="min-w-0">
-              <span className="text-[10px] sm:text-xs text-stone-400 dark:text-stone-500 block font-medium">ფასი:</span>
+              <span className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 block font-medium">ფასი:</span>
               <div className="flex items-baseline gap-1 whitespace-nowrap">
                 <span className="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-stone-900 dark:text-white tracking-tight whitespace-nowrap">
                   {product.price ? `${product.price} ₾` : "შეთანხმებით"}
@@ -223,7 +235,7 @@ export default function ProductCard({ product }) {
                   </span>
                 )}
                 {product.weight && (
-                  <span className="text-[10px] sm:text-xs text-stone-400 dark:text-stone-500 block font-medium truncate mt-0.5">
+                  <span className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 block font-medium truncate mt-0.5">
                     {product.weight}
                   </span>
                 )}

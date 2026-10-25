@@ -72,6 +72,11 @@ export default function Home() {
           >
             <img
               src={item.image}
+              srcSet={`
+                ${item.image.replace("w=1280", "w=640&q=70")} 640w,
+                ${item.image} 1280w
+              `}
+              sizes="(max-width: 640px) 100vw, 1280px"
               alt={item.titleMain}
               loading={index === 0 ? "eager" : "lazy"}
               fetchPriority={index === 0 ? "high" : "low"}
@@ -164,16 +169,16 @@ export default function Home() {
             <button
               onClick={prevSlide}
               aria-label="Previous slide"
-              className="p-1 sm:p-1.5 rounded-lg hover:bg-white/20 transition"
+              className="p-2 sm:p-2.5 rounded-lg hover:bg-white/20 transition flex items-center justify-center min-w-[36px] min-h-[36px]"
             >
-              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={nextSlide}
               aria-label="Next slide"
-              className="p-1 sm:p-1.5 rounded-lg hover:bg-white/20 transition"
+              className="p-2 sm:p-2.5 rounded-lg hover:bg-white/20 transition flex items-center justify-center min-w-[36px] min-h-[36px]"
             >
-              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>

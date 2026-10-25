@@ -100,12 +100,21 @@ export const DataProvider = ({ children }) => {
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
-  // Listen to Firebase Auth state
+  // Listen to Firebase Auth state - only initialize for admin route to keep public pages lightning fast
   useEffect(() => {
     if (!auth) {
       setAuthLoading(false);
       return;
     }
+
+    const isAdminRoute =
+      typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+
+    if (!isAdminRoute) {
+      setAuthLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setAdminUser(user);

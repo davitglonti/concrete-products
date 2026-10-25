@@ -131,12 +131,12 @@ export default function Navbar() {
               <button
                 onClick={() => setIsFavoritesOpen(true)}
                 title="შენახული პროდუქტები (ფავორიტები)"
-                className="relative p-2 sm:p-2.5 rounded-full text-stone-600 hover:text-red-500 hover:bg-stone-100 dark:text-stone-300 dark:hover:text-red-400 dark:hover:bg-stone-800 transition"
+                className="relative p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full text-stone-600 hover:text-red-500 hover:bg-stone-100 dark:text-stone-300 dark:hover:text-red-400 dark:hover:bg-stone-800 transition"
                 aria-label="Favorites"
               >
                 <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
                 {count > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 text-white text-[10px] sm:text-[11px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                  <span className="absolute top-0.5 right-0.5 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 text-white text-[10px] sm:text-[11px] font-bold rounded-full flex items-center justify-center shadow-sm">
                     {count}
                   </span>
                 )}
@@ -148,7 +148,7 @@ export default function Navbar() {
               <button
                 onClick={toggleTheme}
                 title={isDark ? "ღია თემაზე გადართვა (Light Mode)" : "მუქ თემაზე გადართვა (Dark Mode)"}
-                className="p-2 sm:p-2.5 rounded-full text-stone-600 hover:text-stone-900 hover:bg-stone-100 dark:text-stone-300 dark:hover:text-white dark:hover:bg-stone-800 transition"
+                className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full text-stone-600 hover:text-stone-900 hover:bg-stone-100 dark:text-stone-300 dark:hover:text-white dark:hover:bg-stone-800 transition"
                 aria-label="Toggle Theme"
               >
                 {isDark ? (
@@ -173,7 +173,7 @@ export default function Navbar() {
             {/* Hamburger Button (Mobile only) */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-stone-700 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+              className="md:hidden p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-stone-700 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition"
               aria-label="მენიუს გახსნა"
               title="მენიუ"
             >
