@@ -82,9 +82,9 @@ export default function Home() {
 
   return (
     <div className="flex flex-col w-full bg-[#fbfbf9] dark:bg-stone-950 transition-colors duration-200">
-      {/* 1. FULL-WIDTH HERO SLIDER (Direct Text on Photo - No Boxed Window!) */}
+      {/* 1. FULL-WIDTH HERO SLIDER (Direct Text on Photo - Modern Editorial Layout) */}
       <section
-        className="relative w-full min-h-[500px] sm:min-h-[680px] lg:h-[780px] overflow-hidden bg-stone-950 flex flex-col justify-center"
+        className="relative w-full h-[84vh] min-h-[500px] max-h-[680px] sm:min-h-[640px] sm:max-h-none lg:h-[780px] overflow-hidden bg-stone-950 flex flex-col justify-end pb-12 sm:pb-16 sm:justify-center"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -115,61 +115,61 @@ export default function Home() {
               ) : (
                 <div className="w-full h-full bg-stone-950" />
               )}
-              {/* Seamless, organic gradient */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent dark:from-stone-950/90 dark:via-stone-950/55 dark:to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+              {/* Seamless, organic cinematic gradient (keeps top/center photo visible, darkens bottom for text) */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent sm:from-black/90 sm:via-black/40" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/35 to-transparent sm:from-black/85" />
             </div>
           );
         })}
 
-        {/* Content Container */}
-        <div className="relative z-10 max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 w-full py-8 sm:py-16">
+        {/* Content Container (Bottom-anchored on mobile for breathable photo view) */}
+        <div className="relative z-10 max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 w-full">
           <div className="max-w-2xl lg:max-w-3xl">
             {/* Dynamic Pill Eyebrow Badge */}
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/15 dark:bg-stone-900/60 border border-white/25 dark:border-stone-700/80 text-white text-[10px] sm:text-sm font-semibold px-2.5 py-0.5 sm:px-4 sm:py-1.5 rounded-full backdrop-blur-md mb-2.5 sm:mb-6 shadow-md">
-              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400 flex-shrink-0" />
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/10 dark:bg-stone-900/60 border border-white/20 text-white text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full backdrop-blur-md mb-2 sm:mb-4 shadow-sm">
+              <Sparkles className="w-3 h-3 text-amber-400 flex-shrink-0" />
               <span>{slide.badge}</span>
             </div>
 
             {/* Dynamic Headline */}
-            <h1 className="text-lg sm:text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-snug sm:leading-[1.2] drop-shadow-lg">
-              {slide.titleMain} <br />
+            <h1 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight sm:leading-[1.15] drop-shadow-md">
+              {slide.titleMain} <br className="hidden sm:inline" />
               <span className="text-amber-400 drop-shadow">
                 {slide.titleHighlight}
               </span>
             </h1>
 
             {/* Dynamic Subtitle */}
-            <p className="text-stone-200 text-[11px] sm:text-base lg:text-xl mt-2 sm:mt-5 max-w-xl leading-normal sm:leading-relaxed font-normal drop-shadow line-clamp-2 sm:line-clamp-none">
+            <p className="text-stone-300 text-xs sm:text-base lg:text-lg mt-1.5 sm:mt-3 max-w-xl leading-relaxed font-normal drop-shadow line-clamp-2 sm:line-clamp-none">
               {slide.subtitle}
             </p>
 
-            {/* Action Buttons */}
-            <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 max-w-xs sm:max-w-none">
+            {/* Action Buttons (Compact horizontal pair on mobile — takes only 1 neat row) */}
+            <div className="mt-3.5 sm:mt-6 flex flex-row items-center gap-2 sm:gap-4">
               <Link
                 to={slide.categoryLink}
-                className="bg-white hover:bg-stone-100 text-stone-950 font-bold px-4 py-2 sm:px-7 sm:py-3.5 rounded-lg sm:rounded-xl inline-flex items-center justify-center gap-1.5 sm:gap-2 transition shadow-xl hover:scale-[1.02] text-xs sm:text-sm text-center"
+                className="bg-white hover:bg-stone-100 text-stone-950 font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl inline-flex items-center justify-center gap-1.5 text-xs sm:text-sm shadow-lg transition active:scale-95 shrink-0"
               >
                 <span>{slide.buttonText}</span>
                 <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
               </Link>
               <Link
                 to="/portfolio"
-                className="bg-white/15 hover:bg-white/25 text-white font-semibold px-4 py-2 sm:px-7 sm:py-3.5 rounded-lg sm:rounded-xl border border-white/30 backdrop-blur-md transition hover:scale-[1.02] text-xs sm:text-sm text-center justify-center"
+                className="bg-white/15 hover:bg-white/25 text-white font-semibold px-3.5 py-2 sm:px-6 sm:py-3 rounded-xl border border-white/25 backdrop-blur-md text-xs sm:text-sm transition active:scale-95 shrink-0"
               >
                 შესრულებული სამუშაოები
               </Link>
             </div>
 
-            {/* Quick Specs Indicator */}
-            <div className="mt-4 sm:mt-8 pt-2.5 sm:pt-5 border-t border-white/20 flex flex-wrap items-center gap-2.5 sm:gap-6 text-[10px] sm:text-xs text-stone-300 font-medium drop-shadow">
+            {/* Quick Specs Indicator (Desktop/Tablet only — kept off mobile to eliminate visual clutter) */}
+            <div className="hidden sm:flex mt-6 pt-4 border-t border-white/20 items-center gap-6 text-xs text-stone-300 font-medium drop-shadow">
               <span className="flex items-center gap-1">
-                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 shrink-0" /> F300 ყინვაგამძლეობა
+                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> F300 ყინვაგამძლეობა
               </span>
               <span className="flex items-center gap-1">
-                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 shrink-0" /> M500 სიმტკიცე
+                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> M500 სიმტკიცე
               </span>
-              <span className="flex items-center gap-1 hidden sm:flex">
+              <span className="flex items-center gap-1">
                 <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Bayferrox პიგმენტაცია
               </span>
             </div>
