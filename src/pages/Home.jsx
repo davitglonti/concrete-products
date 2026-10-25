@@ -50,7 +50,7 @@ export default function Home() {
     }, 3500);
   };
 
-  const featuredProducts = products.filter((p) => p.featured).slice(0, 8);
+  const featuredProducts = products.filter((p) => p.featured).slice(0, 4);
   const slide = HERO_SLIDES[currentSlide];
 
   return (
@@ -188,18 +188,13 @@ export default function Home() {
                 ბეტონის ნაკეთობების კატეგორიები
               </h2>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="sm:hidden text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 shrink-0 animate-pulse">
-                გადაფურცლეთ →
-              </span>
-              <Link
-                to="/products"
-                className="hidden sm:inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-sm font-semibold transition"
-              >
-                <span>სრული კატალოგის ნახვა</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 text-xs sm:text-sm font-bold transition shrink-0"
+            >
+              <span>სრული კატალოგის ნახვა</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
 
           {/* Mobile: Horizontal scrollable track with 3-4 items visible | Desktop: Grid */}
@@ -241,17 +236,6 @@ export default function Home() {
               </Link>
             ))}
           </div>
-
-          {/* Mobile only "See full catalog" button */}
-          <div className="mt-3 sm:hidden text-center">
-            <Link
-              to="/products"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 text-xs font-bold hover:text-stone-950 dark:hover:text-white"
-            >
-              <span>სრული კატალოგის ნახვა</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -267,18 +251,13 @@ export default function Home() {
                 გამორჩეული პროდუქცია
               </h2>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="sm:hidden text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 shrink-0 animate-pulse">
-                გადაფურცლეთ →
-              </span>
-              <Link
-                to="/products"
-                className="hidden sm:inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition"
-              >
-                <span>ყველა პროდუქტი ({products.length})</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 text-xs sm:text-sm font-bold transition shrink-0"
+            >
+              <span>ყველა პროდუქტის ნახვა</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
 
           {/* Mobile: Horizontal scrollable track with ~2.3 - 2.5 items visible | Desktop: Grid */}
@@ -292,91 +271,84 @@ export default function Home() {
               </div>
             ))}
           </div>
-
-          {/* Mobile only "See all products" button */}
-          <div className="mt-3 sm:hidden text-center">
-            <Link
-              to="/products"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 text-xs font-bold hover:text-stone-950 dark:hover:text-white"
-            >
-              <span>ყველა პროდუქტი ({products.length})</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
         </div>
       </section>
 
-      {/* 4. WHY CHOOSE OUR CONCRETE? (Warm Limestone — Expanded Widescreen) */}
-      <section className="bg-[#f5f3ee] dark:bg-stone-900/60 py-20 lg:py-24 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+      {/* 4. WHY CHOOSE OUR CONCRETE? (Warm Limestone — Expanded Widescreen + Mobile Horizontal Swiper) */}
+      <section className="bg-[#f5f3ee] dark:bg-stone-900/60 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <span className="text-stone-500 dark:text-stone-400 text-xs font-bold uppercase tracking-widest block">
+          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-14">
+            <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
               საწარმოო სტანდარტი
             </span>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-stone-900 dark:text-white mt-2">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 dark:text-white mt-1 sm:mt-2">
               რატომ ირჩევენ ჩვენს არქიტექტურულ ბეტონს?
             </h2>
-            <p className="text-stone-600 dark:text-stone-300 text-sm sm:text-base mt-3 leading-relaxed">
-              თითოეული ნაკეთობა გადის ვიბროჩამოსხმისა და თერმული გამოშრობის სრულ
-              ტექნოლოგიურ ციკლს.
+            <p className="text-stone-600 dark:text-stone-300 text-xs sm:text-sm lg:text-base mt-2 sm:mt-3 leading-relaxed">
+              თითოეული ნაკეთობა გადის ვიბროჩამოსხმისა და თერმული გამოშრობის სრულ ტექნოლოგიურ ციკლს.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
+          {/* Mobile: Horizontal scrollable track for 4 features | Desktop: 4-column Grid */}
+          <div className="flex lg:grid lg:grid-cols-4 gap-3.5 sm:gap-6 xl:gap-8 overflow-x-auto lg:overflow-visible no-scrollbar pb-3 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scroll-px-4">
             {/* Feature 1 */}
-            <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-5 shadow-sm">
-                <Snowflake className="w-6 h-6" />
+            <div className="snap-start flex-shrink-0 w-[72vw] sm:w-[45vw] lg:w-auto min-w-[240px] max-w-[320px] bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-4 sm:mb-5 shadow-sm">
+                  <Snowflake className="w-6 h-6" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white mb-2">
+                  ყინვაგამძლეობა F300
+                </h3>
+                <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
+                  სპეციალური ჰიდროფობიური დანამატები გამორიცხავს წყლის შეწოვას და ბზარების გაჩენას მკაცრ ზამთარშიც.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-2">
-                ყინვაგამძლეობა F300
-              </h3>
-              <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
-                სპეციალური ჰიდროფობიური დანამატები გამორიცხავს წყლის შეწოვას და
-                ბზარების გაჩენას მკაცრ ზამთარშიც.
-              </p>
             </div>
 
             {/* Feature 2 */}
-            <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-5 shadow-sm">
-                <ShieldCheck className="w-6 h-6" />
+            <div className="snap-start flex-shrink-0 w-[72vw] sm:w-[45vw] lg:w-auto min-w-[240px] max-w-[320px] bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-4 sm:mb-5 shadow-sm">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white mb-2">
+                  მაღალი სიმტკიცე (M500)
+                </h3>
+                <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
+                  ბაზალტისა და პოლიპროპილენის ფიბრო-ბოჭკოთი არმირებული სტრუქტურა უძლებს მაღალ სტატიკურ და დინამიკურ დატვირთვას.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-2">
-                მაღალი სიმტკიცე (M500)
-              </h3>
-              <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
-                ბაზალტისა და პოლიპროპილენის ფიბრო-ბოჭკოთი არმირებული სტრუქტურა
-                უძლებს მაღალ სტატიკურ და დინამიკურ დატვირთვას.
-              </p>
             </div>
 
             {/* Feature 3 */}
-            <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-5 shadow-sm">
-                <Sparkles className="w-6 h-6" />
+            <div className="snap-start flex-shrink-0 w-[72vw] sm:w-[45vw] lg:w-auto min-w-[240px] max-w-[320px] bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-4 sm:mb-5 shadow-sm">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white mb-2">
+                  მდგრადი პიგმენტაცია
+                </h3>
+                <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
+                  ვიყენებთ გერმანულ (Bayferrox) მინერალურ პიგმენტებს, რომლებიც სრულ მასაშია შერეული და მზეზე არ ხუნდება.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-2">
-                მდგრადი პიგმენტაცია
-              </h3>
-              <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
-                ვიყენებთ გერმანულ (Bayferrox) მინერალურ პიგმენტებს, რომლებიც სრულ
-                მასაშია შერეული და მზეზე არ ხუნდება.
-              </p>
             </div>
 
             {/* Feature 4 */}
-            <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-5 shadow-sm">
-                <Compass className="w-6 h-6" />
+            <div className="snap-start flex-shrink-0 w-[72vw] sm:w-[45vw] lg:w-auto min-w-[240px] max-w-[320px] bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-4 sm:mb-5 shadow-sm">
+                  <Compass className="w-6 h-6" />
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white mb-2">
+                  ინდივიდუალური ყალიბები
+                </h3>
+                <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
+                  სტანდარტული კატალოგის გარდა, ვამზადებთ არასტანდარტული ზომის საფეხურებსა და საყვავილეებს არქიტექტორის ნახაზით.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-2">
-                ინდივიდუალური ყალიბები
-              </h3>
-              <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
-                სტანდარტული კატალოგის გარდა, ვამზადებთ არასტანდარტული ზომის
-                საფეხურებსა და საყვავილეებს არქიტექტორის ნახაზით.
-              </p>
             </div>
           </div>
         </div>
@@ -394,18 +366,13 @@ export default function Home() {
                 შესრულებული სამუშაოები
               </h2>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="md:hidden text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 shrink-0 animate-pulse">
-                გადაფურცლეთ →
-              </span>
-              <Link
-                to="/portfolio"
-                className="hidden md:inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-sm font-semibold transition"
-              >
-                <span>ყველა პროექტის ნახვა ({projects.length})</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
+            <Link
+              to="/portfolio"
+              className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 text-xs sm:text-sm font-bold transition shrink-0"
+            >
+              <span>ყველა პროექტის ნახვა</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
 
           {/* Mobile: Horizontal scrollable track with ~1.3 cards visible | Desktop: 3-column Grid */}
@@ -460,17 +427,6 @@ export default function Home() {
                 </Link>
               </div>
             ))}
-          </div>
-
-          {/* Mobile only "See all projects" button */}
-          <div className="mt-3 md:hidden text-center">
-            <Link
-              to="/portfolio"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 text-xs font-bold hover:text-stone-950 dark:hover:text-white"
-            >
-              <span>ყველა პროექტის ნახვა ({projects.length})</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
           </div>
         </div>
       </section>
