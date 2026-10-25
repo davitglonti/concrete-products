@@ -1,0 +1,36 @@
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext";
+import { DataProvider } from "./context/DataContext";
+import { FavoritesProvider } from "./context/FavoritesContext";
+import PublicLayout from "./components/layout/PublicLayout";
+import Home from "./pages/Home";
+import Products from "./pages/Products";
+import ProductDetails from "./pages/ProductDetails";
+import Portfolio from "./pages/Portfolio";
+import ProjectDetails from "./pages/ProjectDetails";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <DataProvider>
+        <FavoritesProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route element={<PublicLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/products/:id" element={<ProductDetails />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/portfolio/:id" element={<ProjectDetails />} />
+              </Route>
+
+              <Route path="/admin" element={<AdminDashboard />} />
+            </Routes>
+          </BrowserRouter>
+        </FavoritesProvider>
+      </DataProvider>
+    </ThemeProvider>
+  );
+}
