@@ -87,7 +87,7 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Card Content */}
-      <div className="p-3 sm:p-4 flex-grow flex flex-col justify-between">
+      <div className="p-3.5 sm:p-4 lg:p-5 flex-grow flex flex-col justify-between">
         <div>
           {/* Title & Arrow */}
           <h3 className="text-xs sm:text-sm lg:text-base font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition flex items-start justify-between gap-1">
@@ -105,16 +105,16 @@ export default function ProductCard({ product }) {
 
         <div>
           {/* Price & Dimensions */}
-          <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-stone-100 dark:border-stone-800 flex items-end justify-between gap-1.5">
+          <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3.5 border-t border-stone-100 dark:border-stone-800 flex items-end justify-between gap-2">
             {/* Price display */}
             <div className="min-w-0">
-              <span className="text-[10px] text-stone-400 dark:text-stone-500 block font-medium">ფასი:</span>
+              <span className="text-[10px] sm:text-xs text-stone-400 dark:text-stone-500 block font-medium">ფასი:</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-xs sm:text-sm lg:text-base font-black text-stone-900 dark:text-white tracking-tight">
+                <span className="text-sm sm:text-lg lg:text-xl xl:text-2xl font-black text-stone-900 dark:text-white tracking-tight">
                   {product.price ? `${product.price} ₾` : "შეთანხმებით"}
                 </span>
                 {product.price && product.priceUnit && (
-                  <span className="text-[9px] sm:text-[10px] text-stone-400 font-normal truncate">
+                  <span className="text-[10px] sm:text-xs lg:text-sm text-stone-500 dark:text-stone-400 font-medium truncate">
                     {product.priceUnit.replace("₾", "").trim()}
                   </span>
                 )}
@@ -123,15 +123,15 @@ export default function ProductCard({ product }) {
 
             {/* Dimensions & Weight (only shown if they exist!) */}
             {(product.dimensions || product.weight) && (
-              <div className="text-right text-[10px] text-stone-500 dark:text-stone-400 shrink-0 max-w-[50%]">
+              <div className="text-right text-stone-600 dark:text-stone-300 shrink-0 max-w-[55%]">
                 {product.dimensions && (
-                  <span className="flex items-center justify-end gap-0.5 font-medium truncate">
-                    <Maximize2 className="w-2.5 h-2.5 text-stone-400 shrink-0" />
+                  <span className="flex items-center justify-end gap-1 text-[11px] sm:text-xs lg:text-sm font-semibold text-stone-700 dark:text-stone-200 truncate">
+                    <Maximize2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-stone-400 shrink-0" />
                     <span className="truncate">{product.dimensions}</span>
                   </span>
                 )}
                 {product.weight && (
-                  <span className="text-[9px] text-stone-400 dark:text-stone-500 block truncate">
+                  <span className="text-[10px] sm:text-xs text-stone-400 dark:text-stone-500 block font-medium truncate mt-0.5">
                     {product.weight}
                   </span>
                 )}
