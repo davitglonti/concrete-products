@@ -193,58 +193,56 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Card Content */}
-      <div className="p-3.5 sm:p-4 lg:p-5 flex-grow flex flex-col justify-between">
+      <div className="p-3 sm:p-4 lg:p-5 flex-grow flex flex-col justify-between">
         <div>
-          {/* Title & Arrow */}
-          <h3 className="text-xs sm:text-sm lg:text-base font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition flex items-start justify-between gap-1">
-            <span className="line-clamp-1">{product.name}</span>
+          {/* Title */}
+          <h3 className="text-xs sm:text-sm lg:text-base font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition flex items-start justify-between gap-1 leading-snug line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
+            <span>{product.name}</span>
             <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition text-stone-600 dark:text-stone-300 flex-shrink-0 mt-0.5" />
           </h3>
 
           {/* Description */}
           {product.shortDesc && (
-            <p className="text-[11px] sm:text-xs text-stone-600 dark:text-stone-400 mt-1 line-clamp-1 sm:line-clamp-2 leading-tight sm:leading-snug">
+            <p className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 mt-1 line-clamp-1 leading-tight sm:leading-snug">
               {product.shortDesc}
             </p>
           )}
         </div>
 
-        <div>
-          {/* Price & Dimensions Container */}
-          <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-stone-100 dark:border-stone-800 flex flex-col gap-1.5">
-            {/* Price display row */}
-            <div className="flex items-baseline justify-between gap-1">
-              <span className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium">
-                ფასი:
-              </span>
-              <div className="flex items-baseline gap-1 text-right">
-                <span className="text-xs sm:text-sm lg:text-base xl:text-lg font-black text-stone-900 dark:text-white tracking-tight whitespace-nowrap">
-                  {product.price ? `${product.price} ₾` : "შეთანხმებით"}
+        {/* Specifications & Price */}
+        <div className="mt-2.5 pt-2 border-t border-stone-100 dark:border-stone-800 space-y-2">
+          {/* Dimensions & Weight row */}
+          {(product.dimensions || product.weight) && (
+            <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400">
+              {product.dimensions ? (
+                <span className="flex items-center gap-1 font-mono truncate text-[10px] sm:text-[11px]">
+                  <Maximize2 className="w-2.5 h-2.5 text-stone-400 shrink-0" />
+                  <span className="truncate">{product.dimensions}</span>
                 </span>
-                {product.price && product.priceUnit && (
-                  <span className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium whitespace-nowrap">
-                    {product.priceUnit.replace("₾", "").trim()}
-                  </span>
-                )}
-              </div>
+              ) : <span />}
+              {product.weight && (
+                <span className="shrink-0 font-medium text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800/80 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px]">
+                  {product.weight}
+                </span>
+              )}
             </div>
+          )}
 
-            {/* Dimensions & Weight row */}
-            {(product.dimensions || product.weight) && (
-              <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-stone-600 dark:text-stone-300 pt-1 border-t border-stone-100/70 dark:border-stone-800/60">
-                {product.dimensions ? (
-                  <span className="flex items-center gap-1 font-semibold text-stone-700 dark:text-stone-200 truncate min-w-0">
-                    <Maximize2 className="w-2.5 h-2.5 text-stone-400 shrink-0" />
-                    <span className="truncate">{product.dimensions}</span>
-                  </span>
-                ) : <span />}
-                {product.weight && (
-                  <span className="shrink-0 font-medium text-stone-500 dark:text-stone-400 ml-auto pl-1">
-                    {product.weight}
-                  </span>
-                )}
-              </div>
-            )}
+          {/* Price & Action row */}
+          <div className="flex items-center justify-between gap-1 pt-1.5 border-t border-stone-100/70 dark:border-stone-800/60">
+            <div className="flex items-baseline gap-1">
+              <span className="text-sm sm:text-base lg:text-lg font-black text-stone-900 dark:text-white tracking-tight whitespace-nowrap">
+                {product.price ? `${product.price} ₾` : "შეთანხმებით"}
+              </span>
+              {product.price && product.priceUnit && (
+                <span className="text-[10px] sm:text-xs text-stone-400 dark:text-stone-500 font-normal whitespace-nowrap">
+                  {product.priceUnit.replace("₾", "").trim()}
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] sm:text-xs font-bold text-amber-600 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5 shrink-0">
+              ნახვა <ArrowUpRight className="w-3 h-3" />
+            </span>
           </div>
         </div>
       </div>

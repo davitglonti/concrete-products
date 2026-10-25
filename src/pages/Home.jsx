@@ -84,7 +84,7 @@ export default function Home() {
     <div className="flex flex-col w-full bg-[#fbfbf9] dark:bg-stone-950 transition-colors duration-200">
       {/* 1. FULL-WIDTH HERO SLIDER (Direct Text on Photo - No Boxed Window!) */}
       <section
-        className="relative w-full min-h-[580px] sm:min-h-[680px] lg:h-[780px] overflow-hidden bg-stone-950 flex flex-col justify-center"
+        className="relative w-full min-h-[500px] sm:min-h-[680px] lg:h-[780px] overflow-hidden bg-stone-950 flex flex-col justify-center"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -123,16 +123,16 @@ export default function Home() {
         })}
 
         {/* Content Container */}
-        <div className="relative z-10 max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 w-full py-12 sm:py-16">
+        <div className="relative z-10 max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 w-full py-8 sm:py-16">
           <div className="max-w-2xl lg:max-w-3xl">
             {/* Dynamic Pill Eyebrow Badge */}
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/15 dark:bg-stone-900/60 border border-white/25 dark:border-stone-700/80 text-white text-[11px] sm:text-sm font-semibold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full backdrop-blur-md mb-4 sm:mb-6 shadow-md">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/15 dark:bg-stone-900/60 border border-white/25 dark:border-stone-700/80 text-white text-[10px] sm:text-sm font-semibold px-2.5 py-0.5 sm:px-4 sm:py-1.5 rounded-full backdrop-blur-md mb-2.5 sm:mb-6 shadow-md">
+              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400 flex-shrink-0" />
               <span>{slide.badge}</span>
             </div>
 
             {/* Dynamic Headline */}
-            <h1 className="text-xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.2] drop-shadow-lg">
+            <h1 className="text-lg sm:text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-snug sm:leading-[1.2] drop-shadow-lg">
               {slide.titleMain} <br />
               <span className="text-amber-400 drop-shadow">
                 {slide.titleHighlight}
@@ -140,34 +140,34 @@ export default function Home() {
             </h1>
 
             {/* Dynamic Subtitle */}
-            <p className="text-stone-200 text-xs sm:text-base lg:text-xl mt-2.5 sm:mt-5 max-w-xl leading-relaxed font-normal drop-shadow line-clamp-3 sm:line-clamp-none">
+            <p className="text-stone-200 text-[11px] sm:text-base lg:text-xl mt-2 sm:mt-5 max-w-xl leading-normal sm:leading-relaxed font-normal drop-shadow line-clamp-2 sm:line-clamp-none">
               {slide.subtitle}
             </p>
 
             {/* Action Buttons */}
-            <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 max-w-xs sm:max-w-none">
+            <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 max-w-xs sm:max-w-none">
               <Link
                 to={slide.categoryLink}
-                className="bg-white hover:bg-stone-100 text-stone-950 font-bold px-4 sm:px-7 py-2.5 sm:py-3.5 rounded-xl inline-flex items-center justify-center gap-2 transition shadow-xl hover:scale-[1.02] text-xs sm:text-sm text-center"
+                className="bg-white hover:bg-stone-100 text-stone-950 font-bold px-4 py-2 sm:px-7 sm:py-3.5 rounded-lg sm:rounded-xl inline-flex items-center justify-center gap-1.5 sm:gap-2 transition shadow-xl hover:scale-[1.02] text-xs sm:text-sm text-center"
               >
                 <span>{slide.buttonText}</span>
                 <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
               </Link>
               <Link
                 to="/portfolio"
-                className="bg-white/15 hover:bg-white/25 text-white font-semibold px-4 sm:px-7 py-2.5 sm:py-3.5 rounded-xl border border-white/30 backdrop-blur-md transition hover:scale-[1.02] text-xs sm:text-sm text-center justify-center"
+                className="bg-white/15 hover:bg-white/25 text-white font-semibold px-4 py-2 sm:px-7 sm:py-3.5 rounded-lg sm:rounded-xl border border-white/30 backdrop-blur-md transition hover:scale-[1.02] text-xs sm:text-sm text-center justify-center"
               >
                 შესრულებული სამუშაოები
               </Link>
             </div>
 
             {/* Quick Specs Indicator */}
-            <div className="mt-5 sm:mt-8 pt-3 sm:pt-5 border-t border-white/20 flex flex-wrap items-center gap-3 sm:gap-6 text-[11px] sm:text-xs text-stone-300 font-medium drop-shadow">
+            <div className="mt-4 sm:mt-8 pt-2.5 sm:pt-5 border-t border-white/20 flex flex-wrap items-center gap-2.5 sm:gap-6 text-[10px] sm:text-xs text-stone-300 font-medium drop-shadow">
               <span className="flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> F300 ყინვაგამძლეობა
+                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 shrink-0" /> F300 ყინვაგამძლეობა
               </span>
               <span className="flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> M500 სიმტკიცე
+                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 shrink-0" /> M500 სიმტკიცე
               </span>
               <span className="flex items-center gap-1 hidden sm:flex">
                 <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Bayferrox პიგმენტაცია
@@ -223,19 +223,20 @@ export default function Home() {
       </section>
 
       {/* 2. CATEGORIES SECTION (Desktop Carousel Slider + Mobile Horizontal Swiper) */}
-      <section className="bg-[#f5f3ee] dark:bg-stone-900/40 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+      <section className="bg-[#f5f3ee] dark:bg-stone-900/40 py-10 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
-            <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white">
+          <div className="flex items-center justify-between gap-2 mb-4 sm:mb-8">
+            <h2 className="text-base sm:text-3xl lg:text-4xl font-black text-stone-900 dark:text-white tracking-tight">
               კატეგორიები
             </h2>
 
             <Link
               to="/products"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
+              className="inline-flex items-center gap-1 text-stone-600 hover:text-stone-950 dark:text-stone-400 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
             >
-              <span>სრული კატალოგის ნახვა</span>
-              <ChevronRight className="w-4 h-4" />
+              <span className="sm:hidden">სრული კატალოგი</span>
+              <span className="hidden sm:inline">სრული კატალოგის ნახვა</span>
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-400 dark:text-stone-500" />
             </Link>
           </div>
 
@@ -323,18 +324,19 @@ export default function Home() {
       </section>
 
       {/* 3. FEATURED PRODUCTS (Original Desktop Grid + Mobile Horizontal Swiper) */}
-      <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+      <section className="bg-white dark:bg-stone-950 py-10 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
-            <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white">
+          <div className="flex items-center justify-between gap-2 mb-4 sm:mb-8">
+            <h2 className="text-base sm:text-3xl lg:text-4xl font-black text-stone-900 dark:text-white tracking-tight">
               გამორჩეული პროდუქცია
             </h2>
             <Link
               to="/products"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
+              className="inline-flex items-center gap-1 text-stone-600 hover:text-stone-950 dark:text-stone-400 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
             >
-              <span>სრული კატალოგის ნახვა</span>
-              <ChevronRight className="w-4 h-4" />
+              <span className="sm:hidden">სრული კატალოგი</span>
+              <span className="hidden sm:inline">სრული კატალოგის ნახვა</span>
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-400 dark:text-stone-500" />
             </Link>
           </div>
 
@@ -346,11 +348,11 @@ export default function Home() {
           </div>
 
           {/* Mobile Horizontal Swiper (Visible only on Mobile < sm) */}
-          <div className="flex sm:hidden overflow-x-auto no-scrollbar gap-3 pb-2 pt-1 -mx-4 px-4 snap-x snap-mandatory scroll-px-4">
+          <div className="flex sm:hidden overflow-x-auto no-scrollbar gap-2.5 pb-2 pt-1 -mx-4 px-4 snap-x snap-mandatory scroll-px-4">
             {featuredProducts.map((product) => (
               <div
                 key={product.id}
-                className="snap-start flex-shrink-0 w-[52vw] min-w-[180px] max-w-[240px]"
+                className="snap-start flex-shrink-0 w-[48vw] min-w-[165px] max-w-[210px]"
               >
                 <ProductCard product={product} />
               </div>
@@ -577,23 +579,24 @@ export default function Home() {
       </section>
 
       {/* 5. PORTFOLIO / COMPLETED PROJECTS (Latest 3 Projects) */}
-      <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+      <section className="bg-white dark:bg-stone-950 py-10 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex items-end justify-between gap-3 mb-6 sm:mb-8">
+          <div className="flex items-center justify-between gap-2 mb-4 sm:mb-8">
             <div>
-              <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
+              <span className="text-stone-400 dark:text-stone-500 text-[9px] sm:text-xs font-bold uppercase tracking-widest block mb-0.5">
                 პორტფოლიო
               </span>
-              <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white mt-0.5 sm:mt-1">
-                ბოლოს შესრულებული სამუშაოები
+              <h2 className="text-base sm:text-3xl lg:text-4xl font-black text-stone-900 dark:text-white tracking-tight">
+                შესრულებული სამუშაოები
               </h2>
             </div>
             <Link
               to="/portfolio"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
+              className="inline-flex items-center gap-1 text-stone-600 hover:text-stone-950 dark:text-stone-400 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
             >
-              <span>ყველა პროექტის ნახვა</span>
-              <ChevronRight className="w-4 h-4" />
+              <span className="sm:hidden">ყველა პროექტი</span>
+              <span className="hidden sm:inline">ყველა პროექტის ნახვა</span>
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-400 dark:text-stone-500" />
             </Link>
           </div>
 
@@ -649,18 +652,18 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Mobile Horizontal Swiper (Visible only on Mobile < md) */}
-          <div className="flex md:hidden overflow-x-auto no-scrollbar gap-4 pb-2 pt-1 -mx-4 px-4 snap-x snap-mandatory scroll-px-4">
+          {/* Mobile Horizontal Swiper (Visible only on Mobile < md, 2 cards visible!) */}
+          <div className="flex md:hidden overflow-x-auto no-scrollbar gap-2.5 pb-2 pt-1 -mx-4 px-4 snap-x snap-mandatory scroll-px-4">
             {latestProjects.map((project) => (
               <div
                 key={project.id}
-                className="snap-start flex-shrink-0 w-[78vw] min-w-[270px] max-w-[360px] flex flex-col"
+                className="snap-start flex-shrink-0 w-[48vw] min-w-[165px] max-w-[220px] flex flex-col"
               >
                 <Link
                   to={`/portfolio/${project.id}`}
-                  className="group bg-[#fbfbf9] dark:bg-stone-900 rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-600 transition-all duration-300 flex flex-col h-full"
+                  className="group bg-[#fbfbf9] dark:bg-stone-900 rounded-2xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-600 transition-all duration-300 flex flex-col h-full"
                 >
-                  <div className="aspect-[16/10] overflow-hidden relative bg-stone-100 dark:bg-stone-800">
+                  <div className="aspect-[4/3] overflow-hidden relative bg-stone-100 dark:bg-stone-800">
                     <img
                       src={project.images?.[0] || project.image}
                       alt={project.title}
@@ -668,30 +671,26 @@ export default function Home() {
                       decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                      <span className="bg-white/90 dark:bg-stone-950/85 backdrop-blur text-stone-900 dark:text-white text-[11px] font-semibold px-2 py-0.5 rounded-lg flex items-center gap-1 border border-stone-200 dark:border-stone-800 shadow-sm">
-                        <MapPin className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                        {project.location}
+                    <div className="absolute top-2 left-2 flex items-center gap-1 max-w-[85%]">
+                      <span className="bg-black/75 backdrop-blur text-white text-[9px] font-semibold px-1.5 py-0.5 rounded flex items-center gap-0.5 shadow-sm truncate">
+                        <MapPin className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                        <span className="truncate">{project.location}</span>
                       </span>
-                      <span className="bg-stone-800 text-white dark:bg-white dark:text-stone-950 text-[11px] font-bold px-2 py-0.5 rounded-lg">
+                      <span className="bg-amber-500 text-stone-950 text-[9px] font-black px-1.5 py-0.5 rounded shrink-0">
                         {project.year}
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-4 flex-grow flex flex-col justify-between">
+                  <div className="p-3 flex-grow flex flex-col justify-between">
                     <div>
-                      <h3 className="text-sm font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition line-clamp-1">
+                      <h3 className="text-xs font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition line-clamp-2 leading-snug min-h-[2rem]">
                         {project.title}
                       </h3>
-                      <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 line-clamp-2 leading-relaxed">
-                        {project.shortDesc || project.description}
-                      </p>
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-stone-200/80 dark:border-stone-800/80 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
-                      <span className="truncate max-w-[160px]">
-                        მოცულობა:{" "}
+                    <div className="mt-2 pt-2 border-t border-stone-200/80 dark:border-stone-800/80 flex items-center justify-between text-[10px] text-stone-500 dark:text-stone-400">
+                      <span className="truncate max-w-[95px]">
                         <strong className="text-stone-800 dark:text-stone-200">{project.scope}</strong>
                       </span>
                       <span className="text-amber-600 dark:text-amber-400 font-bold shrink-0">

@@ -588,21 +588,22 @@ export default function ProductDetails() {
         {/* Similar / Related Products Section */}
         {relatedProducts.length > 0 && (
           <section className="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-stone-200/80 dark:border-stone-800/80">
-            <div className="flex items-end justify-between mb-6 sm:mb-8">
+            <div className="flex items-center justify-between gap-2 mb-4 sm:mb-8">
               <div>
-                <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
+                <span className="text-stone-400 dark:text-stone-500 text-[9px] sm:text-xs font-bold uppercase tracking-widest block mb-0.5">
                   {product.categoryLabel ? `კატეგორია: ${product.categoryLabel}` : "რეკომენდაცია"}
                 </span>
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-stone-900 dark:text-white mt-1">
+                <h2 className="text-base sm:text-2xl lg:text-3xl font-black text-stone-900 dark:text-white tracking-tight">
                   მსგავსი პროდუქცია
                 </h2>
               </div>
               <Link
                 to={product.category ? `/products?category=${product.category}` : "/products"}
-                className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
+                className="inline-flex items-center gap-1 text-stone-600 hover:text-stone-950 dark:text-stone-400 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
               >
-                <span>ყველა მსგავსი</span>
-                <ChevronRight className="w-4 h-4" />
+                <span className="sm:hidden">ყველა</span>
+                <span className="hidden sm:inline">ყველა მსგავსი</span>
+                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-400 dark:text-stone-500" />
               </Link>
             </div>
 
@@ -614,11 +615,11 @@ export default function ProductDetails() {
             </div>
 
             {/* Mobile Horizontal Swiper (Visible on Mobile < sm) */}
-            <div className="flex sm:hidden overflow-x-auto no-scrollbar gap-3 pb-2 pt-1 -mx-4 px-4 snap-x snap-mandatory scroll-px-4">
+            <div className="flex sm:hidden overflow-x-auto no-scrollbar gap-2.5 pb-2 pt-1 -mx-4 px-4 snap-x snap-mandatory scroll-px-4">
               {relatedProducts.map((relProduct) => (
                 <div
                   key={relProduct.id}
-                  className="snap-start flex-shrink-0 w-[52vw] min-w-[180px] max-w-[240px]"
+                  className="snap-start flex-shrink-0 w-[48vw] min-w-[165px] max-w-[210px]"
                 >
                   <ProductCard product={relProduct} />
                 </div>

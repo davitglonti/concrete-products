@@ -247,11 +247,11 @@ export default function Navbar() {
 
             <div className="pt-3 border-t border-stone-200 dark:border-stone-800 space-y-2">
               <a
-                href="tel:+995555123456"
-                className="w-full bg-stone-900 hover:bg-stone-800 text-white dark:bg-white dark:text-stone-950 dark:hover:bg-stone-100 font-bold py-3 rounded-xl text-xs sm:text-sm transition shadow flex items-center justify-center gap-2"
+                href={`tel:${(siteSettings?.contactPhone || "+995555123456").replace(/\s+/g, "")}`}
+                className="w-full bg-stone-900 hover:bg-stone-800 text-white dark:bg-white dark:text-stone-950 dark:hover:bg-stone-100 font-bold py-3 rounded-xl text-sm transition shadow flex items-center justify-center gap-2"
               >
                 <Phone className="w-4 h-4" />
-                <span>+995 555 12 34 56 (დარეკვა)</span>
+                <span>დარეკვა</span>
               </a>
             </div>
           </div>
