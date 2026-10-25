@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import AdminLogin from "./AdminLogin";
+import SiteSettingsManager from "../../components/admin/SiteSettingsManager";
 import {
   Trash2,
   Plus,
@@ -22,6 +23,7 @@ import {
   FolderPlus,
   Tag,
   Layers,
+  Sliders,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -786,6 +788,17 @@ export default function AdminDashboard() {
             }`}
           >
             შემოსული მოთხოვნები ({inquiries.length})
+          </button>
+          <button
+            onClick={() => setTab("settings")}
+            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 ${
+              tab === "settings"
+                ? "bg-amber-500 text-stone-950 font-bold shadow-sm"
+                : "bg-stone-900 text-stone-300 hover:bg-stone-800 hover:text-white"
+            }`}
+          >
+            <Sliders className="w-4 h-4" />
+            <span>საიტის მართვა & ნავიგაცია</span>
           </button>
         </div>
 
@@ -1913,6 +1926,9 @@ export default function AdminDashboard() {
             )}
           </div>
         )}
+
+        {/* TAB 5: SITE SETTINGS & NAVIGATION */}
+        {tab === "settings" && <SiteSettingsManager />}
       </div>
     </div>
   );

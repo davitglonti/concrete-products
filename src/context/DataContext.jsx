@@ -3,6 +3,7 @@ import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from "firebase
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { db, auth, isFirebaseConfigured } from "../config/firebase";
 import { INITIAL_PRODUCTS, INITIAL_PROJECTS, CATEGORIES } from "../data/initialData";
+import { DEFAULT_SITE_SETTINGS, applyFavicon } from "../data/initialSettings";
 import { getPersistentItem, setPersistentItem } from "../utils/storage";
 
 const DataContext = createContext();
@@ -82,6 +83,19 @@ export const DataProvider = ({ children }) => {
     }
   });
 
+  const [siteSettings, setSiteSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem("monolith_site_settings");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return { ...DEFAULT_SITE_SETTINGS, ...parsed };
+      }
+      return DEFAULT_SITE_SETTINGS;
+    } catch {
+      return DEFAULT_SITE_SETTINGS;
+    }
+  });
+
   const [adminUser, setAdminUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
@@ -140,6 +154,11 @@ export const DataProvider = ({ children }) => {
         setInquiries(saved);
       }
     });
+    getPersistentItem("monolith_site_settings", null).then((saved) => {
+      if (active && saved) {
+        setSiteSettings((prev) => ({ ...prev, ...saved }));
+      }
+    });
     return () => {
       active = false;
     };
@@ -161,6 +180,19 @@ export const DataProvider = ({ children }) => {
   useEffect(() => {
     setPersistentItem("monolith_inquiries", inquiries);
   }, [inquiries]);
+
+  useEffect(() => {
+    setPersistentItem("monolith_site_settings", siteSettings);
+  }, [siteSettings]);
+
+  // Apply dynamic favicon to the browser tab
+  useEffect(() => {
+    if (siteSettings.syncFaviconWithLogo && siteSettings.logoImage) {
+      applyFavicon(siteSettings.logoImage);
+    } else if (siteSettings.favicon) {
+      applyFavicon(siteSettings.favicon);
+    }
+  }, [siteSettings.logoImage, siteSettings.favicon, siteSettings.syncFaviconWithLogo]);
 
   // Firebase Real-time listeners
   useEffect(() => {
@@ -278,12 +310,33 @@ export const DataProvider = ({ children }) => {
       }
     );
 
+    let unsubSettings = () => {};
+    try {
+      unsubSettings = onSnapshot(
+        doc(db, "site_settings", "general"),
+        (docSnap) => {
+          if (!isMounted) return;
+          if (docSnap.exists()) {
+            const remoteSettings = docSnap.data();
+            setSiteSettings((prev) => ({ ...prev, ...remoteSettings }));
+          }
+        },
+        (error) => {
+          if (!isMounted) return;
+          console.warn("Firestore site_settings warning:", error.message);
+        }
+      );
+    } catch (e) {
+      console.warn("Firestore site_settings setup error:", e);
+    }
+
     return () => {
       isMounted = false;
       unsubProducts();
       unsubCategories();
       unsubProjects();
       unsubInquiries();
+      if (typeof unsubSettings === "function") unsubSettings();
     };
   }, []);
 
@@ -499,6 +552,40 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  // საიტის პარამეტრების მართვა (ლოგო, ფავიკონი, ნავბარი, ფუტერი)
+  const updateSiteSettings = async (updates) => {
+    const merged = { ...siteSettings, ...updates };
+    setSiteSettings(merged);
+    setPersistentItem("monolith_site_settings", merged);
+    try {
+      localStorage.setItem("monolith_site_settings", JSON.stringify(merged));
+    } catch (e) {
+      console.warn("localStorage site settings error:", e);
+    }
+    if (db && isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, "site_settings", "general"), sanitizeForFirestore(merged), { merge: true });
+      } catch (err) {
+        console.error("Firebase site settings save error:", err);
+      }
+    }
+    return merged;
+  };
+
+  const resetSiteSettings = async () => {
+    setSiteSettings(DEFAULT_SITE_SETTINGS);
+    setPersistentItem("monolith_site_settings", DEFAULT_SITE_SETTINGS);
+    try {
+      localStorage.setItem("monolith_site_settings", JSON.stringify(DEFAULT_SITE_SETTINGS));
+    } catch (e) {}
+    if (db && isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, "site_settings", "general"), sanitizeForFirestore(DEFAULT_SITE_SETTINGS));
+      } catch (err) {}
+    }
+    return DEFAULT_SITE_SETTINGS;
+  };
+
   const loginAdmin = async (email, password) => {
     if (!auth) {
       return { success: false, message: "Firebase Auth ინიციალიზებული არ არის." };
@@ -568,6 +655,9 @@ export const DataProvider = ({ children }) => {
         authLoading,
         loginAdmin,
         logoutAdmin,
+        siteSettings,
+        updateSiteSettings,
+        resetSiteSettings,
       }}
     >
       {children}

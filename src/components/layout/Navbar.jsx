@@ -14,6 +14,7 @@ import {
   Heart,
   Trash2,
   ArrowRight,
+  ExternalLink,
 } from "lucide-react";
 import { useData } from "../../context/DataContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -23,7 +24,7 @@ export default function Navbar() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { products, addInquiry } = useData();
+  const { products, addInquiry, siteSettings } = useData();
   const { toggleTheme, isDark } = useTheme();
   const { favoriteIds, removeFavorite, clearFavorites, count } = useFavorites();
 
@@ -67,30 +68,54 @@ export default function Navbar() {
         <div className="max-w-[1720px] mx-auto px-3.5 sm:px-8 lg:px-12 xl:px-16 h-16 sm:h-20 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-stone-800 text-white dark:bg-white dark:text-stone-950 rounded-xl flex items-center justify-center font-black transition-transform duration-200 group-hover:scale-105 shadow-sm">
-              <Layers className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-            </div>
-            <div>
-              <span className="text-base sm:text-xl font-extrabold tracking-wider text-stone-900 dark:text-white block leading-none">
-                MONOLITH<span className="text-amber-600 dark:text-amber-400">.GE</span>
-              </span>
-              <span className="text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400 tracking-widest uppercase font-medium mt-0.5 sm:mt-1 hidden sm:block">
-                არქიტექტურული ბეტონი
-              </span>
-            </div>
+            {siteSettings?.logoType === "image" && siteSettings?.logoImage ? (
+              <img
+                src={siteSettings.logoImage}
+                alt={siteSettings?.brandName || "Logo"}
+                style={{ maxHeight: `${siteSettings?.logoHeight || 38}px` }}
+                className="w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+              />
+            ) : (
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-stone-800 text-white dark:bg-white dark:text-stone-950 rounded-xl flex items-center justify-center font-black transition-transform duration-200 group-hover:scale-105 shadow-sm">
+                <Layers className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
+              </div>
+            )}
+            {(siteSettings?.logoType !== "image" || siteSettings?.showBrandTextWithLogo !== false) && (
+              <div>
+                <span className="text-base sm:text-xl font-extrabold tracking-wider text-stone-900 dark:text-white block leading-none">
+                  {siteSettings?.brandName || "MONOLITH"}
+                  <span className="text-amber-600 dark:text-amber-400">
+                    {siteSettings?.brandSuffix || ".GE"}
+                  </span>
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400 tracking-widest uppercase font-medium mt-0.5 sm:mt-1 hidden sm:block">
+                  {siteSettings?.brandTagline || "არქიტექტურული ბეტონი"}
+                </span>
+              </div>
+            )}
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-            <NavLink to="/" className={navLinkClass}>
-              მთავარი
-            </NavLink>
-            <NavLink to="/products" className={navLinkClass}>
-              პროდუქცია
-            </NavLink>
-            <NavLink to="/portfolio" className={navLinkClass}>
-              შესრულებული სამუშაოები
-            </NavLink>
+            {(siteSettings?.navbarLinks || [])
+              .filter((l) => l.enabled)
+              .map((link) =>
+                link.isExternal ? (
+                  <a
+                    key={link.id}
+                    href={link.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-300 dark:hover:text-white dark:hover:bg-stone-800/60 px-3.5 py-2 rounded-lg transition"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <NavLink key={link.id} to={link.path} className={navLinkClass}>
+                    {link.label}
+                  </NavLink>
+                )
+              )}
             <button
               onClick={() => setIsContactOpen(true)}
               className="text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-300 dark:hover:text-white dark:hover:bg-stone-800/60 px-3.5 py-2 rounded-lg transition"
@@ -102,42 +127,48 @@ export default function Navbar() {
           {/* Right Actions: Favorites + Dark Mode + Contact CTA + Hamburger */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             {/* Favorites Icon Button with Counter Badge */}
-            <button
-              onClick={() => setIsFavoritesOpen(true)}
-              title="შენახული პროდუქტები (ფავორიტები)"
-              className="relative p-2 sm:p-2.5 rounded-full text-stone-600 hover:text-red-500 hover:bg-stone-100 dark:text-stone-300 dark:hover:text-red-400 dark:hover:bg-stone-800 transition"
-              aria-label="Favorites"
-            >
-              <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
-              {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 text-white text-[10px] sm:text-[11px] font-bold rounded-full flex items-center justify-center shadow-sm">
-                  {count}
-                </span>
-              )}
-            </button>
+            {siteSettings?.showNavbarFavorites !== false && (
+              <button
+                onClick={() => setIsFavoritesOpen(true)}
+                title="შენახული პროდუქტები (ფავორიტები)"
+                className="relative p-2 sm:p-2.5 rounded-full text-stone-600 hover:text-red-500 hover:bg-stone-100 dark:text-stone-300 dark:hover:text-red-400 dark:hover:bg-stone-800 transition"
+                aria-label="Favorites"
+              >
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                {count > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 text-white text-[10px] sm:text-[11px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                    {count}
+                  </span>
+                )}
+              </button>
+            )}
 
             {/* Dark Mode Toggle */}
-            <button
-              onClick={toggleTheme}
-              title={isDark ? "ღია თემაზე გადართვა (Light Mode)" : "მუქ თემაზე გადართვა (Dark Mode)"}
-              className="p-2 sm:p-2.5 rounded-full text-stone-600 hover:text-stone-900 hover:bg-stone-100 dark:text-stone-300 dark:hover:text-white dark:hover:bg-stone-800 transition"
-              aria-label="Toggle Theme"
-            >
-              {isDark ? (
-                <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-stone-700" />
-              )}
-            </button>
+            {siteSettings?.showNavbarThemeToggle !== false && (
+              <button
+                onClick={toggleTheme}
+                title={isDark ? "ღია თემაზე გადართვა (Light Mode)" : "მუქ თემაზე გადართვა (Dark Mode)"}
+                className="p-2 sm:p-2.5 rounded-full text-stone-600 hover:text-stone-900 hover:bg-stone-100 dark:text-stone-300 dark:hover:text-white dark:hover:bg-stone-800 transition"
+                aria-label="Toggle Theme"
+              >
+                {isDark ? (
+                  <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-stone-700" />
+                )}
+              </button>
+            )}
 
             {/* Contact Button (Desktop / Tablet only) */}
-            <button
-              onClick={() => setIsContactOpen(true)}
-              className="hidden sm:inline-flex bg-stone-800 hover:bg-stone-700 text-white dark:bg-white dark:text-stone-950 dark:hover:bg-stone-100 font-semibold px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm transition shadow-sm items-center gap-2"
-            >
-              <Phone className="w-4 h-4" />
-              <span>დაგვიკავშირდით</span>
-            </button>
+            {siteSettings?.showNavbarCta !== false && (
+              <button
+                onClick={() => setIsContactOpen(true)}
+                className="hidden sm:inline-flex bg-stone-800 hover:bg-stone-700 text-white dark:bg-white dark:text-stone-950 dark:hover:bg-stone-100 font-semibold px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm transition shadow-sm items-center gap-2"
+              >
+                <Phone className="w-4 h-4" />
+                <span>{siteSettings?.navbarCtaText || "დაგვიკავშირდით"}</span>
+              </button>
+            )}
 
             {/* Hamburger Button (Mobile only) */}
             <button
@@ -168,50 +199,39 @@ export default function Navbar() {
           {/* Menu Panel */}
           <div className="fixed top-20 left-0 right-0 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 shadow-2xl p-5 space-y-4 max-h-[calc(100vh-5rem)] overflow-y-auto">
             <nav className="flex flex-col space-y-1">
-              <NavLink
-                to="/"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
-                    isActive
-                      ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
-                      : "text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800"
-                  }`
-                }
-              >
-                <span>მთავარი</span>
-                <ChevronRight className="w-4 h-4 opacity-40" />
-              </NavLink>
-
-              <NavLink
-                to="/products"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
-                    isActive
-                      ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
-                      : "text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800"
-                  }`
-                }
-              >
-                <span>პროდუქცია ({products.length})</span>
-                <ChevronRight className="w-4 h-4 opacity-40" />
-              </NavLink>
-
-              <NavLink
-                to="/portfolio"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
-                    isActive
-                      ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
-                      : "text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800"
-                  }`
-                }
-              >
-                <span>შესრულებული სამუშაოები</span>
-                <ChevronRight className="w-4 h-4 opacity-40" />
-              </NavLink>
+              {(siteSettings?.navbarLinks || [])
+                .filter((l) => l.enabled)
+                .map((link) =>
+                  link.isExternal ? (
+                    <a
+                      key={link.id}
+                      href={link.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="px-4 py-3 rounded-xl text-sm font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition flex items-center justify-between"
+                    >
+                      <span>{link.label}</span>
+                      <ExternalLink className="w-4 h-4 opacity-40" />
+                    </a>
+                  ) : (
+                    <NavLink
+                      key={link.id}
+                      to={link.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
+                          isActive
+                            ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
+                            : "text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800"
+                        }`
+                      }
+                    >
+                      <span>{link.label}</span>
+                      <ChevronRight className="w-4 h-4 opacity-40" />
+                    </NavLink>
+                  )
+                )}
 
               <button
                 onClick={() => {
@@ -376,17 +396,17 @@ export default function Navbar() {
               <div className="mt-6 space-y-3 bg-[#f7f5f0] dark:bg-stone-950/60 p-4 rounded-2xl border border-stone-200 dark:border-stone-800/80 text-sm">
                 <div className="flex items-center gap-3 text-stone-700 dark:text-stone-300">
                   <Phone className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <a href="tel:+995555123456" className="font-semibold hover:underline">
-                    +995 555 12 34 56
+                  <a href={`tel:${(siteSettings?.contactPhone || "+995555123456").replace(/\s+/g, "")}`} className="font-semibold hover:underline">
+                    {siteSettings?.contactPhone || "+995 555 12 34 56"}
                   </a>
                 </div>
                 <div className="flex items-center gap-3 text-stone-700 dark:text-stone-300">
                   <MapPin className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <span>თბილისი, საქართველო (საწარმო & შოურუმი)</span>
+                  <span>{siteSettings?.contactAddress || "თბილისი, საქართველო (საწარმო & შოურუმი)"}</span>
                 </div>
                 <div className="flex items-center gap-3 text-stone-700 dark:text-stone-300">
                   <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <span>ორშაბათი - შაბათი: 09:00 - 19:00</span>
+                  <span>{siteSettings?.contactWorkingHours || "ორშაბათი - შაბათი: 09:00 - 19:00"}</span>
                 </div>
               </div>
 
