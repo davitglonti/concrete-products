@@ -1,16 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Maximize2, Weight, Heart, Image as ImageIcon } from "lucide-react";
+import { ArrowUpRight, Maximize2, Weight, Heart, Image as ImageIcon, Scale } from "lucide-react";
 import { useFavorites } from "../../context/FavoritesContext";
+import { useCompare } from "../../context/CompareContext";
 
 export default function ProductCard({ product }) {
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { isInCompare, toggleCompare } = useCompare();
   const favorited = isFavorite(product.id);
+  const compared = isInCompare(product.id);
 
   const handleFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     toggleFavorite(product.id);
+  };
+
+  const handleCompareClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleCompare(product.id);
   };
 
   return (
@@ -27,7 +36,7 @@ export default function ProductCard({ product }) {
         />
 
         {/* Category Badge (Top Left) */}
-        <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-stone-800/90 dark:bg-stone-950/85 backdrop-blur text-white text-[10px] sm:text-xs font-semibold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md border border-stone-700/60 shadow-sm truncate max-w-[65%]">
+        <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-stone-800/90 dark:bg-stone-950/85 backdrop-blur text-white text-[10px] sm:text-xs font-semibold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md border border-stone-700/60 shadow-sm truncate max-w-[55%]">
           {product.categoryLabel}
         </span>
 
@@ -39,24 +48,42 @@ export default function ProductCard({ product }) {
           </span>
         )}
 
-        {/* Favorite Heart Button (Top Right) */}
-        <button
-          type="button"
-          onClick={handleFavoriteClick}
-          aria-label={favorited ? "ფავორიტებიდან წაშლა" : "ფავორიტებში დამატება"}
-          title={favorited ? "ფავორიტებშია" : "ფავორიტებში დამატება"}
-          className={`absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all duration-200 shadow-md ${
-            favorited
-              ? "bg-red-500 text-white scale-110 shadow-red-500/30"
-              : "bg-white/90 dark:bg-stone-900/90 text-stone-600 dark:text-stone-300 hover:text-red-500 hover:bg-white dark:hover:bg-stone-900"
-          }`}
-        >
-          <Heart
-            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${
-              favorited ? "fill-white stroke-white scale-105" : "stroke-[2.2]"
+        {/* Actions Group (Top Right: Compare + Favorite) */}
+        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 sm:gap-1.5">
+          {/* Compare Button */}
+          <button
+            type="button"
+            onClick={handleCompareClick}
+            aria-label={compared ? "შედარებიდან წაშლა" : "შედარებაში დამატება"}
+            title={compared ? "შედარებაშია (წაშლა)" : "შედარებაში დამატება"}
+            className={`p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all duration-200 shadow-md ${
+              compared
+                ? "bg-amber-500 text-stone-950 scale-110 shadow-amber-500/40 ring-1 ring-amber-400"
+                : "bg-white/90 dark:bg-stone-900/90 text-stone-600 dark:text-stone-300 hover:text-amber-500 hover:bg-white dark:hover:bg-stone-900"
             }`}
-          />
-        </button>
+          >
+            <Scale className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
+          </button>
+
+          {/* Favorite Heart Button */}
+          <button
+            type="button"
+            onClick={handleFavoriteClick}
+            aria-label={favorited ? "ფავორიტებიდან წაშლა" : "ფავორიტებში დამატება"}
+            title={favorited ? "ფავორიტებშია" : "ფავორიტებში დამატება"}
+            className={`p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all duration-200 shadow-md ${
+              favorited
+                ? "bg-red-500 text-white scale-110 shadow-red-500/30"
+                : "bg-white/90 dark:bg-stone-900/90 text-stone-600 dark:text-stone-300 hover:text-red-500 hover:bg-white dark:hover:bg-stone-900"
+            }`}
+          >
+            <Heart
+              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${
+                favorited ? "fill-white stroke-white scale-105" : "stroke-[2.2]"
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Card Content */}

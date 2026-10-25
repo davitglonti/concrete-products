@@ -14,10 +14,12 @@ import {
   Heart,
   Trash2,
   ArrowRight,
+  Scale,
 } from "lucide-react";
 import { useData } from "../../context/DataContext";
 import { useTheme } from "../../context/ThemeContext";
 import { useFavorites } from "../../context/FavoritesContext";
+import { useCompare } from "../../context/CompareContext";
 
 export default function Navbar() {
   const [isContactOpen, setIsContactOpen] = useState(false);
@@ -26,6 +28,7 @@ export default function Navbar() {
   const { products, addInquiry } = useData();
   const { toggleTheme, isDark } = useTheme();
   const { favoriteIds, removeFavorite, clearFavorites, count } = useFavorites();
+  const { count: compareCount, setIsCompareModalOpen } = useCompare();
 
   const [form, setForm] = useState({ name: "", phone: "", comment: "" });
   const [sent, setSent] = useState(false);
@@ -99,8 +102,23 @@ export default function Navbar() {
             </button>
           </nav>
 
-          {/* Right Actions: Favorites + Dark Mode + Contact CTA + Hamburger */}
-          <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
+          {/* Right Actions: Compare + Favorites + Dark Mode + Contact CTA + Hamburger */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {/* Compare Icon Button with Counter Badge */}
+            <button
+              onClick={() => setIsCompareModalOpen(true)}
+              title="ნივთების შედარება"
+              className="relative p-2 sm:p-2.5 rounded-full text-stone-600 hover:text-amber-500 hover:bg-stone-100 dark:text-stone-300 dark:hover:text-amber-400 dark:hover:bg-stone-800 transition"
+              aria-label="Compare"
+            >
+              <Scale className="w-4 h-4 sm:w-5 sm:h-5" />
+              {compareCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 sm:w-5 sm:h-5 bg-amber-500 text-stone-950 text-[10px] sm:text-[11px] font-black rounded-full flex items-center justify-center shadow-sm">
+                  {compareCount}
+                </span>
+              )}
+            </button>
+
             {/* Favorites Icon Button with Counter Badge */}
             <button
               onClick={() => setIsFavoritesOpen(true)}
@@ -211,6 +229,30 @@ export default function Navbar() {
               >
                 <span>შესრულებული სამუშაოები</span>
                 <ChevronRight className="w-4 h-4 opacity-40" />
+              </NavLink>
+
+              <NavLink
+                to="/compare"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={({ isActive }) =>
+                  `px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
+                    isActive
+                      ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
+                      : "text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  }`
+                }
+              >
+                <div className="flex items-center gap-2">
+                  <Scale className="w-4 h-4 text-amber-500" />
+                  <span>ნივთების შედარება</span>
+                </div>
+                {compareCount > 0 ? (
+                  <span className="text-[10px] font-black bg-amber-500 text-stone-950 px-2 py-0.5 rounded-full">
+                    {compareCount}
+                  </span>
+                ) : (
+                  <ChevronRight className="w-4 h-4 opacity-40" />
+                )}
               </NavLink>
 
               <button

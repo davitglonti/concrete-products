@@ -2,6 +2,8 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import CompareModal from "../ui/CompareModal";
+import CompareFloatingBar from "../ui/CompareFloatingBar";
 
 export default function PublicLayout() {
   return (
@@ -11,6 +13,8 @@ export default function PublicLayout() {
         <Outlet />
       </main>
       <Footer />
+      <CompareModal />
+      <CompareFloatingBar />
     </div>
   );
 }

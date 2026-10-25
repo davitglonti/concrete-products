@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { useFavorites } from "../context/FavoritesContext";
+import { useCompare } from "../context/CompareContext";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -17,12 +18,14 @@ import {
   Clock,
   Award,
   Truck,
+  Scale,
 } from "lucide-react";
 
 export default function ProductDetails() {
   const { id } = useParams();
   const { products, addInquiry } = useData();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { isInCompare, toggleCompare } = useCompare();
   const product = products.find((p) => p.id === id);
 
   const [form, setForm] = useState({ name: "", phone: "", comment: "" });
@@ -72,6 +75,7 @@ export default function ProductDetails() {
   }
 
   const favorited = isFavorite(product.id);
+  const compared = isInCompare(product.id);
 
   const handlePrevImage = (e) => {
     e?.stopPropagation();
@@ -258,17 +262,31 @@ export default function ProductDetails() {
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => toggleFavorite(product.id)}
-                    className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition ${
-                      favorited
-                        ? "text-red-500 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40"
-                        : "text-stone-600 dark:text-stone-400 hover:text-red-500 bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800"
-                    }`}
-                  >
-                    <Heart className={`w-3.5 h-3.5 ${favorited ? "fill-red-500 text-red-500" : ""}`} />
-                    <span>{favorited ? "შენახულია" : "ფავორიტებში"}</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => toggleCompare(product.id)}
+                      className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition ${
+                        compared
+                          ? "text-amber-500 bg-amber-500/15 border border-amber-500/40"
+                          : "text-stone-600 dark:text-stone-400 hover:text-amber-500 bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800"
+                      }`}
+                    >
+                      <Scale className="w-3.5 h-3.5" />
+                      <span>{compared ? "შედარებაშია" : "შედარება"}</span>
+                    </button>
+
+                    <button
+                      onClick={() => toggleFavorite(product.id)}
+                      className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition ${
+                        favorited
+                          ? "text-red-500 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40"
+                          : "text-stone-600 dark:text-stone-400 hover:text-red-500 bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800"
+                      }`}
+                    >
+                      <Heart className={`w-3.5 h-3.5 ${favorited ? "fill-red-500 text-red-500" : ""}`} />
+                      <span>{favorited ? "შენახულია" : "ფავორიტებში"}</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Product Main Title */}
