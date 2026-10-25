@@ -11,6 +11,8 @@ import ProductDetails from "./pages/ProductDetails";
 import Portfolio from "./pages/Portfolio";
 import ProjectDetails from "./pages/ProjectDetails";
 import Compare from "./pages/Compare";
+import FAQ from "./pages/FAQ";
+import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
 export default function App() {
@@ -28,6 +30,8 @@ export default function App() {
                   <Route path="/portfolio" element={<Portfolio />} />
                   <Route path="/portfolio/:id" element={<ProjectDetails />} />
                   <Route path="/compare" element={<Compare />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="*" element={<NotFound />} />
                 </Route>
 
                 <Route path="/admin" element={<AdminDashboard />} />

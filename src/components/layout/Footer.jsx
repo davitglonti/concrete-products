@@ -45,6 +45,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/faq" className="hover:text-stone-900 dark:hover:text-white transition">
+                  კითხვა-პასუხი (FAQ)
+                </Link>
+              </li>
+              <li>
                 <Link to="/admin" className="hover:text-stone-900 dark:hover:text-white transition text-stone-400">
                   ადმინ პანელი (/admin)
                 </Link>
