@@ -140,38 +140,6 @@ export default function ProductCard({ product }) {
           </span>
         )}
 
-        {/* Multi-image indicator dots (Bottom Center) */}
-        {hasMultiple && (
-          <div className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 sm:gap-1.5 z-10 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full pointer-events-auto">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setTouchActive(false);
-              }}
-              className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${
-                !isShowingSecond ? "w-3 sm:w-4 bg-white" : "w-1 sm:w-1.5 bg-white/40 hover:bg-white/75"
-              }`}
-              title="პირველი ფოტო"
-              aria-label="პირველი ფოტო"
-            />
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setTouchActive(true);
-              }}
-              className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${
-                isShowingSecond ? "w-3 sm:w-4 bg-white" : "w-1 sm:w-1.5 bg-white/40 hover:bg-white/75"
-              }`}
-              title="მეორე ფოტო"
-              aria-label="მეორე ფოტო"
-            />
-          </div>
-        )}
-
         {/* Actions Group (Top Right: Compare + Favorite) */}
         <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 sm:gap-1.5 z-10">
           {/* Compare Button */}
@@ -233,12 +201,12 @@ export default function ProductCard({ product }) {
             {/* Price display */}
             <div className="min-w-0">
               <span className="text-[10px] sm:text-xs text-stone-400 dark:text-stone-500 block font-medium">ფასი:</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm sm:text-lg lg:text-xl xl:text-2xl font-black text-stone-900 dark:text-white tracking-tight">
+              <div className="flex items-baseline gap-1 whitespace-nowrap">
+                <span className="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-stone-900 dark:text-white tracking-tight whitespace-nowrap">
                   {product.price ? `${product.price} ₾` : "შეთანხმებით"}
                 </span>
                 {product.price && product.priceUnit && (
-                  <span className="text-[10px] sm:text-xs lg:text-sm text-stone-500 dark:text-stone-400 font-medium truncate">
+                  <span className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium truncate">
                     {product.priceUnit.replace("₾", "").trim()}
                   </span>
                 )}
