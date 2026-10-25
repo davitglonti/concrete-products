@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { useFavorites } from "../context/FavoritesContext";
 import { useCompare } from "../context/CompareContext";
+import ProductCard from "../components/ui/ProductCard";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -43,6 +44,24 @@ export default function ProductDetails() {
     : [];
 
   const activeImage = images[selectedImageIndex] || images[0] || "";
+
+  // Scroll to top and reset image index when product id changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setSelectedImageIndex(0);
+  }, [id]);
+
+  // Compute related / similar products (same category first, fallback to others)
+  const relatedProducts = useMemo(() => {
+    if (!product) return [];
+    const sameCategory = products.filter(
+      (p) => p.id !== product.id && p.category === product.category
+    );
+    const others = products.filter(
+      (p) => p.id !== product.id && p.category !== product.category
+    );
+    return [...sameCategory, ...others].slice(0, 4);
+  }, [products, product]);
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -476,6 +495,48 @@ export default function ProductDetails() {
             </div>
           </div>
         </div>
+
+        {/* Similar / Related Products Section */}
+        {relatedProducts.length > 0 && (
+          <section className="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-stone-200/80 dark:border-stone-800/80">
+            <div className="flex items-end justify-between mb-6 sm:mb-8">
+              <div>
+                <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
+                  {product.categoryLabel ? `კატეგორია: ${product.categoryLabel}` : "რეკომენდაცია"}
+                </span>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-stone-900 dark:text-white mt-1">
+                  მსგავსი პროდუქცია
+                </h2>
+              </div>
+              <Link
+                to={product.category ? `/products?category=${product.category}` : "/products"}
+                className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
+              >
+                <span>ყველა მსგავსი</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {/* Desktop Grid (Hidden on Mobile) */}
+            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
+              {relatedProducts.map((relProduct) => (
+                <ProductCard key={relProduct.id} product={relProduct} />
+              ))}
+            </div>
+
+            {/* Mobile Horizontal Swiper (Visible on Mobile < sm) */}
+            <div className="flex sm:hidden overflow-x-auto no-scrollbar gap-3 pb-2 pt-1 -mx-4 px-4 snap-x snap-mandatory scroll-px-4">
+              {relatedProducts.map((relProduct) => (
+                <div
+                  key={relProduct.id}
+                  className="snap-start flex-shrink-0 w-[46vw] min-w-[160px] max-w-[220px]"
+                >
+                  <ProductCard product={relProduct} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       {/* Fullscreen Lightbox Modal */}
