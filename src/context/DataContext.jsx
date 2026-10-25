@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "../config/firebase";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { db, auth, isFirebaseConfigured } from "../config/firebase";
 import { INITIAL_PRODUCTS, INITIAL_PROJECTS, CATEGORIES } from "../data/initialData";
 import { getPersistentItem, setPersistentItem } from "../utils/storage";
 
@@ -81,10 +82,28 @@ export const DataProvider = ({ children }) => {
     }
   });
 
-  const [adminPassword, setAdminPassword] = useState("admin123");
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(
-    () => sessionStorage.getItem("admin_auth") === "true"
-  );
+  const [adminUser, setAdminUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+  // Listen to Firebase Auth state
+  useEffect(() => {
+    if (!auth) {
+      setAuthLoading(false);
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setAdminUser(user);
+        setIsAdminAuthenticated(true);
+      } else {
+        setAdminUser(null);
+        setIsAdminAuthenticated(false);
+      }
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const [firebaseStatus, setFirebaseStatus] = useState(
     isFirebaseConfigured ? "connecting" : "disabled"
@@ -480,18 +499,47 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  const loginAdmin = (password) => {
-    if (password === adminPassword) {
-      setIsAdminAuthenticated(true);
-      sessionStorage.setItem("admin_auth", "true");
-      return true;
+  const loginAdmin = async (email, password) => {
+    if (!auth) {
+      return { success: false, message: "Firebase Auth ინიციალიზებული არ არის." };
     }
-    return false;
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
+      setAdminUser(userCredential.user);
+      setIsAdminAuthenticated(true);
+      return { success: true, user: userCredential.user };
+    } catch (error) {
+      console.error("Firebase Login Error:", error);
+      let message = "ავტორიზაცია ვერ მოხერხდა. შეამოწმეთ ელფოსტა და პაროლი.";
+      if (
+        error.code === "auth/invalid-credential" ||
+        error.code === "auth/wrong-password" ||
+        error.code === "auth/user-not-found"
+      ) {
+        message = "ელფოსტა ან პაროლი არასწორია.";
+      } else if (error.code === "auth/invalid-email") {
+        message = "ელფოსტის ფორმატი არასწორია.";
+      } else if (error.code === "auth/user-disabled") {
+        message = "ეს მომხმარებელი დაბლოკილია Firebase-ში.";
+      } else if (error.code === "auth/too-many-requests") {
+        message = "ძალიან ბევრი მცდელობა. გთხოვთ დაიცადოთ რამდენიმე წუთი.";
+      } else if (error.code === "auth/network-request-failed") {
+        message = "ინტერნეტთან კავშირი შეფერხებულია. შეამოწმეთ ქსელი.";
+      }
+      return { success: false, message, code: error.code };
+    }
   };
 
-  const logoutAdmin = () => {
+  const logoutAdmin = async () => {
+    try {
+      if (auth) {
+        await signOut(auth);
+      }
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+    setAdminUser(null);
     setIsAdminAuthenticated(false);
-    sessionStorage.removeItem("admin_auth");
   };
 
   return (
@@ -516,10 +564,10 @@ export const DataProvider = ({ children }) => {
         firebaseErrorMsg,
         isFirebaseConfigured,
         isAdminAuthenticated,
+        adminUser,
+        authLoading,
         loginAdmin,
         logoutAdmin,
-        adminPassword,
-        setAdminPassword,
       }}
     >
       {children}

@@ -27,6 +27,8 @@ import {
 export default function AdminDashboard() {
   const {
     isAdminAuthenticated,
+    adminUser,
+    authLoading,
     logoutAdmin,
     products,
     categories,
@@ -117,6 +119,15 @@ export default function AdminDashboard() {
 
   const productFileInputRef = useRef(null);
   const projectFileInputRef = useRef(null);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-stone-950 flex flex-col items-center justify-center text-stone-400 gap-3">
+        <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+        <span className="text-xs font-medium">მოწმდება ავტორიზაცია...</span>
+      </div>
+    );
+  }
 
   if (!isAdminAuthenticated) {
     return <AdminLogin />;
@@ -629,7 +640,13 @@ export default function AdminDashboard() {
             </span>
           </h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2.5 sm:gap-4">
+          {adminUser?.email && (
+            <span className="text-xs text-stone-300 bg-stone-950 px-3 py-1.5 rounded-lg border border-stone-800 font-mono hidden sm:inline-flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              {adminUser.email}
+            </span>
+          )}
           <Link
             to="/"
             className="text-xs text-stone-300 hover:text-white flex items-center gap-1.5 bg-stone-800 hover:bg-stone-700 px-3 py-1.5 rounded-lg transition"
@@ -638,7 +655,7 @@ export default function AdminDashboard() {
           </Link>
           <button
             onClick={logoutAdmin}
-            className="text-xs bg-stone-800 hover:bg-red-900/60 text-stone-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition"
+            className="text-xs bg-stone-800 hover:bg-red-900/60 text-stone-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" /> გასვლა
           </button>
