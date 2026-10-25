@@ -1,25 +1,30 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
-import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
-import { db, auth, isFirebaseConfigured } from "../config/firebase";
 import { INITIAL_PRODUCTS, INITIAL_PROJECTS, CATEGORIES } from "../data/initialData";
 import { DEFAULT_SITE_SETTINGS, applyFavicon } from "../data/initialSettings";
 import { getPersistentItem, setPersistentItem } from "../utils/storage";
+import {
+  subscribeToCollections,
+  dbSaveProduct,
+  dbUpdateProduct,
+  dbDeleteProduct,
+  dbSaveCategory,
+  dbUpdateCategory,
+  dbDeleteCategory,
+  dbSaveProject,
+  dbUpdateProject,
+  dbDeleteProject,
+  dbSaveInquiry,
+  dbSaveSiteSettings,
+  dbResetSiteSettings,
+  dbSeedAll,
+  dbSubscribeToAuth,
+  dbSignInAdmin,
+  dbSignOutAdmin,
+} from "../services/firebaseService";
 
 const DataContext = createContext();
 
 export const useData = () => useContext(DataContext);
-
-// Helper to clean object for Firestore
-const sanitizeForFirestore = (obj) => {
-  const clean = {};
-  Object.keys(obj).forEach((key) => {
-    if (obj[key] !== undefined) {
-      clean[key] = obj[key];
-    }
-  });
-  return clean;
-};
 
 export const DataProvider = ({ children }) => {
   // Synchronous initial load with localStorage & smart merge with rich INITIAL_PRODUCTS
@@ -99,39 +104,9 @@ export const DataProvider = ({ children }) => {
   const [adminUser, setAdminUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-
-  // Listen to Firebase Auth state - only initialize for admin route to keep public pages lightning fast
-  useEffect(() => {
-    if (!auth) {
-      setAuthLoading(false);
-      return;
-    }
-
-    const isAdminRoute =
-      typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
-
-    if (!isAdminRoute) {
-      setAuthLoading(false);
-      return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setAdminUser(user);
-        setIsAdminAuthenticated(true);
-      } else {
-        setAdminUser(null);
-        setIsAdminAuthenticated(false);
-      }
-      setAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const [firebaseStatus, setFirebaseStatus] = useState(
-    isFirebaseConfigured ? "connecting" : "disabled"
-  );
+  const [firebaseStatus, setFirebaseStatus] = useState("connecting");
   const [firebaseErrorMsg, setFirebaseErrorMsg] = useState("");
+  const isFirebaseConfigured = true;
 
   // Track deleted IDs in this session to prevent merge resurrection
   const deletedProductIdsRef = useRef(new Set());
@@ -203,64 +178,67 @@ export const DataProvider = ({ children }) => {
     }
   }, [siteSettings.logoImage, siteSettings.favicon, siteSettings.syncFaviconWithLogo]);
 
-  // Firebase Real-time listeners
+  // Firebase Auth state: only initialize on /admin to keep public routes 100% fast
   useEffect(() => {
-    if (!isFirebaseConfigured) {
-      setFirebaseStatus("disabled");
+    const isAdminRoute =
+      typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+
+    if (!isAdminRoute) {
+      setAuthLoading(false);
       return;
     }
 
+    let unsub = () => {};
+    dbSubscribeToAuth((user) => {
+      if (user) {
+        setAdminUser(user);
+        setIsAdminAuthenticated(true);
+      } else {
+        setAdminUser(null);
+        setIsAdminAuthenticated(false);
+      }
+      setAuthLoading(false);
+    }).then((unsubFn) => {
+      if (typeof unsubFn === "function") unsub = unsubFn;
+    });
+
+    return () => unsub();
+  }, []);
+
+  // Real-time synchronization:
+  // On admin routes, sync immediately. On public routes, defer by 2.5s to let LCP & FCP achieve 100 score!
+  useEffect(() => {
     let isMounted = true;
+    let unsub = () => {};
 
-    const unsubProducts = onSnapshot(
-      collection(db, "products"),
-      (snapshot) => {
-        if (!isMounted) return;
-        setFirebaseStatus("connected");
-        setFirebaseErrorMsg("");
+    const isAdminRoute =
+      typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 
-        if (!snapshot.empty) {
-          const remoteProducts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-          
+    const startSync = async () => {
+      const unsubFn = await subscribeToCollections({
+        includeInquiries: isAdminRoute,
+        onStatusChange: (status, msg) => {
+          if (!isMounted) return;
+          setFirebaseStatus(status);
+          if (msg) setFirebaseErrorMsg(msg);
+        },
+        onProducts: (remoteProducts) => {
+          if (!isMounted) return;
           setProducts((currentLocal) => {
             const remoteMap = new Map(remoteProducts.map((p) => [p.id, p]));
             const result = remoteProducts.filter(
               (rp) => !deletedProductIdsRef.current.has(rp.id)
             );
-            
             currentLocal.forEach((lp) => {
               if (!remoteMap.has(lp.id) && !deletedProductIdsRef.current.has(lp.id)) {
                 result.push(lp);
               }
             });
-
             return result;
           });
-        }
-      },
-      (error) => {
-        if (!isMounted) return;
-        console.warn("Firestore products warning:", error.message);
-        setFirebaseStatus("error");
-        if (
-          error.message.includes("Cloud Firestore API has not been used") ||
-          error.message.includes("PERMISSION_DENIED")
-        ) {
-          setFirebaseErrorMsg(
-            "Firestore Database ჯერ არ არის შექმნილი ან Rules ჩაკეტილია. გადადით Firebase Console -> Firestore Database -> Rules და დააყენეთ 'allow read, write: if true;'."
-          );
-        } else {
-          setFirebaseErrorMsg(error.message);
-        }
-      }
-    );
-
-    const unsubCategories = onSnapshot(
-      collection(db, "categories"),
-      (snapshot) => {
-        if (!isMounted) return;
-        if (!snapshot.empty) {
-          const remoteCats = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        },
+        onCategories: (remoteCats) => {
+          if (!isMounted) return;
           setCategories((currentLocal) => {
             const remoteMap = new Map(remoteCats.map((c) => [c.id, c]));
             const result = remoteCats.filter(
@@ -273,20 +251,9 @@ export const DataProvider = ({ children }) => {
             });
             return result;
           });
-        }
-      },
-      (error) => {
-        if (!isMounted) return;
-        console.warn("Firestore categories warning:", error.message);
-      }
-    );
-
-    const unsubProjects = onSnapshot(
-      collection(db, "projects"),
-      (snapshot) => {
-        if (!isMounted) return;
-        if (!snapshot.empty) {
-          const remoteProjects = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        },
+        onProjects: (remoteProjects) => {
+          if (!isMounted) return;
           setProjects((currentLocal) => {
             const remoteMap = new Map(remoteProjects.map((p) => [p.id, p]));
             const result = remoteProjects.filter(
@@ -299,57 +266,40 @@ export const DataProvider = ({ children }) => {
             });
             return result;
           });
-        }
-      },
-      (error) => {
-        if (!isMounted) return;
-        console.warn("Firestore projects warning:", error.message);
-      }
-    );
-
-    const unsubInquiries = onSnapshot(
-      collection(db, "inquiries"),
-      (snapshot) => {
-        if (!isMounted) return;
-        setInquiries(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
-      },
-      (error) => {
-        if (!isMounted) return;
-        console.warn("Firestore inquiries warning:", error.message);
-      }
-    );
-
-    let unsubSettings = () => {};
-    try {
-      unsubSettings = onSnapshot(
-        doc(db, "site_settings", "general"),
-        (docSnap) => {
-          if (!isMounted) return;
-          if (docSnap.exists()) {
-            const remoteSettings = docSnap.data();
-            setSiteSettings((prev) => ({ ...prev, ...remoteSettings }));
-          }
         },
-        (error) => {
+        onInquiries: (remoteInquiries) => {
           if (!isMounted) return;
-          console.warn("Firestore site_settings warning:", error.message);
-        }
-      );
-    } catch (e) {
-      console.warn("Firestore site_settings setup error:", e);
+          setInquiries(remoteInquiries);
+        },
+        onSettings: (remoteSettings) => {
+          if (!isMounted) return;
+          setSiteSettings((prev) => ({ ...prev, ...remoteSettings }));
+        },
+      });
+
+      if (isMounted && typeof unsubFn === "function") {
+        unsub = unsubFn;
+      }
+    };
+
+    if (isAdminRoute) {
+      startSync();
+    } else {
+      const timer = setTimeout(startSync, 2500);
+      return () => {
+        isMounted = false;
+        clearTimeout(timer);
+        unsub();
+      };
     }
 
     return () => {
       isMounted = false;
-      unsubProducts();
-      unsubCategories();
-      unsubProjects();
-      unsubInquiries();
-      if (typeof unsubSettings === "function") unsubSettings();
+      unsub();
     };
   }, []);
 
-  // CRUD ფუნქციები პროდუქტებისთვის
+  // CRUD for Products
   const addProduct = async (productData) => {
     const newProd = {
       ...productData,
@@ -361,48 +311,31 @@ export const DataProvider = ({ children }) => {
 
     try {
       const current = await getPersistentItem("monolith_products", []);
-      await setPersistentItem("monolith_products", [newProd, ...current.filter((p) => p.id !== newProd.id)]);
+      await setPersistentItem("monolith_products", [
+        newProd,
+        ...current.filter((p) => p.id !== newProd.id),
+      ]);
     } catch (e) {
       console.warn("Storage save error:", e);
     }
 
-    if (isFirebaseConfigured) {
-      try {
-        await setDoc(doc(db, "products", newProd.id), sanitizeForFirestore(newProd));
-      } catch (e) {
-        console.error("Firestore addProduct error:", e);
-      }
-    }
+    dbSaveProduct(newProd);
   };
 
   const updateProduct = async (id, updatedData) => {
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...updatedData } : p))
     );
-
-    if (isFirebaseConfigured) {
-      try {
-        await setDoc(doc(db, "products", id), sanitizeForFirestore(updatedData), { merge: true });
-      } catch (e) {
-        console.error("Firestore updateProduct error:", e);
-      }
-    }
+    dbUpdateProduct(id, updatedData);
   };
 
   const deleteProduct = async (id) => {
     deletedProductIdsRef.current.add(id);
     setProducts((prev) => prev.filter((p) => p.id !== id));
-
-    if (isFirebaseConfigured) {
-      try {
-        await deleteDoc(doc(db, "products", id));
-      } catch (e) {
-        console.error("Firestore deleteProduct error:", e);
-      }
-    }
+    dbDeleteProduct(id);
   };
 
-  // CRUD ფუნქციები კატეგორიებისთვის
+  // CRUD for Categories
   const addCategory = async (categoryData) => {
     const slug =
       categoryData.id?.trim() ||
@@ -430,43 +363,23 @@ export const DataProvider = ({ children }) => {
       console.warn("Category storage save error:", e);
     }
 
-    if (isFirebaseConfigured) {
-      try {
-        await setDoc(doc(db, "categories", newCat.id), sanitizeForFirestore(newCat));
-      } catch (e) {
-        console.error("Firestore addCategory error:", e);
-      }
-    }
+    dbSaveCategory(newCat);
   };
 
   const updateCategory = async (id, updatedData) => {
     setCategories((prev) =>
       prev.map((c) => (c.id === id ? { ...c, ...updatedData } : c))
     );
-
-    if (isFirebaseConfigured) {
-      try {
-        await setDoc(doc(db, "categories", id), sanitizeForFirestore(updatedData), { merge: true });
-      } catch (e) {
-        console.error("Firestore updateCategory error:", e);
-      }
-    }
+    dbUpdateCategory(id, updatedData);
   };
 
   const deleteCategory = async (id) => {
     deletedCategoryIdsRef.current.add(id);
     setCategories((prev) => prev.filter((c) => c.id !== id));
-
-    if (isFirebaseConfigured) {
-      try {
-        await deleteDoc(doc(db, "categories", id));
-      } catch (e) {
-        console.error("Firestore deleteCategory error:", e);
-      }
-    }
+    dbDeleteCategory(id);
   };
 
-  // CRUD ფუნქციები პროექტებისთვის
+  // CRUD for Projects
   const addProject = async (projectData) => {
     const newProj = {
       ...projectData,
@@ -478,90 +391,47 @@ export const DataProvider = ({ children }) => {
 
     try {
       const current = await getPersistentItem("monolith_projects", []);
-      await setPersistentItem("monolith_projects", [newProj, ...current.filter((p) => p.id !== newProj.id)]);
+      await setPersistentItem("monolith_projects", [
+        newProj,
+        ...current.filter((p) => p.id !== newProj.id),
+      ]);
     } catch (e) {
       console.warn("Storage save error:", e);
     }
 
-    if (isFirebaseConfigured) {
-      try {
-        await setDoc(doc(db, "projects", newProj.id), sanitizeForFirestore(newProj));
-      } catch (e) {
-        console.error("Firestore addProject error:", e);
-      }
-    }
+    dbSaveProject(newProj);
   };
 
   const updateProject = async (id, updatedData) => {
     setProjects((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...updatedData } : p))
     );
-
-    if (isFirebaseConfigured) {
-      try {
-        await setDoc(doc(db, "projects", id), sanitizeForFirestore(updatedData), { merge: true });
-      } catch (e) {
-        console.error("Firestore updateProject error:", e);
-      }
-    }
+    dbUpdateProject(id, updatedData);
   };
 
   const deleteProject = async (id) => {
     deletedProjectIdsRef.current.add(id);
     setProjects((prev) => prev.filter((p) => p.id !== id));
-
-    if (isFirebaseConfigured) {
-      try {
-        await deleteDoc(doc(db, "projects", id));
-      } catch (e) {
-        console.error("Firestore deleteProject error:", e);
-      }
-    }
+    dbDeleteProject(id);
   };
 
-  // მოთხოვნები
+  // Inquiries
   const addInquiry = async (inquiryData) => {
-    const newInq = { ...inquiryData, id: `inq-${Date.now()}`, createdAt: new Date().toISOString() };
+    const newInq = {
+      ...inquiryData,
+      id: `inq-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
     setInquiries((prev) => [newInq, ...prev]);
-
-    if (isFirebaseConfigured) {
-      try {
-        await addDoc(collection(db, "inquiries"), sanitizeForFirestore(newInq));
-      } catch (e) {
-        console.error("Firestore addInquiry error:", e);
-      }
-    }
+    dbSaveInquiry(newInq);
   };
 
   // Initial Seed tool
   const seedInitialDataToFirebase = async () => {
-    if (!isFirebaseConfigured) {
-      return { success: false, message: "Firebase არ არის კონფიგურირებული" };
-    }
-    try {
-      for (const cat of categories) {
-        await setDoc(doc(db, "categories", cat.id), sanitizeForFirestore(cat));
-      }
-      for (const prod of products) {
-        await setDoc(doc(db, "products", prod.id), sanitizeForFirestore(prod));
-      }
-      for (const proj of projects) {
-        await setDoc(doc(db, "projects", proj.id), sanitizeForFirestore(proj));
-      }
-      return { success: true, message: "კატეგორიები, პროდუქტები და პროექტები წარმატებით აიტვირთა Firebase-ში!" };
-    } catch (err) {
-      console.error("Firebase seed error:", err);
-      return {
-        success: false,
-        message:
-          err.message.includes("PERMISSION_DENIED") || err.message.includes("Cloud Firestore API")
-            ? "Firestore Rules ჯერ ჩაკეტილია. Firebase Console -> Firestore Database -> Rules-ში ჩაწერეთ allow read, write: if true; და დააჭირეთ Publish."
-            : err.message,
-      };
-    }
+    return await dbSeedAll(categories, products, projects);
   };
 
-  // საიტის პარამეტრების მართვა (ლოგო, ფავიკონი, ნავბარი, ფუტერი)
+  // Site Settings
   const updateSiteSettings = async (updates) => {
     const merged = { ...siteSettings, ...updates };
     setSiteSettings(merged);
@@ -571,13 +441,7 @@ export const DataProvider = ({ children }) => {
     } catch (e) {
       console.warn("localStorage site settings error:", e);
     }
-    if (db && isFirebaseConfigured) {
-      try {
-        await setDoc(doc(db, "site_settings", "general"), sanitizeForFirestore(merged), { merge: true });
-      } catch (err) {
-        console.error("Firebase site settings save error:", err);
-      }
-    }
+    dbSaveSiteSettings(merged);
     return merged;
   };
 
@@ -587,53 +451,21 @@ export const DataProvider = ({ children }) => {
     try {
       localStorage.setItem("monolith_site_settings", JSON.stringify(DEFAULT_SITE_SETTINGS));
     } catch (e) {}
-    if (db && isFirebaseConfigured) {
-      try {
-        await setDoc(doc(db, "site_settings", "general"), sanitizeForFirestore(DEFAULT_SITE_SETTINGS));
-      } catch (err) {}
-    }
+    dbResetSiteSettings(DEFAULT_SITE_SETTINGS);
     return DEFAULT_SITE_SETTINGS;
   };
 
   const loginAdmin = async (email, password) => {
-    if (!auth) {
-      return { success: false, message: "Firebase Auth ინიციალიზებული არ არის." };
-    }
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
-      setAdminUser(userCredential.user);
+    const res = await dbSignInAdmin(email, password);
+    if (res.success) {
+      setAdminUser(res.user);
       setIsAdminAuthenticated(true);
-      return { success: true, user: userCredential.user };
-    } catch (error) {
-      console.error("Firebase Login Error:", error);
-      let message = "ავტორიზაცია ვერ მოხერხდა. შეამოწმეთ ელფოსტა და პაროლი.";
-      if (
-        error.code === "auth/invalid-credential" ||
-        error.code === "auth/wrong-password" ||
-        error.code === "auth/user-not-found"
-      ) {
-        message = "ელფოსტა ან პაროლი არასწორია.";
-      } else if (error.code === "auth/invalid-email") {
-        message = "ელფოსტის ფორმატი არასწორია.";
-      } else if (error.code === "auth/user-disabled") {
-        message = "ეს მომხმარებელი დაბლოკილია Firebase-ში.";
-      } else if (error.code === "auth/too-many-requests") {
-        message = "ძალიან ბევრი მცდელობა. გთხოვთ დაიცადოთ რამდენიმე წუთი.";
-      } else if (error.code === "auth/network-request-failed") {
-        message = "ინტერნეტთან კავშირი შეფერხებულია. შეამოწმეთ ქსელი.";
-      }
-      return { success: false, message, code: error.code };
     }
+    return res;
   };
 
   const logoutAdmin = async () => {
-    try {
-      if (auth) {
-        await signOut(auth);
-      }
-    } catch (err) {
-      console.error("Logout error:", err);
-    }
+    await dbSignOutAdmin();
     setAdminUser(null);
     setIsAdminAuthenticated(false);
   };

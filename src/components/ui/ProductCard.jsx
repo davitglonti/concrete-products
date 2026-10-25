@@ -108,6 +108,7 @@ export default function ProductCard({ product }) {
           sizes="(max-width: 640px) 50vw, 360px"
           alt={product.name}
           loading="lazy"
+          decoding="async"
           className={`w-full h-full object-cover transition-all duration-500 ${
             hasMultiple
               ? isShowingSecond
@@ -129,6 +130,7 @@ export default function ProductCard({ product }) {
             sizes="(max-width: 640px) 50vw, 360px"
             alt={`${product.name} - ხედი 2`}
             loading="lazy"
+            decoding="async"
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
               isShowingSecond
                 ? "opacity-100 scale-105"

@@ -20,6 +20,9 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
+  // Lighthouse 100 Optimization: Only mount slide 0 on initial load to avoid downloading 3 hidden carousel images (saves 203 KiB)
+  const [loadedSlides, setLoadedSlides] = useState(() => new Set([0]));
+
   const [form, setForm] = useState({ name: "", phone: "" });
   const [submitted, setSubmitted] = useState(false);
 
@@ -31,6 +34,24 @@ export default function Home() {
     }, 6000);
     return () => clearInterval(interval);
   }, [isPaused]);
+
+  // Track slides that need rendering as user navigates
+  useEffect(() => {
+    setLoadedSlides((prev) => {
+      if (prev.has(currentSlide)) return prev;
+      const next = new Set(prev);
+      next.add(currentSlide);
+      return next;
+    });
+  }, [currentSlide]);
+
+  // Preload slide 1 gently after 2.5s once initial LCP is recorded
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadedSlides((prev) => new Set([...prev, 1]));
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
@@ -62,31 +83,39 @@ export default function Home() {
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
-        {/* Full-bleed background images */}
-        {HERO_SLIDES.map((item, index) => (
-          <div
-            key={item.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
-          >
-            <img
-              src={item.image}
-              srcSet={`
-                ${item.image.replace("w=1280", "w=640&q=70")} 640w,
-                ${item.image} 1280w
-              `}
-              sizes="(max-width: 640px) 100vw, 1280px"
-              alt={item.titleMain}
-              loading={index === 0 ? "eager" : "lazy"}
-              fetchPriority={index === 0 ? "high" : "low"}
-              className="w-full h-full object-cover object-center scale-100 transition-transform duration-1000"
-            />
-            {/* Seamless, organic gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent dark:from-stone-950/90 dark:via-stone-950/55 dark:to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
-          </div>
-        ))}
+        {/* Full-bleed background images (only active/visited slides rendered in DOM) */}
+        {HERO_SLIDES.map((item, index) => {
+          const isLoaded = loadedSlides.has(index);
+          return (
+            <div
+              key={item.id}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                index === currentSlide ? "opacity-100 z-1" : "opacity-0 pointer-events-none z-0"
+              }`}
+            >
+              {isLoaded ? (
+                <img
+                  src={item.image}
+                  srcSet={`
+                    ${item.image.replace("w=1280", "w=640&q=70")} 640w,
+                    ${item.image} 1280w
+                  `}
+                  sizes="(max-width: 640px) 100vw, 1280px"
+                  alt={item.titleMain}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  fetchPriority={index === 0 ? "high" : "low"}
+                  decoding={index === 0 ? "sync" : "async"}
+                  className="w-full h-full object-cover object-center scale-100 transition-transform duration-1000"
+                />
+              ) : (
+                <div className="w-full h-full bg-stone-950" />
+              )}
+              {/* Seamless, organic gradient */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent dark:from-stone-950/90 dark:via-stone-950/55 dark:to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+            </div>
+          );
+        })}
 
         {/* Content Container */}
         <div className="relative z-10 max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 w-full py-12 sm:py-16">
@@ -157,10 +186,14 @@ export default function Home() {
                 key={idx}
                 onClick={() => setCurrentSlide(idx)}
                 aria-label={`Slide ${idx + 1}`}
-                className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
-                  idx === currentSlide ? "w-5 sm:w-6 bg-white" : "w-1.5 sm:w-2 bg-white/40 hover:bg-white/70"
-                }`}
-              />
+                className="p-2 sm:p-1.5 flex items-center justify-center min-w-[32px] min-h-[44px]"
+              >
+                <span
+                  className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 block ${
+                    idx === currentSlide ? "w-5 sm:w-6 bg-white" : "w-1.5 sm:w-2 bg-white/40 hover:bg-white/70"
+                  }`}
+                />
+              </button>
             ))}
           </div>
 
@@ -169,16 +202,16 @@ export default function Home() {
             <button
               onClick={prevSlide}
               aria-label="Previous slide"
-              className="p-2 sm:p-2.5 rounded-lg hover:bg-white/20 transition flex items-center justify-center min-w-[36px] min-h-[36px]"
+              className="p-2.5 sm:p-2.5 rounded-lg hover:bg-white/20 transition flex items-center justify-center min-w-[44px] min-h-[44px]"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-5 h-5 sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={nextSlide}
               aria-label="Next slide"
-              className="p-2 sm:p-2.5 rounded-lg hover:bg-white/20 transition flex items-center justify-center min-w-[36px] min-h-[36px]"
+              className="p-2.5 sm:p-2.5 rounded-lg hover:bg-white/20 transition flex items-center justify-center min-w-[44px] min-h-[44px]"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-5 h-5 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
@@ -219,7 +252,15 @@ export default function Home() {
                 <div className="aspect-[4/3] overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
                   <img
                     src={cat.image}
+                    srcSet={
+                      cat.image.includes("w=800")
+                        ? `${cat.image.replace("w=800", "w=400&q=75")} 400w, ${cat.image} 800w`
+                        : undefined
+                    }
+                    sizes="(max-width: 640px) 120px, (max-width: 1024px) 300px, 400px"
                     alt={cat.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   {cat.badge && (
@@ -258,8 +299,10 @@ export default function Home() {
               >
                 <div className="aspect-square overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
                   <img
-                    src={cat.image}
+                    src={cat.image.includes("w=800") ? cat.image.replace("w=800", "w=200&q=70") : cat.image}
                     alt={cat.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                   {cat.badge && (
@@ -489,6 +532,8 @@ export default function Home() {
                   <img
                     src={project.images?.[0] || project.image}
                     alt={project.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   {/* Location & Year Badges */}
@@ -542,6 +587,8 @@ export default function Home() {
                     <img
                       src={project.images?.[0] || project.image}
                       alt={project.title}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-3 left-3 flex items-center gap-1.5">
