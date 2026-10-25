@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Maximize2, Weight, Heart, Image as ImageIcon, Scale } from "lucide-react";
+import { ArrowUpRight, Maximize2, Heart, Image as ImageIcon, Scale } from "lucide-react";
 import { useFavorites } from "../../context/FavoritesContext";
 import { useCompare } from "../../context/CompareContext";
 
@@ -9,6 +9,26 @@ export default function ProductCard({ product }) {
   const { isInCompare, toggleCompare } = useCompare();
   const favorited = isFavorite(product.id);
   const compared = isInCompare(product.id);
+
+  // Multi-image handling
+  const allImages =
+    product.images && product.images.length > 0
+      ? product.images
+      : product.image
+      ? [product.image]
+      : [];
+  const primaryImage = allImages[0] || product.image;
+  const secondaryImage = allImages[1] || null;
+  const hasMultiple = Boolean(secondaryImage);
+
+  // States for desktop hover and mobile touch toggle
+  const [isHovered, setIsHovered] = useState(false);
+  const [touchActive, setTouchActive] = useState(false);
+
+  const touchStartXRef = useRef(0);
+  const touchStartYRef = useRef(0);
+
+  const isShowingSecond = hasMultiple && (isHovered || touchActive);
 
   const handleFavoriteClick = (e) => {
     e.preventDefault();
@@ -22,34 +42,138 @@ export default function ProductCard({ product }) {
     toggleCompare(product.id);
   };
 
+  // Mobile touch swipe handling
+  const handleTouchStart = (e) => {
+    if (!hasMultiple) return;
+    touchStartXRef.current = e.touches[0].clientX;
+    touchStartYRef.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!hasMultiple) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartYRef.current;
+
+    // Horizontal swipe threshold: 30px
+    if (Math.abs(deltaX) > 30 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (deltaX < 0) {
+        // Swiped left -> show second photo
+        setTouchActive(true);
+      } else {
+        // Swiped right -> show first photo
+        setTouchActive(false);
+      }
+    }
+  };
+
+  // Mobile single tap on image
+  const handleImageClick = (e) => {
+    if (!hasMultiple) return;
+    const isTouchDevice =
+      window.matchMedia("(max-width: 768px)").matches ||
+      !("hover" in window.matchMedia("(hover: hover)") && window.matchMedia("(hover: hover)").matches);
+
+    // If mobile touch and not yet showing second image, toggle on first tap and prevent navigation
+    if (isTouchDevice && !touchActive) {
+      e.preventDefault();
+      e.stopPropagation();
+      setTouchActive(true);
+    }
+  };
+
   return (
     <Link
       to={`/products/${product.id}`}
       className="group rounded-2xl overflow-hidden transition-all duration-300 flex flex-col border bg-white dark:bg-stone-900 border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 relative h-full"
     >
       {/* Image container */}
-      <div className="aspect-[4/3] overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
+      <div
+        className="aspect-[4/3] overflow-hidden bg-stone-100 dark:bg-stone-800 relative select-none"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onClick={handleImageClick}
+      >
+        {/* Primary Image */}
         <img
-          src={product.images?.[0] || product.image}
+          src={primaryImage}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          className={`w-full h-full object-cover transition-all duration-500 ${
+            hasMultiple
+              ? isShowingSecond
+                ? "opacity-0 scale-105"
+                : "opacity-100 group-hover:opacity-0 group-hover:scale-105"
+              : "group-hover:scale-105"
+          }`}
         />
 
+        {/* Secondary Image (revealed on desktop hover or mobile touch/swipe) */}
+        {hasMultiple && (
+          <img
+            src={secondaryImage}
+            alt={`${product.name} - ხედი 2`}
+            loading="lazy"
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+              isShowingSecond
+                ? "opacity-100 scale-105"
+                : "opacity-0 group-hover:opacity-100 group-hover:scale-105"
+            }`}
+          />
+        )}
+
         {/* Category Badge (Top Left) */}
-        <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-stone-800/90 dark:bg-stone-950/85 backdrop-blur text-white text-[10px] sm:text-xs font-semibold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md border border-stone-700/60 shadow-sm truncate max-w-[55%]">
+        <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-stone-800/90 dark:bg-stone-950/85 backdrop-blur text-white text-[10px] sm:text-xs font-semibold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md border border-stone-700/60 shadow-sm truncate max-w-[55%] pointer-events-none z-10">
           {product.categoryLabel}
         </span>
 
-        {/* Multi-image counter badge */}
-        {product.images && product.images.length > 1 && (
-          <span className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-stone-900/80 backdrop-blur text-white text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md flex items-center gap-1 border border-stone-700/40">
+        {/* Multi-image counter badge (Bottom Left) */}
+        {hasMultiple && (
+          <span className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-stone-900/80 backdrop-blur text-white text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md flex items-center gap-1 border border-stone-700/40 pointer-events-none z-10">
             <ImageIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-stone-300" />
-            <span>{product.images.length} ფოტო</span>
+            <span>
+              {isShowingSecond ? "2" : "1"} / {allImages.length}
+            </span>
           </span>
         )}
 
+        {/* Multi-image indicator dots (Bottom Center) */}
+        {hasMultiple && (
+          <div className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 sm:gap-1.5 z-10 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full pointer-events-auto">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setTouchActive(false);
+              }}
+              className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${
+                !isShowingSecond ? "w-3 sm:w-4 bg-white" : "w-1 sm:w-1.5 bg-white/40 hover:bg-white/75"
+              }`}
+              title="პირველი ფოტო"
+              aria-label="პირველი ფოტო"
+            />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setTouchActive(true);
+              }}
+              className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${
+                isShowingSecond ? "w-3 sm:w-4 bg-white" : "w-1 sm:w-1.5 bg-white/40 hover:bg-white/75"
+              }`}
+              title="მეორე ფოტო"
+              aria-label="მეორე ფოტო"
+            />
+          </div>
+        )}
+
         {/* Actions Group (Top Right: Compare + Favorite) */}
-        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 sm:gap-1.5">
+        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 sm:gap-1.5 z-10">
           {/* Compare Button */}
           <button
             type="button"
