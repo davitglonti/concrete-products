@@ -23,37 +23,6 @@ export default function Home() {
   const [form, setForm] = useState({ name: "", phone: "" });
   const [submitted, setSubmitted] = useState(false);
 
-  // Category Slider State & Controls
-  const categorySliderRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const checkCategoryScroll = () => {
-    if (categorySliderRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = categorySliderRef.current;
-      setCanScrollLeft(scrollLeft > 10);
-      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
-    }
-  };
-
-  useEffect(() => {
-    checkCategoryScroll();
-    window.addEventListener("resize", checkCategoryScroll);
-    return () => window.removeEventListener("resize", checkCategoryScroll);
-  }, [categories]);
-
-  const scrollCategories = (direction) => {
-    if (categorySliderRef.current) {
-      const containerWidth = categorySliderRef.current.clientWidth;
-      const scrollStep = containerWidth / 4 + 24;
-      categorySliderRef.current.scrollBy({
-        left: direction === "left" ? -scrollStep : scrollStep,
-        behavior: "smooth",
-      });
-      setTimeout(checkCategoryScroll, 350);
-    }
-  };
-
   // Auto-play carousel
   useEffect(() => {
     if (isPaused) return;
@@ -82,6 +51,7 @@ export default function Home() {
   };
 
   const featuredProducts = products.filter((p) => p.featured).slice(0, 4);
+  const latestProjects = [...projects].slice(0, 3);
   const slide = HERO_SLIDES[currentSlide];
 
   return (
@@ -220,53 +190,17 @@ export default function Home() {
               </h2>
             </div>
 
-            <div className="flex items-center gap-3">
-              {/* Desktop Slider Navigation Arrows */}
-              <div className="hidden sm:flex items-center gap-1.5 mr-1">
-                <button
-                  type="button"
-                  onClick={() => scrollCategories("left")}
-                  disabled={!canScrollLeft}
-                  className={`w-9 h-9 rounded-xl border flex items-center justify-center transition ${
-                    canScrollLeft
-                      ? "border-stone-300 dark:border-stone-700 text-stone-800 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 shadow-sm active:scale-95"
-                      : "border-stone-200 dark:border-stone-800 text-stone-300 dark:text-stone-700 cursor-not-allowed opacity-30"
-                  }`}
-                  aria-label="Previous categories"
-                  title="წინა"
-                >
-                  <ChevronLeft className="w-4 h-4 stroke-[2.2]" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollCategories("right")}
-                  disabled={!canScrollRight}
-                  className={`w-9 h-9 rounded-xl border flex items-center justify-center transition ${
-                    canScrollRight
-                      ? "border-stone-300 dark:border-stone-700 text-stone-800 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 shadow-sm active:scale-95"
-                      : "border-stone-200 dark:border-stone-800 text-stone-300 dark:text-stone-700 cursor-not-allowed opacity-30"
-                  }`}
-                  aria-label="Next categories"
-                  title="შემდეგი"
-                >
-                  <ChevronRight className="w-4 h-4 stroke-[2.2]" />
-                </button>
-              </div>
-
-              <Link
-                to="/products"
-                className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
-              >
-                <span>სრული კატალოგის ნახვა</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
+            >
+              <span>სრული კატალოგის ნახვა</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
 
           {/* Desktop Slider Track: exactly 4 cards fit on screen, 5th+ slides smoothly! */}
           <div
-            ref={categorySliderRef}
-            onScroll={checkCategoryScroll}
             className="hidden sm:flex overflow-x-auto no-scrollbar gap-6 xl:gap-8 pb-3 pt-1 scroll-smooth snap-x snap-mandatory"
           >
             {(categories && categories.length > 0 ? categories : CATEGORIES).map((cat) => (
@@ -515,7 +449,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. PORTFOLIO / COMPLETED PROJECTS (Original Desktop Grid + Mobile Horizontal Swiper) */}
+      {/* 5. PORTFOLIO / COMPLETED PROJECTS (Latest 3 Projects) */}
       <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
           <div className="flex items-end justify-between gap-3 mb-6 sm:mb-8">
@@ -524,7 +458,7 @@ export default function Home() {
                 პორტფოლიო
               </span>
               <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white mt-0.5 sm:mt-1">
-                შესრულებული სამუშაოები
+                ბოლოს შესრულებული სამუშაოები
               </h2>
             </div>
             <Link
@@ -538,7 +472,7 @@ export default function Home() {
 
           {/* Desktop Grid (Original Layout — Hidden on Mobile) */}
           <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
-            {projects.map((project) => (
+            {latestProjects.map((project) => (
               <Link
                 key={project.id}
                 to={`/portfolio/${project.id}`}
@@ -588,7 +522,7 @@ export default function Home() {
 
           {/* Mobile Horizontal Swiper (Visible only on Mobile < md) */}
           <div className="flex md:hidden overflow-x-auto no-scrollbar gap-4 pb-2 pt-1 -mx-4 px-4 snap-x snap-mandatory scroll-px-4">
-            {projects.map((project) => (
+            {latestProjects.map((project) => (
               <div
                 key={project.id}
                 className="snap-start flex-shrink-0 w-[78vw] min-w-[270px] max-w-[360px] flex flex-col"
