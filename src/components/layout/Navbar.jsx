@@ -91,9 +91,6 @@ export default function Navbar() {
             <NavLink to="/portfolio" className={navLinkClass}>
               შესრულებული სამუშაოები
             </NavLink>
-            <NavLink to="/faq" className={navLinkClass}>
-              კითხვა-პასუხი
-            </NavLink>
             <button
               onClick={() => setIsContactOpen(true)}
               className="text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-300 dark:hover:text-white dark:hover:bg-stone-800/60 px-3.5 py-2 rounded-lg transition"
@@ -213,21 +210,6 @@ export default function Navbar() {
                 }
               >
                 <span>შესრულებული სამუშაოები</span>
-                <ChevronRight className="w-4 h-4 opacity-40" />
-              </NavLink>
-
-              <NavLink
-                to="/faq"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
-                    isActive
-                      ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
-                      : "text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800"
-                  }`
-                }
-              >
-                <span>კითხვა-პასუხი (FAQ)</span>
                 <ChevronRight className="w-4 h-4 opacity-40" />
               </NavLink>
 
@@ -446,6 +428,16 @@ export default function Navbar() {
                   </button>
                 </form>
               )}
+
+              <div className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800 text-center">
+                <Link
+                  to="/faq"
+                  onClick={() => setIsContactOpen(false)}
+                  className="text-xs text-stone-500 hover:text-amber-600 dark:text-stone-400 dark:hover:text-amber-400 transition font-medium inline-flex items-center gap-1.5"
+                >
+                  ხშირად დასმული კითხვები &rarr;
+                </Link>
+              </div>
             </div>
           </div>
         </div>
