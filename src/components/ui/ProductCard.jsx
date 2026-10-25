@@ -210,34 +210,36 @@ export default function ProductCard({ product }) {
         </div>
 
         <div>
-          {/* Price & Dimensions */}
-          <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3.5 border-t border-stone-100 dark:border-stone-800 flex items-end justify-between gap-2">
-            {/* Price display */}
-            <div className="min-w-0">
-              <span className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 block font-medium">ფასი:</span>
-              <div className="flex items-baseline gap-1 whitespace-nowrap">
-                <span className="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-stone-900 dark:text-white tracking-tight whitespace-nowrap">
+          {/* Price & Dimensions Container */}
+          <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-stone-100 dark:border-stone-800 flex flex-col gap-1.5">
+            {/* Price display row */}
+            <div className="flex items-baseline justify-between gap-1">
+              <span className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium">
+                ფასი:
+              </span>
+              <div className="flex items-baseline gap-1 text-right">
+                <span className="text-xs sm:text-sm lg:text-base xl:text-lg font-black text-stone-900 dark:text-white tracking-tight whitespace-nowrap">
                   {product.price ? `${product.price} ₾` : "შეთანხმებით"}
                 </span>
                 {product.price && product.priceUnit && (
-                  <span className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium truncate">
+                  <span className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 font-medium whitespace-nowrap">
                     {product.priceUnit.replace("₾", "").trim()}
                   </span>
                 )}
               </div>
             </div>
 
-            {/* Dimensions & Weight (only shown if they exist!) */}
+            {/* Dimensions & Weight row */}
             {(product.dimensions || product.weight) && (
-              <div className="text-right text-stone-600 dark:text-stone-300 shrink-0 max-w-[55%]">
-                {product.dimensions && (
-                  <span className="flex items-center justify-end gap-1 text-[11px] sm:text-xs lg:text-sm font-semibold text-stone-700 dark:text-stone-200 truncate">
-                    <Maximize2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-stone-400 shrink-0" />
+              <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-stone-600 dark:text-stone-300 pt-1 border-t border-stone-100/70 dark:border-stone-800/60">
+                {product.dimensions ? (
+                  <span className="flex items-center gap-1 font-semibold text-stone-700 dark:text-stone-200 truncate min-w-0">
+                    <Maximize2 className="w-2.5 h-2.5 text-stone-400 shrink-0" />
                     <span className="truncate">{product.dimensions}</span>
                   </span>
-                )}
+                ) : <span />}
                 {product.weight && (
-                  <span className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 block font-medium truncate mt-0.5">
+                  <span className="shrink-0 font-medium text-stone-500 dark:text-stone-400 ml-auto pl-1">
                     {product.weight}
                   </span>
                 )}

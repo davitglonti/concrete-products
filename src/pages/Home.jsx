@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import ProductCard from "../components/ui/ProductCard";
 import { CATEGORIES, HERO_SLIDES } from "../data/initialData";
-import { BLOG_POSTS } from "../data/blogData";
 import {
   ArrowRight,
   Sparkles,
@@ -15,7 +14,6 @@ import {
   ChevronRight,
   ChevronLeft,
   Calculator,
-  BookOpen,
   Award,
   Building2,
   Clock,
@@ -134,7 +132,7 @@ export default function Home() {
             </div>
 
             {/* Dynamic Headline */}
-            <h1 className="text-2xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white tracking-tight leading-[1.15] drop-shadow-lg">
+            <h1 className="text-xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.2] drop-shadow-lg">
               {slide.titleMain} <br />
               <span className="text-amber-400 drop-shadow">
                 {slide.titleHighlight}
@@ -142,29 +140,29 @@ export default function Home() {
             </h1>
 
             {/* Dynamic Subtitle */}
-            <p className="text-stone-200 text-xs sm:text-base lg:text-xl mt-3 sm:mt-6 max-w-2xl leading-relaxed font-normal drop-shadow">
+            <p className="text-stone-200 text-xs sm:text-base lg:text-xl mt-2.5 sm:mt-5 max-w-xl leading-relaxed font-normal drop-shadow line-clamp-3 sm:line-clamp-none">
               {slide.subtitle}
             </p>
 
             {/* Action Buttons */}
-            <div className="mt-6 sm:mt-10 flex flex-wrap items-center gap-2.5 sm:gap-4">
+            <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 max-w-xs sm:max-w-none">
               <Link
                 to={slide.categoryLink}
-                className="bg-white hover:bg-stone-100 text-stone-950 font-bold px-5 sm:px-7 py-3 sm:py-4 rounded-xl inline-flex items-center gap-2 transition shadow-xl hover:scale-[1.02] text-xs sm:text-sm"
+                className="bg-white hover:bg-stone-100 text-stone-950 font-bold px-4 sm:px-7 py-2.5 sm:py-3.5 rounded-xl inline-flex items-center justify-center gap-2 transition shadow-xl hover:scale-[1.02] text-xs sm:text-sm text-center"
               >
                 <span>{slide.buttonText}</span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
               </Link>
               <Link
                 to="/portfolio"
-                className="bg-white/15 hover:bg-white/25 text-white font-semibold px-5 sm:px-7 py-3 sm:py-4 rounded-xl border border-white/30 backdrop-blur-md transition hover:scale-[1.02] text-xs sm:text-sm"
+                className="bg-white/15 hover:bg-white/25 text-white font-semibold px-4 sm:px-7 py-2.5 sm:py-3.5 rounded-xl border border-white/30 backdrop-blur-md transition hover:scale-[1.02] text-xs sm:text-sm text-center justify-center"
               >
                 შესრულებული სამუშაოები
               </Link>
             </div>
 
             {/* Quick Specs Indicator */}
-            <div className="mt-6 sm:mt-10 pt-4 sm:pt-6 border-t border-white/20 flex flex-wrap items-center gap-3 sm:gap-6 text-[11px] sm:text-xs text-stone-300 font-medium drop-shadow">
+            <div className="mt-5 sm:mt-8 pt-3 sm:pt-5 border-t border-white/20 flex flex-wrap items-center gap-3 sm:gap-6 text-[11px] sm:text-xs text-stone-300 font-medium drop-shadow">
               <span className="flex items-center gap-1">
                 <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> F300 ყინვაგამძლეობა
               </span>
@@ -178,10 +176,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Carousel Floating Controls */}
-        <div className="absolute bottom-4 right-4 sm:bottom-8 sm:right-12 z-20 flex items-center gap-2.5 sm:gap-4 bg-black/50 backdrop-blur-md border border-white/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl shadow-xl text-white">
+        {/* Carousel Floating Controls (Compact, clean and proportioned for mobile) */}
+        <div className="absolute bottom-3 right-3 sm:bottom-8 sm:right-12 z-20 flex items-center gap-1.5 sm:gap-3 bg-black/60 backdrop-blur-md border border-white/20 px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-xl text-white">
           {/* Slide counter */}
-          <div className="text-[11px] sm:text-xs font-mono font-bold pr-2 border-r border-white/20">
+          <div className="text-[10px] sm:text-xs font-mono font-bold pr-1.5 sm:pr-2 border-r border-white/20">
             <span>0{currentSlide + 1}</span>
             <span className="text-white/50"> / 0{HERO_SLIDES.length}</span>
           </div>
@@ -193,11 +191,11 @@ export default function Home() {
                 key={idx}
                 onClick={() => setCurrentSlide(idx)}
                 aria-label={`Slide ${idx + 1}`}
-                className="p-2 sm:p-1.5 flex items-center justify-center min-w-[32px] min-h-[44px]"
+                className="p-1 sm:p-1.5 flex items-center justify-center"
               >
                 <span
-                  className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 block ${
-                    idx === currentSlide ? "w-5 sm:w-6 bg-white" : "w-1.5 sm:w-2 bg-white/40 hover:bg-white/70"
+                  className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 block ${
+                    idx === currentSlide ? "w-3.5 sm:w-5 bg-white" : "w-1 sm:w-1.5 bg-white/40 hover:bg-white/70"
                   }`}
                 />
               </button>
@@ -205,20 +203,20 @@ export default function Home() {
           </div>
 
           {/* Arrows */}
-          <div className="flex items-center gap-0.5 sm:gap-1 pl-1.5 sm:pl-2 border-l border-white/20">
+          <div className="flex items-center gap-0.5 sm:gap-1 pl-1 sm:pl-2 border-l border-white/20">
             <button
               onClick={prevSlide}
               aria-label="Previous slide"
-              className="p-2.5 sm:p-2.5 rounded-lg hover:bg-white/20 transition flex items-center justify-center min-w-[44px] min-h-[44px]"
+              className="p-1 sm:p-1.5 rounded-full hover:bg-white/20 transition flex items-center justify-center"
             >
-              <ChevronLeft className="w-5 h-5 sm:w-4 sm:h-4" />
+              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={nextSlide}
               aria-label="Next slide"
-              className="p-2.5 sm:p-2.5 rounded-lg hover:bg-white/20 transition flex items-center justify-center min-w-[44px] min-h-[44px]"
+              className="p-1 sm:p-1.5 rounded-full hover:bg-white/20 transition flex items-center justify-center"
             >
-              <ChevronRight className="w-5 h-5 sm:w-4 sm:h-4" />
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
@@ -227,15 +225,10 @@ export default function Home() {
       {/* 2. CATEGORIES SECTION (Desktop Carousel Slider + Mobile Horizontal Swiper) */}
       <section className="bg-[#f5f3ee] dark:bg-stone-900/40 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex items-end justify-between gap-3 mb-6 sm:mb-8">
-            <div>
-              <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
-                ძირითადი მიმართულებები
-              </span>
-              <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white mt-0.5 sm:mt-1">
-                ბეტონის ნაკეთობების კატეგორიები
-              </h2>
-            </div>
+          <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white">
+              კატეგორიები
+            </h2>
 
             <Link
               to="/products"
@@ -332,20 +325,15 @@ export default function Home() {
       {/* 3. FEATURED PRODUCTS (Original Desktop Grid + Mobile Horizontal Swiper) */}
       <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex items-end justify-between gap-3 mb-6 sm:mb-8">
-            <div>
-              <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
-                პოპულარული მოდელები
-              </span>
-              <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white mt-0.5 sm:mt-1">
-                გამორჩეული პროდუქცია
-              </h2>
-            </div>
+          <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white">
+              გამორჩეული პროდუქცია
+            </h2>
             <Link
               to="/products"
               className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
             >
-              <span>ყველა პროდუქტის ნახვა</span>
+              <span>სრული კატალოგის ნახვა</span>
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -362,7 +350,7 @@ export default function Home() {
             {featuredProducts.map((product) => (
               <div
                 key={product.id}
-                className="snap-start flex-shrink-0 w-[46vw] min-w-[160px] max-w-[220px]"
+                className="snap-start flex-shrink-0 w-[52vw] min-w-[180px] max-w-[240px]"
               >
                 <ProductCard product={product} />
               </div>
@@ -759,86 +747,6 @@ export default function Home() {
                 <span>კალკულატორის გახსნა →</span>
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5.8. BLOG & SEO KNOWLEDGE BASE PREVIEW */}
-      <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
-        <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex items-end justify-between gap-3 mb-8 sm:mb-12">
-            <div>
-              <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
-                ცოდნის ბაზა & რჩევები
-              </span>
-              <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white mt-0.5 sm:mt-1">
-                არქიტექტურული ბეტონის გზამკვლევი
-              </h2>
-            </div>
-            <Link
-              to="/blog"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
-            >
-              <span>ყველა სტატიის ნახვა</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {BLOG_POSTS.slice(0, 3).map((post) => (
-              <article
-                key={post.id}
-                className="group bg-[#fbfbf9] dark:bg-stone-900 rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300 flex flex-col h-full"
-              >
-                <Link
-                  to={`/blog/${post.slug}`}
-                  className="aspect-[16/10] overflow-hidden relative bg-stone-100 dark:bg-stone-800 block"
-                >
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <span className="absolute top-3.5 left-3.5 bg-stone-950/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg border border-white/10 shadow-sm">
-                    {post.category}
-                  </span>
-                </Link>
-
-                <div className="p-6 flex-grow flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 text-[11px] text-stone-400 mb-2">
-                      <Clock className="w-3 h-3 text-amber-500" />
-                      <span>{post.readTime}</span>
-                      <span>•</span>
-                      <span>{post.date}</span>
-                    </div>
-
-                    <Link to={`/blog/${post.slug}`}>
-                      <h3 className="text-base font-bold text-stone-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition leading-snug line-clamp-2">
-                        {post.title}
-                      </h3>
-                    </Link>
-
-                    <p className="text-xs text-stone-600 dark:text-stone-400 mt-2 line-clamp-2 leading-relaxed">
-                      {post.excerpt}
-                    </p>
-                  </div>
-
-                  <div className="mt-5 pt-4 border-t border-stone-200/80 dark:border-stone-800/80 flex items-center justify-between">
-                    <span className="text-[11px] text-stone-400">#{post.tags[0]}</span>
-                    <Link
-                      to={`/blog/${post.slug}`}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform"
-                    >
-                      <span>კითხვა</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            ))}
           </div>
         </div>
       </section>

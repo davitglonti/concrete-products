@@ -618,7 +618,7 @@ export default function ProductDetails() {
               {relatedProducts.map((relProduct) => (
                 <div
                   key={relProduct.id}
-                  className="snap-start flex-shrink-0 w-[46vw] min-w-[160px] max-w-[220px]"
+                  className="snap-start flex-shrink-0 w-[52vw] min-w-[180px] max-w-[240px]"
                 >
                   <ProductCard product={relProduct} />
                 </div>

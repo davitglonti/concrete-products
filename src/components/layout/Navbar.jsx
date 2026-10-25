@@ -253,14 +253,6 @@ export default function Navbar() {
                 <Phone className="w-4 h-4" />
                 <span>+995 555 12 34 56 (დარეკვა)</span>
               </a>
-
-              <Link
-                to="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full text-center block text-[11px] text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 py-1 transition font-mono"
-              >
-                /admin პანელი
-              </Link>
             </div>
           </div>
         </div>

@@ -641,33 +641,38 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100">
       {/* Admin Navbar */}
-      <header className="border-b border-stone-800 bg-stone-900 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
+      <header className="border-b border-stone-800 bg-stone-900 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-40">
         <div>
-          <h1 className="text-lg font-bold text-white flex items-center gap-2">
+          <h1 className="text-base sm:text-lg font-bold text-white flex items-center gap-1.5 sm:gap-2">
             <span>MONOLITH</span>
-            <span className="text-xs bg-stone-800 text-stone-300 font-mono px-2 py-0.5 rounded">
+            <span className="text-[11px] sm:text-xs bg-stone-800 text-stone-300 font-mono px-2 py-0.5 rounded">
               /admin
             </span>
           </h1>
         </div>
-        <div className="flex items-center gap-2.5 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           {adminUser?.email && (
-            <span className="text-xs text-stone-300 bg-stone-950 px-3 py-1.5 rounded-lg border border-stone-800 font-mono hidden sm:inline-flex items-center gap-1.5">
+            <span className="text-xs text-stone-300 bg-stone-950 px-3 py-1.5 rounded-lg border border-stone-800 font-mono hidden md:inline-flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
               {adminUser.email}
             </span>
           )}
           <Link
             to="/"
-            className="text-xs text-stone-300 hover:text-white flex items-center gap-1.5 bg-stone-800 hover:bg-stone-700 px-3 py-1.5 rounded-lg transition"
+            className="text-xs text-stone-300 hover:text-white flex items-center gap-1.5 bg-stone-800 hover:bg-stone-700 px-2.5 sm:px-3 py-1.5 rounded-lg transition"
+            title="მთავარ საიტზე გადასვლა"
           >
-            საიტზე გადასვლა <ExternalLink className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">საიტზე გადასვლა</span>
+            <span className="sm:hidden">საიტი</span>
+            <ExternalLink className="w-3.5 h-3.5" />
           </Link>
           <button
             onClick={logoutAdmin}
-            className="text-xs bg-stone-800 hover:bg-red-900/60 text-stone-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer"
+            className="text-xs bg-red-950/80 hover:bg-red-900 border border-red-800 text-red-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold transition cursor-pointer shadow-sm shrink-0"
+            title="ადმინ პანელიდან გამოსვლა"
           >
-            <LogOut className="w-3.5 h-3.5" /> გასვლა
+            <LogOut className="w-3.5 h-3.5 text-red-400" />
+            <span>გასვლა</span>
           </button>
         </div>
       </header>
@@ -954,18 +959,30 @@ export default function AdminDashboard() {
                       className="hidden"
                       id="product-file-upload"
                     />
-                    <label
-                      htmlFor="product-file-upload"
-                      className="flex flex-col items-center justify-center border-2 border-dashed border-stone-700 hover:border-stone-500 rounded-xl p-4 cursor-pointer transition bg-stone-900/50 hover:bg-stone-900 text-center"
+                    <div
+                      onClick={() => productFileInputRef.current?.click()}
+                      className="flex flex-col items-center justify-center border-2 border-dashed border-stone-700 hover:border-amber-500 rounded-2xl p-5 cursor-pointer transition bg-stone-950/60 hover:bg-stone-900 text-center active:scale-[0.99]"
                     >
-                      <Upload className="w-6 h-6 text-stone-400 mb-2" />
-                      <span className="text-xs font-bold text-white">
-                        დააჭირეთ ფოტოების ასარჩევად
+                      <div className="w-12 h-12 rounded-2xl bg-stone-800 text-amber-400 flex items-center justify-center mb-2 shadow-sm">
+                        <Upload className="w-6 h-6" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-bold text-white block">
+                        ფოტოების არჩევა / ატვირთვა
                       </span>
-                      <span className="text-[11px] text-stone-400 mt-0.5">
-                        შეგიძლიათ აირჩიოთ რამდენიმე ფოტო ერთდროულად (კომპიუტერიდან ან ტელეფონის გალერეიდან)
+                      <span className="text-[11px] text-stone-400 mt-1 max-w-xs block leading-relaxed">
+                        დააჭირეთ აქ გალერეიდან ან კამერიდან ფოტოების ასარჩევად (შესაძლებელია რამდენიმე ერთდროულად)
                       </span>
-                    </label>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          productFileInputRef.current?.click();
+                        }}
+                        className="mt-3 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-extrabold transition flex items-center gap-1.5 shadow-md"
+                      >
+                        <Plus className="w-3.5 h-3.5 stroke-[2.5]" /> ფოტოების არჩევა
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex gap-2">
@@ -997,14 +1014,14 @@ export default function AdminDashboard() {
                     <div className="flex items-center justify-between text-[11px] text-stone-400">
                       <span>ატვირთული ფოტოები (პირველია მთავარი):</span>
                     </div>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                       {(newProd.images?.length > 0 ? newProd.images : [newProd.image]).map(
                         (img, idx) => (
                           <div
                             key={idx}
                             className={`relative group rounded-xl overflow-hidden border aspect-square bg-stone-900 transition-all ${
                               idx === 0
-                                ? "border-amber-500/80 ring-2 ring-amber-500/30"
+                                ? "border-amber-500 ring-2 ring-amber-500/30"
                                 : "border-stone-800 hover:border-stone-600"
                             }`}
                           >
@@ -1023,7 +1040,7 @@ export default function AdminDashboard() {
                               <button
                                 type="button"
                                 onClick={() => handleSetMainProductImage(idx)}
-                                className="absolute top-1 left-1 bg-black/80 hover:bg-amber-500 hover:text-stone-950 text-white text-[9px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition shadow"
+                                className="absolute top-1 left-1 bg-black/85 hover:bg-amber-500 hover:text-stone-950 text-white text-[9px] font-bold px-1.5 py-0.5 rounded transition shadow border border-white/20"
                                 title="მთავარ ფოტოდ დაყენება"
                               >
                                 მთავარი
@@ -1034,10 +1051,10 @@ export default function AdminDashboard() {
                             <button
                               type="button"
                               onClick={() => handleRemoveProductImage(idx)}
-                              className="absolute top-1 right-1 p-1 bg-black/80 hover:bg-red-600 text-white rounded-full transition shadow"
+                              className="absolute top-1 right-1 p-1 bg-black/85 hover:bg-red-600 text-white rounded-full transition shadow border border-white/20"
                               title="ფოტოს წაშლა"
                             >
-                              <X className="w-3 h-3" />
+                              <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         )
@@ -1047,11 +1064,11 @@ export default function AdminDashboard() {
                       <button
                         type="button"
                         onClick={() => productFileInputRef.current?.click()}
-                        className="rounded-xl border-2 border-dashed border-stone-800 hover:border-stone-600 flex flex-col items-center justify-center p-2 text-stone-400 hover:text-white transition aspect-square bg-stone-900/40 hover:bg-stone-900"
+                        className="rounded-xl border-2 border-dashed border-stone-800 hover:border-amber-500 flex flex-col items-center justify-center p-2 text-stone-400 hover:text-white transition aspect-square bg-stone-950/40 hover:bg-stone-900 active:scale-95"
                         title="მეტი ფოტოს დამატება"
                       >
-                        <Plus className="w-4 h-4 mb-0.5" />
-                        <span className="text-[10px] font-medium">+ დამატება</span>
+                        <Plus className="w-5 h-5 mb-1 text-amber-500" />
+                        <span className="text-[11px] font-bold">+ დამატება</span>
                       </button>
                     </div>
                   </div>
@@ -1664,18 +1681,30 @@ export default function AdminDashboard() {
                       className="hidden"
                       id="project-file-upload"
                     />
-                    <label
-                      htmlFor="project-file-upload"
-                      className="flex flex-col items-center justify-center border-2 border-dashed border-stone-700 hover:border-amber-500/50 rounded-xl p-5 cursor-pointer transition bg-stone-900/40 hover:bg-stone-900 text-center"
+                    <div
+                      onClick={() => projectFileInputRef.current?.click()}
+                      className="flex flex-col items-center justify-center border-2 border-dashed border-stone-700 hover:border-amber-500 rounded-2xl p-5 cursor-pointer transition bg-stone-950/60 hover:bg-stone-900 text-center active:scale-[0.99]"
                     >
-                      <Upload className="w-6 h-6 text-stone-400 mb-1.5" />
-                      <span className="text-xs font-bold text-white">
-                        დააჭირეთ ფოტოების ასარჩევად
+                      <div className="w-12 h-12 rounded-2xl bg-stone-800 text-amber-400 flex items-center justify-center mb-2 shadow-sm">
+                        <Upload className="w-6 h-6" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-bold text-white block">
+                        პროექტის ფოტოების ატვირთვა
                       </span>
-                      <span className="text-[11px] text-stone-400 mt-0.5">
-                        შეგიძლიათ ერთდროულად მონიშნოთ რამდენიმე ფოტო
+                      <span className="text-[11px] text-stone-400 mt-1 max-w-xs block leading-relaxed">
+                        დააჭირეთ აქ გალერეიდან ან კამერიდან ფოტოების ასარჩევად
                       </span>
-                    </label>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          projectFileInputRef.current?.click();
+                        }}
+                        className="mt-3 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-extrabold transition flex items-center gap-1.5 shadow-md"
+                      >
+                        <Plus className="w-3.5 h-3.5 stroke-[2.5]" /> ფოტოების არჩევა
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex gap-2">
@@ -1707,7 +1736,7 @@ export default function AdminDashboard() {
                     <span className="text-[10px] text-stone-400 block font-medium">
                       ატვირთული ფოტოები (პირველი ფოტო არის მთავარი ქავერი):
                     </span>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {(newProj.images?.length > 0
                         ? newProj.images
                         : [newProj.image]
@@ -1725,28 +1754,28 @@ export default function AdminDashboard() {
                             alt={`Preview ${idx + 1}`}
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                          <div className="absolute inset-0 bg-black/60 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
                             {idx !== 0 && (
                               <button
                                 type="button"
                                 onClick={() => handleSetMainProjectImage(idx)}
                                 title="მთავარ ფოტოდ დაყენება"
-                                className="p-1 bg-amber-500/90 hover:bg-amber-500 text-stone-950 rounded"
+                                className="p-1.5 bg-amber-500 hover:bg-amber-400 text-stone-950 rounded shadow font-bold text-[10px]"
                               >
-                                <Star className="w-3 h-3 fill-current" />
+                                <Star className="w-3.5 h-3.5 fill-current" />
                               </button>
                             )}
                             <button
                               type="button"
                               onClick={() => handleRemoveProjectImage(idx)}
                               title="ფოტოს წაშლა"
-                              className="p-1 bg-red-600/90 hover:bg-red-600 text-white rounded"
+                              className="p-1.5 bg-red-600 hover:bg-red-500 text-white rounded shadow"
                             >
-                              <X className="w-3 h-3" />
+                              <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
                           {idx === 0 && (
-                            <span className="absolute bottom-1 left-1 text-[9px] bg-amber-400 text-stone-950 font-bold px-1.5 py-0.2 rounded shadow">
+                            <span className="absolute bottom-1 left-1 text-[9px] bg-amber-400 text-stone-950 font-bold px-1.5 py-0.5 rounded shadow">
                               ქავერი
                             </span>
                           )}
