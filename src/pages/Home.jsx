@@ -50,7 +50,7 @@ export default function Home() {
     }, 3500);
   };
 
-  const featuredProducts = products.filter((p) => p.featured).slice(0, 4);
+  const featuredProducts = products.filter((p) => p.featured).slice(0, 8);
   const slide = HERO_SLIDES[currentSlide];
 
   return (
@@ -176,58 +176,64 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. CATEGORIES SECTION (Expanded Widescreen Layout) */}
-      <section className="bg-[#f5f3ee] dark:bg-stone-900/40 py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+      {/* 2. CATEGORIES SECTION (Expanded Widescreen Layout + Mobile Horizontal Swiper) */}
+      <section className="bg-[#f5f3ee] dark:bg-stone-900/40 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div className="flex items-end justify-between gap-3 mb-5 sm:mb-8">
             <div>
-              <span className="text-stone-500 dark:text-stone-400 text-xs font-bold uppercase tracking-widest block">
+              <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
                 ძირითადი მიმართულებები
               </span>
-              <h2 className="text-2xl sm:text-4xl font-extrabold text-stone-900 dark:text-white mt-1">
+              <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white mt-0.5 sm:mt-1">
                 ბეტონის ნაკეთობების კატეგორიები
               </h2>
             </div>
-            <Link
-              to="/products"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-sm font-semibold transition"
-            >
-              <span>სრული კატალოგის ნახვა</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+            <div className="flex items-center gap-3">
+              <span className="sm:hidden text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 shrink-0 animate-pulse">
+                გადაფურცლეთ →
+              </span>
+              <Link
+                to="/products"
+                className="hidden sm:inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-sm font-semibold transition"
+              >
+                <span>სრული კატალოგის ნახვა</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 xl:gap-8">
+          {/* Mobile: Horizontal scrollable track with 3-4 items visible | Desktop: Grid */}
+          <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-6 xl:gap-8 overflow-x-auto sm:overflow-visible no-scrollbar pb-3 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scroll-px-4">
             {(categories && categories.length > 0 ? categories : CATEGORIES).map((cat) => (
               <Link
                 key={cat.id}
                 to={`/products?category=${cat.id}`}
-                className="group bg-white dark:bg-stone-900 rounded-2xl sm:rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-600 transition-all duration-300 flex flex-col"
+                className="group flex-shrink-0 snap-start w-[27vw] min-w-[96px] max-w-[125px] sm:w-auto sm:flex-shrink-1 bg-white dark:bg-stone-900 rounded-2xl sm:rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-600 transition-all duration-300 flex flex-col"
               >
-                <div className="aspect-[4/3] overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
+                <div className="aspect-square sm:aspect-[4/3] overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
                   <img
                     src={cat.image}
                     alt={cat.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   {cat.badge && (
-                    <span className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5 bg-stone-800/90 dark:bg-stone-950/85 backdrop-blur text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md sm:rounded-lg border border-stone-700/60 shadow-sm truncate max-w-[80%]">
+                    <span className="absolute top-1.5 left-1.5 sm:top-3.5 sm:left-3.5 bg-stone-900/85 dark:bg-stone-950/85 backdrop-blur text-white text-[8px] sm:text-xs font-bold px-1.5 py-0.5 sm:px-3 sm:py-1 rounded-md sm:rounded-lg border border-stone-700/60 shadow-sm truncate max-w-[85%]">
                       {cat.badge}
                     </span>
                   )}
                 </div>
-                <div className="p-3 sm:p-6 flex-grow flex flex-col justify-between">
+                <div className="p-2 sm:p-6 flex-grow flex flex-col justify-between">
                   <div>
-                    <h3 className="text-xs sm:text-lg lg:text-xl font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition line-clamp-1">
+                    <h3 className="text-[11px] sm:text-lg lg:text-xl font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition line-clamp-2 leading-tight text-center sm:text-left">
                       {cat.title}
                     </h3>
                     {cat.description && (
-                      <p className="text-[11px] sm:text-sm text-stone-600 dark:text-stone-400 mt-1 sm:mt-2 line-clamp-1 sm:line-clamp-2 leading-relaxed">
+                      <p className="hidden sm:block text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-1 sm:mt-2 line-clamp-2 leading-relaxed">
                         {cat.description}
                       </p>
                     )}
                   </div>
-                  <div className="mt-3 sm:mt-5 pt-2 sm:pt-4 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between text-[11px] sm:text-xs font-bold text-stone-800 dark:text-stone-200 group-hover:translate-x-1 transition-transform">
+                  <div className="hidden sm:flex mt-3 sm:mt-5 pt-2 sm:pt-4 border-t border-stone-100 dark:border-stone-800/80 items-center justify-between text-xs font-bold text-stone-800 dark:text-stone-200 group-hover:translate-x-1 transition-transform">
                     <span>დათვალიერება</span>
                     <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
@@ -235,34 +241,67 @@ export default function Home() {
               </Link>
             ))}
           </div>
+
+          {/* Mobile only "See full catalog" button */}
+          <div className="mt-3 sm:hidden text-center">
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 text-xs font-bold hover:text-stone-950 dark:hover:text-white"
+            >
+              <span>სრული კატალოგის ნახვა</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* 3. FEATURED PRODUCTS (Expanded Widescreen Layout) */}
+      {/* 3. FEATURED PRODUCTS (Expanded Widescreen Layout + Mobile Horizontal Swiper) */}
       <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 sm:mb-8">
+          <div className="flex items-end justify-between gap-3 mb-5 sm:mb-8">
             <div>
-              <span className="text-stone-500 dark:text-stone-400 text-xs font-bold uppercase tracking-widest block">
+              <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
                 პოპულარული მოდელები
               </span>
               <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white mt-0.5 sm:mt-1">
                 გამორჩეული პროდუქცია
               </h2>
             </div>
-            <Link
-              to="/products"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition"
-            >
-              <span>ყველა პროდუქტი ({products.length})</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+            <div className="flex items-center gap-3">
+              <span className="sm:hidden text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 shrink-0 animate-pulse">
+                გადაფურცლეთ →
+              </span>
+              <Link
+                to="/products"
+                className="hidden sm:inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition"
+              >
+                <span>ყველა პროდუქტი ({products.length})</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6 xl:gap-8">
+          {/* Mobile: Horizontal scrollable track with ~2.3 - 2.5 items visible | Desktop: Grid */}
+          <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 xl:gap-8 overflow-x-auto sm:overflow-visible no-scrollbar pb-3 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scroll-px-4">
             {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <div
+                key={product.id}
+                className="snap-start flex-shrink-0 w-[46vw] sm:w-auto sm:flex-shrink-1 min-w-[160px] max-w-[230px]"
+              >
+                <ProductCard product={product} />
+              </div>
             ))}
+          </div>
+
+          {/* Mobile only "See all products" button */}
+          <div className="mt-3 sm:hidden text-center">
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 text-xs font-bold hover:text-stone-950 dark:hover:text-white"
+            >
+              <span>ყველა პროდუქტი ({products.length})</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </section>
@@ -343,74 +382,95 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. PORTFOLIO / COMPLETED PROJECTS (Expanded Widescreen) */}
-      <section className="bg-white dark:bg-stone-950 py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+      {/* 5. PORTFOLIO / COMPLETED PROJECTS (Expanded Widescreen + Mobile Horizontal Swiper) */}
+      <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div className="flex items-end justify-between gap-3 mb-5 sm:mb-8">
             <div>
-              <span className="text-stone-500 dark:text-stone-400 text-xs font-bold uppercase tracking-widest block">
+              <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
                 პორტფოლიო
               </span>
-              <h2 className="text-2xl sm:text-4xl font-extrabold text-stone-900 dark:text-white mt-1">
+              <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white mt-0.5 sm:mt-1">
                 შესრულებული სამუშაოები
               </h2>
             </div>
-            <Link
-              to="/portfolio"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-sm font-semibold transition"
-            >
-              <span>ყველა პროექტის ნახვა ({projects.length})</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+            <div className="flex items-center gap-3">
+              <span className="md:hidden text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 shrink-0 animate-pulse">
+                გადაფურცლეთ →
+              </span>
+              <Link
+                to="/portfolio"
+                className="hidden md:inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-sm font-semibold transition"
+              >
+                <span>ყველა პროექტის ნახვა ({projects.length})</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
+          {/* Mobile: Horizontal scrollable track with ~1.3 cards visible | Desktop: 3-column Grid */}
+          <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 xl:gap-8 overflow-x-auto md:overflow-visible no-scrollbar pb-3 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory scroll-px-4">
             {projects.map((project) => (
-              <Link
+              <div
                 key={project.id}
-                to={`/portfolio/${project.id}`}
-                className="group bg-[#fbfbf9] dark:bg-stone-900 rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-600 transition-all duration-300 flex flex-col"
+                className="snap-start flex-shrink-0 w-[78vw] sm:w-[55vw] md:w-auto md:flex-shrink-1 min-w-[270px] max-w-[360px] flex flex-col"
               >
-                <div className="aspect-[16/10] overflow-hidden relative bg-stone-100 dark:bg-stone-800">
-                  <img
-                    src={project.images?.[0] || project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {/* Location & Year Badges */}
-                  <div className="absolute top-3.5 left-3.5 flex items-center gap-2">
-                    <span className="bg-white/90 dark:bg-stone-950/85 backdrop-blur text-stone-900 dark:text-white text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1 border border-stone-200 dark:border-stone-800 shadow-sm">
-                      <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                      {project.location}
-                    </span>
-                    <span className="bg-stone-800 text-white dark:bg-white dark:text-stone-950 text-xs font-bold px-2 py-1 rounded-lg">
-                      {project.year}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-6 flex-grow flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition">
-                      {project.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-2 line-clamp-2 leading-relaxed">
-                      {project.shortDesc || project.description}
-                    </p>
+                <Link
+                  to={`/portfolio/${project.id}`}
+                  className="group bg-[#fbfbf9] dark:bg-stone-900 rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-600 transition-all duration-300 flex flex-col h-full"
+                >
+                  <div className="aspect-[16/10] overflow-hidden relative bg-stone-100 dark:bg-stone-800">
+                    <img
+                      src={project.images?.[0] || project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {/* Location & Year Badges */}
+                    <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 flex items-center gap-1.5 sm:gap-2">
+                      <span className="bg-white/90 dark:bg-stone-950/85 backdrop-blur text-stone-900 dark:text-white text-[11px] sm:text-xs font-semibold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg flex items-center gap-1 border border-stone-200 dark:border-stone-800 shadow-sm">
+                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600 dark:text-amber-400" />
+                        {project.location}
+                      </span>
+                      <span className="bg-stone-800 text-white dark:bg-white dark:text-stone-950 text-[11px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-lg">
+                        {project.year}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="mt-5 pt-4 border-t border-stone-200/80 dark:border-stone-800/80 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
-                    <span className="truncate max-w-[200px]">
-                      მოცულობა:{" "}
-                      <strong className="text-stone-800 dark:text-stone-200">{project.scope}</strong>
-                    </span>
-                    <span className="text-amber-600 dark:text-amber-400 font-bold shrink-0">
-                      დეტალები →
-                    </span>
+                  <div className="p-4 sm:p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-sm sm:text-lg font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition line-clamp-1">
+                        {project.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-1 sm:mt-2 line-clamp-2 leading-relaxed">
+                        {project.shortDesc || project.description}
+                      </p>
+                    </div>
+
+                    <div className="mt-3 sm:mt-5 pt-3 sm:pt-4 border-t border-stone-200/80 dark:border-stone-800/80 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
+                      <span className="truncate max-w-[160px] sm:max-w-[200px]">
+                        მოცულობა:{" "}
+                        <strong className="text-stone-800 dark:text-stone-200">{project.scope}</strong>
+                      </span>
+                      <span className="text-amber-600 dark:text-amber-400 font-bold shrink-0">
+                        დეტალები →
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
             ))}
+          </div>
+
+          {/* Mobile only "See all projects" button */}
+          <div className="mt-3 md:hidden text-center">
+            <Link
+              to="/portfolio"
+              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 text-xs font-bold hover:text-stone-950 dark:hover:text-white"
+            >
+              <span>ყველა პროექტის ნახვა ({projects.length})</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </section>

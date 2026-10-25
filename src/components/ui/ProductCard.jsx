@@ -25,7 +25,7 @@ export default function ProductCard({ product }) {
   return (
     <Link
       to={`/products/${product.id}`}
-      className="group rounded-2xl overflow-hidden transition-all duration-300 flex flex-col border bg-white dark:bg-stone-900 border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 relative"
+      className="group rounded-2xl overflow-hidden transition-all duration-300 flex flex-col border bg-white dark:bg-stone-900 border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 relative h-full"
     >
       {/* Image container */}
       <div className="aspect-[4/3] overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
