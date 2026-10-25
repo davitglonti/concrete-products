@@ -73,6 +73,8 @@ export default function Home() {
             <img
               src={item.image}
               alt={item.titleMain}
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "low"}
               className="w-full h-full object-cover object-center scale-100 transition-transform duration-1000"
             />
             {/* Seamless, organic gradient */}

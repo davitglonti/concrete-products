@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+
+Sitemap: https://concrete-products-rho.vercel.app/sitemap.xml
