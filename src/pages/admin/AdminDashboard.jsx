@@ -165,8 +165,16 @@ export default function AdminDashboard() {
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Compress to optimized high quality JPEG (40-70KB per photo)
-        const compressedUrl = canvas.toDataURL("image/jpeg", 0.75);
+        // Compress to high performance, optimized WebP format (with JPEG fallback)
+        let compressedUrl;
+        try {
+          compressedUrl = canvas.toDataURL("image/webp", 0.8);
+          if (!compressedUrl.startsWith("data:image/webp")) {
+            compressedUrl = canvas.toDataURL("image/jpeg", 0.75);
+          }
+        } catch {
+          compressedUrl = canvas.toDataURL("image/jpeg", 0.75);
+        }
         callback(compressedUrl);
       };
       img.src = e.target.result;

@@ -73,7 +73,16 @@ export default function SiteSettingsManager() {
         canvas.height = h;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, w, h);
-        const dataUrl = canvas.toDataURL("image/png", 0.9);
+        // Compress to WebP with transparency support (with PNG fallback)
+        let dataUrl;
+        try {
+          dataUrl = canvas.toDataURL("image/webp", 0.85);
+          if (!dataUrl.startsWith("data:image/webp")) {
+            dataUrl = canvas.toDataURL("image/png", 0.9);
+          }
+        } catch {
+          dataUrl = canvas.toDataURL("image/png", 0.9);
+        }
         callback(dataUrl);
       };
       img.src = e.target.result;
