@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import ProductCard from "../components/ui/ProductCard";
@@ -22,6 +22,37 @@ export default function Home() {
 
   const [form, setForm] = useState({ name: "", phone: "" });
   const [submitted, setSubmitted] = useState(false);
+
+  // Category Slider State & Controls
+  const categorySliderRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkCategoryScroll = () => {
+    if (categorySliderRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = categorySliderRef.current;
+      setCanScrollLeft(scrollLeft > 10);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkCategoryScroll();
+    window.addEventListener("resize", checkCategoryScroll);
+    return () => window.removeEventListener("resize", checkCategoryScroll);
+  }, [categories]);
+
+  const scrollCategories = (direction) => {
+    if (categorySliderRef.current) {
+      const containerWidth = categorySliderRef.current.clientWidth;
+      const scrollStep = containerWidth / 4 + 24;
+      categorySliderRef.current.scrollBy({
+        left: direction === "left" ? -scrollStep : scrollStep,
+        behavior: "smooth",
+      });
+      setTimeout(checkCategoryScroll, 350);
+    }
+  };
 
   // Auto-play carousel
   useEffect(() => {
@@ -176,7 +207,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. CATEGORIES SECTION (Original Desktop Grid + Mobile Horizontal Swiper) */}
+      {/* 2. CATEGORIES SECTION (Desktop Carousel Slider + Mobile Horizontal Swiper) */}
       <section className="bg-[#f5f3ee] dark:bg-stone-900/40 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
           <div className="flex items-end justify-between gap-3 mb-6 sm:mb-8">
@@ -188,22 +219,61 @@ export default function Home() {
                 ბეტონის ნაკეთობების კატეგორიები
               </h2>
             </div>
-            <Link
-              to="/products"
-              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
-            >
-              <span>სრული კატალოგის ნახვა</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+
+            <div className="flex items-center gap-3">
+              {/* Desktop Slider Navigation Arrows */}
+              <div className="hidden sm:flex items-center gap-1.5 mr-1">
+                <button
+                  type="button"
+                  onClick={() => scrollCategories("left")}
+                  disabled={!canScrollLeft}
+                  className={`w-9 h-9 rounded-xl border flex items-center justify-center transition ${
+                    canScrollLeft
+                      ? "border-stone-300 dark:border-stone-700 text-stone-800 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 shadow-sm active:scale-95"
+                      : "border-stone-200 dark:border-stone-800 text-stone-300 dark:text-stone-700 cursor-not-allowed opacity-30"
+                  }`}
+                  aria-label="Previous categories"
+                  title="წინა"
+                >
+                  <ChevronLeft className="w-4 h-4 stroke-[2.2]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollCategories("right")}
+                  disabled={!canScrollRight}
+                  className={`w-9 h-9 rounded-xl border flex items-center justify-center transition ${
+                    canScrollRight
+                      ? "border-stone-300 dark:border-stone-700 text-stone-800 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 shadow-sm active:scale-95"
+                      : "border-stone-200 dark:border-stone-800 text-stone-300 dark:text-stone-700 cursor-not-allowed opacity-30"
+                  }`}
+                  aria-label="Next categories"
+                  title="შემდეგი"
+                >
+                  <ChevronRight className="w-4 h-4 stroke-[2.2]" />
+                </button>
+              </div>
+
+              <Link
+                to="/products"
+                className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
+              >
+                <span>სრული კატალოგის ნახვა</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
 
-          {/* Desktop Grid (Original Layout — Hidden on Mobile) */}
-          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
+          {/* Desktop Slider Track: exactly 4 cards fit on screen, 5th+ slides smoothly! */}
+          <div
+            ref={categorySliderRef}
+            onScroll={checkCategoryScroll}
+            className="hidden sm:flex overflow-x-auto no-scrollbar gap-6 xl:gap-8 pb-3 pt-1 scroll-smooth snap-x snap-mandatory"
+          >
             {(categories && categories.length > 0 ? categories : CATEGORIES).map((cat) => (
               <Link
                 key={cat.id}
                 to={`/products?category=${cat.id}`}
-                className="group bg-white dark:bg-stone-900 rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-600 transition-all duration-300 flex flex-col"
+                className="group flex-shrink-0 snap-start w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3*1.5rem)/4)] xl:w-[calc((100%-3*2rem)/4)] bg-white dark:bg-stone-900 rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-600 transition-all duration-300 flex flex-col"
               >
                 <div className="aspect-[4/3] overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
                   <img
