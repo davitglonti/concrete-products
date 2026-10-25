@@ -97,66 +97,107 @@ export default function CompareModal() {
             </div>
           ) : (
             <div className="overflow-x-auto scrollbar-thin pb-4">
-              <table className="w-full min-w-[620px] border-collapse text-left text-xs sm:text-sm">
+              <table className="w-full min-w-[680px] border-collapse text-left text-xs sm:text-sm">
                 <thead>
-                  {/* Row: Product Photo, Title, Delete, View Button */}
-                  <tr className="border-b border-stone-200 dark:border-stone-800">
-                    <th className="p-3 w-40 text-xs uppercase tracking-wider text-stone-400 font-bold bg-[#faf8f4] dark:bg-stone-950/60 rounded-tl-2xl">
+                  {/* Row 1: Photos & Delete Button */}
+                  <tr className="border-b border-stone-200/80 dark:border-stone-800/80">
+                    <th className="p-3.5 sm:p-4 w-40 sm:w-48 text-xs uppercase tracking-wider text-stone-400 font-bold bg-[#faf8f4] dark:bg-stone-950/60 border-r border-stone-200/70 dark:border-stone-800/70 align-middle">
                       პროდუქტი
                     </th>
                     {compareProducts.map((p) => (
                       <th
                         key={p.id}
-                        className="p-3 sm:p-4 min-w-[200px] max-w-[260px] align-top bg-white dark:bg-stone-900"
+                        className="p-3.5 sm:p-4 w-60 sm:w-68 min-w-[220px] max-w-[280px] align-top bg-white dark:bg-stone-900"
                       >
-                        <div className="relative group rounded-xl overflow-hidden aspect-[4/3] bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 shadow-sm mb-3">
+                        <div className="relative group rounded-2xl overflow-hidden h-44 sm:h-52 w-full bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 shadow-sm">
                           <img
                             src={p.images?.[0] || p.image}
                             alt={p.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                           />
                           <button
                             onClick={() => removeFromCompare(p.id)}
-                            className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 hover:bg-red-600 text-white transition shadow"
+                            className="absolute top-2.5 right-2.5 p-2 rounded-full bg-stone-900/80 hover:bg-red-600 text-white backdrop-blur transition-all duration-200 shadow-md group-hover:scale-110"
                             title="შედარებიდან ამოღება"
                           >
                             <X className="w-3.5 h-3.5" />
                           </button>
                         </div>
-
-                        <span className="text-[10px] bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-                          {p.categoryLabel}
-                        </span>
-
-                        <h4 className="font-extrabold text-stone-900 dark:text-white text-sm sm:text-base mt-1 line-clamp-2">
-                          {p.name}
-                        </h4>
-
-                        <Link
-                          to={`/products/${p.id}`}
-                          onClick={() => setIsCompareModalOpen(false)}
-                          className="mt-3 w-full inline-flex items-center justify-center gap-1.5 text-xs font-bold text-stone-800 dark:text-white bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 py-2 rounded-xl transition"
-                        >
-                          <span>დეტალები</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </Link>
                       </th>
                     ))}
 
-                    {/* Empty add slots if < 4 */}
+                    {/* Empty add slot if < 4 */}
                     {compareProducts.length < 4 && (
-                      <th className="p-4 min-w-[160px] align-middle text-center bg-[#fbfbf9]/60 dark:bg-stone-950/30 border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-2xl">
+                      <th className="p-3.5 sm:p-4 w-60 sm:w-68 min-w-[220px] max-w-[280px] align-top bg-white dark:bg-stone-900">
                         <Link
                           to="/products"
                           onClick={() => setIsCompareModalOpen(false)}
-                          className="flex flex-col items-center justify-center gap-2 p-4 text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition group"
+                          className="h-44 sm:h-52 w-full rounded-2xl border-2 border-dashed border-stone-300 dark:border-stone-700 hover:border-amber-500 dark:hover:border-amber-400 bg-stone-50/60 dark:bg-stone-950/40 hover:bg-amber-50/30 dark:hover:bg-amber-500/5 transition flex flex-col items-center justify-center gap-2 group p-4"
                         >
-                          <div className="w-10 h-10 rounded-full bg-stone-200/80 dark:bg-stone-800 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Plus className="w-5 h-5" />
+                          <div className="w-11 h-11 rounded-full bg-stone-200/80 dark:bg-stone-800 text-stone-500 group-hover:bg-amber-500 group-hover:text-stone-950 flex items-center justify-center transition-all group-hover:scale-110 shadow-sm">
+                            <Plus className="w-5 h-5 stroke-[2.5]" />
                           </div>
-                          <span className="text-xs font-bold">
+                          <span className="text-xs font-bold text-stone-600 dark:text-stone-400 group-hover:text-amber-600 dark:group-hover:text-amber-400">
                             + პროდუქტის დამატება
                           </span>
+                        </Link>
+                      </th>
+                    )}
+                  </tr>
+
+                  {/* Row 2: Category & Title */}
+                  <tr className="border-b border-stone-200/80 dark:border-stone-800/80 bg-stone-50/40 dark:bg-stone-950/30">
+                    <th className="p-3.5 sm:p-4 text-xs font-bold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60 border-r border-stone-200/70 dark:border-stone-800/70 align-middle">
+                      დასახელება
+                    </th>
+                    {compareProducts.map((p) => (
+                      <th key={p.id} className="p-3.5 sm:p-4 align-top">
+                        <div className="h-16 flex flex-col justify-center">
+                          <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1 line-clamp-1">
+                            {p.categoryLabel}
+                          </span>
+                          <h4
+                            className="font-extrabold text-stone-900 dark:text-white text-sm sm:text-base line-clamp-2 leading-tight"
+                            title={p.name}
+                          >
+                            {p.name}
+                          </h4>
+                        </div>
+                      </th>
+                    ))}
+                    {compareProducts.length < 4 && (
+                      <th className="p-3.5 sm:p-4 align-middle text-center text-xs text-stone-400 italic">
+                        —
+                      </th>
+                    )}
+                  </tr>
+
+                  {/* Row 3: Action Button */}
+                  <tr className="border-b border-stone-200/80 dark:border-stone-800/80">
+                    <th className="p-3.5 sm:p-4 text-xs font-bold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60 border-r border-stone-200/70 dark:border-stone-800/70 align-middle">
+                      დეტალები
+                    </th>
+                    {compareProducts.map((p) => (
+                      <th key={p.id} className="p-3.5 sm:p-4 align-middle">
+                        <Link
+                          to={`/products/${p.id}`}
+                          onClick={() => setIsCompareModalOpen(false)}
+                          className="w-full inline-flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-stone-900 hover:bg-stone-800 dark:bg-white dark:text-stone-950 dark:hover:bg-stone-100 py-2.5 px-4 rounded-xl transition shadow-sm"
+                        >
+                          <span>გვერდის ნახვა</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                      </th>
+                    ))}
+                    {compareProducts.length < 4 && (
+                      <th className="p-3.5 sm:p-4 align-middle">
+                        <Link
+                          to="/products"
+                          onClick={() => setIsCompareModalOpen(false)}
+                          className="w-full inline-flex items-center justify-center gap-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 py-2.5 px-3 rounded-xl transition border border-dashed border-stone-300 dark:border-stone-700"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>არჩევა</span>
                         </Link>
                       </th>
                     )}
@@ -164,13 +205,13 @@ export default function CompareModal() {
                 </thead>
 
                 <tbody className="divide-y divide-stone-200/80 dark:divide-stone-800/80">
-                  {/* Price */}
+                  {/* Row 4: Price */}
                   <tr className="hover:bg-stone-50/60 dark:hover:bg-stone-800/30 transition">
-                    <td className="p-3 font-semibold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60">
+                    <td className="p-3.5 sm:p-4 font-bold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60 border-r border-stone-200/70 dark:border-stone-800/70">
                       ღირებულება
                     </td>
                     {compareProducts.map((p) => (
-                      <td key={p.id} className="p-3 sm:p-4">
+                      <td key={p.id} className="p-3.5 sm:p-4">
                         <div className="flex items-baseline gap-1">
                           <span className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400">
                             {p.price ? `${p.price} ₾` : "შეთანხმებით"}
@@ -183,87 +224,101 @@ export default function CompareModal() {
                         </div>
                       </td>
                     ))}
-                    {compareProducts.length < 4 && <td />}
+                    {compareProducts.length < 4 && (
+                      <td className="p-3.5 sm:p-4 text-center font-mono text-stone-300 dark:text-stone-700">—</td>
+                    )}
                   </tr>
 
-                  {/* Dimensions */}
+                  {/* Row 5: Dimensions */}
                   <tr className="hover:bg-stone-50/60 dark:hover:bg-stone-800/30 transition">
-                    <td className="p-3 font-semibold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60">
+                    <td className="p-3.5 sm:p-4 font-bold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60 border-r border-stone-200/70 dark:border-stone-800/70">
                       ზომები (მმ)
                     </td>
                     {compareProducts.map((p) => (
-                      <td key={p.id} className="p-3 sm:p-4 font-mono font-medium text-stone-800 dark:text-stone-200">
+                      <td key={p.id} className="p-3.5 sm:p-4 font-mono font-medium text-stone-800 dark:text-stone-200">
                         {p.dimensions || "—"}
                       </td>
                     ))}
-                    {compareProducts.length < 4 && <td />}
+                    {compareProducts.length < 4 && (
+                      <td className="p-3.5 sm:p-4 text-center font-mono text-stone-300 dark:text-stone-700">—</td>
+                    )}
                   </tr>
 
-                  {/* Weight */}
+                  {/* Row 6: Weight */}
                   <tr className="hover:bg-stone-50/60 dark:hover:bg-stone-800/30 transition">
-                    <td className="p-3 font-semibold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60">
+                    <td className="p-3.5 sm:p-4 font-bold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60 border-r border-stone-200/70 dark:border-stone-800/70">
                       სავარაუდო წონა
                     </td>
                     {compareProducts.map((p) => (
-                      <td key={p.id} className="p-3 sm:p-4 text-stone-800 dark:text-stone-200">
+                      <td key={p.id} className="p-3.5 sm:p-4 text-stone-800 dark:text-stone-200">
                         {p.weight || "—"}
                       </td>
                     ))}
-                    {compareProducts.length < 4 && <td />}
+                    {compareProducts.length < 4 && (
+                      <td className="p-3.5 sm:p-4 text-center font-mono text-stone-300 dark:text-stone-700">—</td>
+                    )}
                   </tr>
 
-                  {/* Concrete Grade */}
+                  {/* Row 7: Concrete Grade */}
                   <tr className="hover:bg-stone-50/60 dark:hover:bg-stone-800/30 transition">
-                    <td className="p-3 font-semibold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60">
+                    <td className="p-3.5 sm:p-4 font-bold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60 border-r border-stone-200/70 dark:border-stone-800/70">
                       ბეტონის მარკა
                     </td>
                     {compareProducts.map((p) => (
-                      <td key={p.id} className="p-3 sm:p-4">
-                        <span className="inline-flex items-center gap-1 font-bold text-stone-900 dark:text-white bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded">
+                      <td key={p.id} className="p-3.5 sm:p-4">
+                        <span className="inline-flex items-center gap-1 font-bold text-stone-900 dark:text-white bg-stone-100 dark:bg-stone-800 px-2.5 py-1 rounded-lg border border-stone-200 dark:border-stone-700">
                           {p.concreteGrade || "B35 (M450)"}
                         </span>
                       </td>
                     ))}
-                    {compareProducts.length < 4 && <td />}
+                    {compareProducts.length < 4 && (
+                      <td className="p-3.5 sm:p-4 text-center font-mono text-stone-300 dark:text-stone-700">—</td>
+                    )}
                   </tr>
 
-                  {/* Frost Resistance */}
+                  {/* Row 8: Frost Resistance */}
                   <tr className="hover:bg-stone-50/60 dark:hover:bg-stone-800/30 transition">
-                    <td className="p-3 font-semibold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60">
+                    <td className="p-3.5 sm:p-4 font-bold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60 border-r border-stone-200/70 dark:border-stone-800/70">
                       ყინვაგამძლეობა
                     </td>
                     {compareProducts.map((p) => (
-                      <td key={p.id} className="p-3 sm:p-4 font-medium text-stone-800 dark:text-stone-200">
-                        {p.frostResistance || "F300"}
+                      <td key={p.id} className="p-3.5 sm:p-4 font-medium text-stone-800 dark:text-stone-200">
+                        {p.frostResistance || "F300 (W8)"}
                       </td>
                     ))}
-                    {compareProducts.length < 4 && <td />}
+                    {compareProducts.length < 4 && (
+                      <td className="p-3.5 sm:p-4 text-center font-mono text-stone-300 dark:text-stone-700">—</td>
+                    )}
                   </tr>
 
-                  {/* Surface Finish */}
+                  {/* Row 9: Surface Finish */}
                   <tr className="hover:bg-stone-50/60 dark:hover:bg-stone-800/30 transition">
-                    <td className="p-3 font-semibold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60">
+                    <td className="p-3.5 sm:p-4 font-bold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60 border-r border-stone-200/70 dark:border-stone-800/70">
                       ზედაპირის ფაქტურა
                     </td>
                     {compareProducts.map((p) => (
-                      <td key={p.id} className="p-3 sm:p-4 text-stone-700 dark:text-stone-300">
-                        {p.surface || "ქვიშაჭავლური"}
+                      <td key={p.id} className="p-3.5 sm:p-4 text-stone-700 dark:text-stone-300">
+                        {p.surface || "ქვიშაჭავლური / გლუვი"}
                       </td>
                     ))}
-                    {compareProducts.length < 4 && <td />}
+                    {compareProducts.length < 4 && (
+                      <td className="p-3.5 sm:p-4 text-center font-mono text-stone-300 dark:text-stone-700">—</td>
+                    )}
                   </tr>
 
-                  {/* Description */}
+                  {/* Row 10: Description */}
                   <tr className="hover:bg-stone-50/60 dark:hover:bg-stone-800/30 transition">
-                    <td className="p-3 font-semibold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60">
+                    <td className="p-3.5 sm:p-4 font-bold text-stone-500 dark:text-stone-400 bg-[#faf8f4] dark:bg-stone-950/60 border-r border-stone-200/70 dark:border-stone-800/70">
                       აღწერა & გამოყენება
                     </td>
                     {compareProducts.map((p) => (
-                      <td key={p.id} className="p-3 sm:p-4 text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+                      <td key={p.id} className="p-3.5 sm:p-4 text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                         {p.shortDesc || p.description || "—"}
                       </td>
                     ))}
-                    {compareProducts.length < 4 && <td />}
+                    {compareProducts.length < 4 && (
+                      <td className="p-3.5 sm:p-4 text-center font-mono text-stone-300 dark:text-stone-700">—</td>
+                    )}
                   </tr>
                 </tbody>
               </table>
