@@ -58,6 +58,32 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Touch swipe gesture support for mobile carousel
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = e.touches[0].clientX;
+    setIsPaused(true);
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    setIsPaused(false);
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+  };
+
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
   };
@@ -82,20 +108,24 @@ export default function Home() {
 
   return (
     <div className="flex flex-col w-full bg-[#fbfbf9] dark:bg-stone-950 transition-colors duration-200">
-      {/* 1. FULL-WIDTH HERO SLIDER (Direct Text on Photo - Modern Editorial Layout) */}
+      {/* 1. FULL-WIDTH HERO SLIDER (Luxury Editorial Layout with Touch Swipe & Segmented Progress) */}
       <section
-        className="relative w-full h-[84vh] min-h-[500px] max-h-[680px] sm:min-h-[640px] sm:max-h-none lg:h-[780px] overflow-hidden bg-stone-950 flex flex-col justify-end pb-12 sm:pb-16 sm:justify-center"
+        className="relative w-full h-[86vh] min-h-[540px] max-h-[760px] lg:h-[820px] overflow-hidden bg-stone-950 flex flex-col justify-end pb-16 sm:pb-24 select-none"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Full-bleed background images (only active/visited slides rendered in DOM) */}
+        {/* Full-bleed background images with subtle Ken-Burns zoom */}
         {HERO_SLIDES.map((item, index) => {
           const isLoaded = loadedSlides.has(index);
+          const isActive = index === currentSlide;
           return (
             <div
               key={item.id}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                index === currentSlide ? "opacity-100 z-1" : "opacity-0 pointer-events-none z-0"
+              className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
+                isActive ? "opacity-100 z-1" : "opacity-0 pointer-events-none z-0"
               }`}
             >
               {isLoaded ? (
@@ -110,114 +140,114 @@ export default function Home() {
                   loading={index === 0 ? "eager" : "lazy"}
                   fetchPriority={index === 0 ? "high" : "low"}
                   decoding={index === 0 ? "sync" : "async"}
-                  className="w-full h-full object-cover object-center scale-100 transition-transform duration-1000"
+                  className={`w-full h-full object-cover object-center transition-transform duration-[7000ms] ease-out ${
+                    isActive ? "scale-105" : "scale-100"
+                  }`}
                 />
               ) : (
                 <div className="w-full h-full bg-stone-950" />
               )}
-              {/* Seamless, organic cinematic gradient (keeps top/center photo visible, darkens bottom for text) */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent sm:from-black/90 sm:via-black/40" />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/35 to-transparent sm:from-black/85" />
+              {/* Cinematic Vignette Gradients: Leaves upper architecture visible, ensures high legibility below */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/35 to-transparent sm:from-black/80" />
             </div>
           );
         })}
 
-        {/* Content Container (Bottom-anchored on mobile for breathable photo view) */}
-        <div className="relative z-10 max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 w-full">
+        {/* Content Container (Bottom-anchored, clean & breathable) */}
+        <div className="relative z-10 max-w-[1720px] mx-auto px-5 sm:px-8 lg:px-12 xl:px-16 w-full">
           <div className="max-w-2xl lg:max-w-3xl">
-            {/* Dynamic Pill Eyebrow Badge */}
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/10 dark:bg-stone-900/60 border border-white/20 text-white text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full backdrop-blur-md mb-2 sm:mb-4 shadow-sm">
-              <Sparkles className="w-3 h-3 text-amber-400 flex-shrink-0" />
-              <span>{slide.badge}</span>
+            {/* Category Eyebrow: Pure Swiss / Italian Minimalist Architecture Style */}
+            <div className="flex items-center gap-2.5 mb-2.5 sm:mb-3">
+              <span className="w-6 sm:w-8 h-[1.5px] bg-amber-400"></span>
+              <span className="text-[11px] sm:text-xs font-mono font-bold tracking-[0.2em] uppercase text-amber-400">
+                {slide.tag}
+              </span>
             </div>
 
-            {/* Dynamic Headline */}
-            <h1 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight sm:leading-[1.15] drop-shadow-md">
-              {slide.titleMain} <br className="hidden sm:inline" />
-              <span className="text-amber-400 drop-shadow">
+            {/* Main Headline: Bold + Light pairing */}
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.12]">
+              {slide.titleMain}{" "}
+              <span className="block text-white/90 font-light mt-0.5 sm:mt-1">
                 {slide.titleHighlight}
               </span>
             </h1>
 
-            {/* Dynamic Subtitle */}
-            <p className="text-stone-300 text-xs sm:text-base lg:text-lg mt-1.5 sm:mt-3 max-w-xl leading-relaxed font-normal drop-shadow line-clamp-2 sm:line-clamp-none">
+            {/* Subtitle */}
+            <p className="text-stone-300 text-xs sm:text-base lg:text-lg mt-2 sm:mt-4 max-w-xl leading-relaxed font-normal line-clamp-2 sm:line-clamp-3">
               {slide.subtitle}
             </p>
 
-            {/* Action Buttons (Compact horizontal pair on mobile — takes only 1 neat row) */}
-            <div className="mt-3.5 sm:mt-6 flex flex-row items-center gap-2 sm:gap-4">
+            {/* Primary Action Button + Secondary Link */}
+            <div className="mt-4 sm:mt-7 flex items-center gap-3 sm:gap-5">
               <Link
                 to={slide.categoryLink}
-                className="bg-white hover:bg-stone-100 text-stone-950 font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl inline-flex items-center justify-center gap-1.5 text-xs sm:text-sm shadow-lg transition active:scale-95 shrink-0"
+                className="bg-white hover:bg-stone-200 text-stone-950 font-bold px-5 py-2.5 sm:px-7 sm:py-3.5 rounded-full inline-flex items-center gap-2 text-xs sm:text-sm shadow-xl transition active:scale-95 group"
               >
                 <span>{slide.buttonText}</span>
-                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to="/portfolio"
-                className="bg-white/15 hover:bg-white/25 text-white font-semibold px-3.5 py-2 sm:px-6 sm:py-3 rounded-xl border border-white/25 backdrop-blur-md text-xs sm:text-sm transition active:scale-95 shrink-0"
+                className="text-white/85 hover:text-white text-xs sm:text-sm font-semibold tracking-wide transition flex items-center gap-1 group py-2"
               >
-                შესრულებული სამუშაოები
+                <span>პროექტები</span>
+                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </Link>
-            </div>
-
-            {/* Quick Specs Indicator (Desktop/Tablet only — kept off mobile to eliminate visual clutter) */}
-            <div className="hidden sm:flex mt-6 pt-4 border-t border-white/20 items-center gap-6 text-xs text-stone-300 font-medium drop-shadow">
-              <span className="flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> F300 ყინვაგამძლეობა
-              </span>
-              <span className="flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> M500 სიმტკიცე
-              </span>
-              <span className="flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Bayferrox პიგმენტაცია
-              </span>
             </div>
           </div>
         </div>
 
-        {/* Carousel Floating Controls (Compact, clean and proportioned for mobile) */}
-        <div className="absolute bottom-3 right-3 sm:bottom-8 sm:right-12 z-20 flex items-center gap-1.5 sm:gap-3 bg-black/60 backdrop-blur-md border border-white/20 px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-xl text-white">
-          {/* Slide counter */}
-          <div className="text-[10px] sm:text-xs font-mono font-bold pr-1.5 sm:pr-2 border-r border-white/20">
-            <span>0{currentSlide + 1}</span>
-            <span className="text-white/50"> / 0{HERO_SLIDES.length}</span>
-          </div>
+        {/* Modern Segmented Progress Navigation (Luxury Brand Style - Apple / Rimadesio / Poliform) */}
+        <div className="absolute bottom-4 sm:bottom-7 left-5 right-5 sm:left-8 sm:right-8 lg:left-12 lg:right-12 xl:left-16 xl:right-16 z-20">
+          <div className="max-w-[1720px] mx-auto flex items-center justify-between gap-4">
+            {/* 4 Segmented Progress Bars with Category Titles */}
+            <div className="grid grid-cols-4 gap-2 sm:gap-4 w-full">
+              {HERO_SLIDES.map((item, idx) => (
+                <button
+                  key={item.id}
+                  onClick={() => setCurrentSlide(idx)}
+                  className="text-left group py-2 focus:outline-none"
+                  aria-label={`სლაიდი ${idx + 1}: ${item.tag}`}
+                >
+                  {/* Progress line */}
+                  <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full bg-white rounded-full transition-all ${
+                        idx === currentSlide
+                          ? "w-full duration-500 ease-out shadow-sm"
+                          : idx < currentSlide
+                          ? "w-full opacity-60"
+                          : "w-0"
+                      }`}
+                    />
+                  </div>
+                  {/* Slide title (visible on sm+, clean & minimalistic) */}
+                  <div className="hidden sm:flex items-center justify-between mt-2 text-[11px] font-medium text-white/70 group-hover:text-white transition">
+                    <span className="font-mono text-white/50">0{idx + 1}</span>
+                    <span className="truncate max-w-[120px]">{item.tag}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
 
-          {/* Dots */}
-          <div className="flex items-center gap-1 sm:gap-1.5">
-            {HERO_SLIDES.map((_, idx) => (
+            {/* Prev / Next Minimalist Round Arrow Buttons (Desktop) */}
+            <div className="hidden md:flex items-center gap-1.5 shrink-0 pl-3 border-l border-white/20">
               <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                aria-label={`Slide ${idx + 1}`}
-                className="p-1 sm:p-1.5 flex items-center justify-center"
+                onClick={prevSlide}
+                className="w-8 h-8 rounded-full border border-white/25 hover:border-white text-white flex items-center justify-center transition hover:bg-white/10 active:scale-95"
+                aria-label="Previous slide"
               >
-                <span
-                  className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 block ${
-                    idx === currentSlide ? "w-3.5 sm:w-5 bg-white" : "w-1 sm:w-1.5 bg-white/40 hover:bg-white/70"
-                  }`}
-                />
+                <ChevronLeft className="w-4 h-4" />
               </button>
-            ))}
-          </div>
-
-          {/* Arrows */}
-          <div className="flex items-center gap-0.5 sm:gap-1 pl-1 sm:pl-2 border-l border-white/20">
-            <button
-              onClick={prevSlide}
-              aria-label="Previous slide"
-              className="p-1 sm:p-1.5 rounded-full hover:bg-white/20 transition flex items-center justify-center"
-            >
-              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </button>
-            <button
-              onClick={nextSlide}
-              aria-label="Next slide"
-              className="p-1 sm:p-1.5 rounded-full hover:bg-white/20 transition flex items-center justify-center"
-            >
-              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </button>
+              <button
+                onClick={nextSlide}
+                className="w-8 h-8 rounded-full border border-white/25 hover:border-white text-white flex items-center justify-center transition hover:bg-white/10 active:scale-95"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </section>
