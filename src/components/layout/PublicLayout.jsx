@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import CompareModal from "../ui/CompareModal";
 import CompareFloatingBar from "../ui/CompareFloatingBar";
+import FloatingContactWidget from "../ui/FloatingContactWidget";
 
 export default function PublicLayout() {
   return (
@@ -15,6 +16,7 @@ export default function PublicLayout() {
       <Footer />
       <CompareModal />
       <CompareFloatingBar />
+      <FloatingContactWidget />
     </div>
   );
 }

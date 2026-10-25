@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import ProductCard from "../components/ui/ProductCard";
 import { CATEGORIES, HERO_SLIDES } from "../data/initialData";
+import { BLOG_POSTS } from "../data/blogData";
 import {
   ArrowRight,
   Sparkles,
@@ -13,6 +14,12 @@ import {
   Check,
   ChevronRight,
   ChevronLeft,
+  Calculator,
+  BookOpen,
+  Award,
+  Building2,
+  Clock,
+  Calendar,
 } from "lucide-react";
 
 export default function Home() {
@@ -499,6 +506,88 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 4.5. TRUST & PARTNERS SECTION („ჩვენ გვენდობიან“) */}
+      <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+        <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+            <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block mb-1.5">
+              სანდო პარტნიორობა
+            </span>
+            <h2 className="text-xl sm:text-3xl font-extrabold text-stone-900 dark:text-white">
+              ჩვენ გვენდობიან წამყვანი დეველოპერები & არქიტექტორები
+            </h2>
+            <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-2">
+              ჩვენი არქიტექტურული ბეტონის ნაკეთობები ამშვენებს პრემიუმ საცხოვრებელ კომპლექსებს, სასტუმროებსა და კერძო ვილებს.
+            </p>
+          </div>
+
+          {/* Key Metrics Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-10">
+            <div className="p-4 sm:p-6 rounded-2xl bg-[#fbfbf9] dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 text-center">
+              <span className="text-2xl sm:text-4xl font-black text-stone-950 dark:text-white block font-mono">
+                150+
+              </span>
+              <span className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 block">
+                დასრულებული ობიექტი
+              </span>
+            </div>
+
+            <div className="p-4 sm:p-6 rounded-2xl bg-[#fbfbf9] dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 text-center">
+              <span className="text-2xl sm:text-4xl font-black text-stone-950 dark:text-white block font-mono">
+                15 000+
+              </span>
+              <span className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 block">
+                მ² დაგებული ფილა
+              </span>
+            </div>
+
+            <div className="p-4 sm:p-6 rounded-2xl bg-[#fbfbf9] dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 text-center">
+              <span className="text-2xl sm:text-4xl font-black text-amber-600 dark:text-amber-400 block font-mono">
+                M500 / F300
+              </span>
+              <span className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 block">
+                სერტიფიცირებული ბეტონი
+              </span>
+            </div>
+
+            <div className="p-4 sm:p-6 rounded-2xl bg-[#fbfbf9] dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 text-center">
+              <span className="text-2xl sm:text-4xl font-black text-stone-950 dark:text-white block font-mono">
+                10 წელი
+              </span>
+              <span className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 block">
+                მასალის ოფიციალური გარანტია
+              </span>
+            </div>
+          </div>
+
+          {/* Partner Brands Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+            {[
+              { name: "ARCHI", role: "Development" },
+              { name: "m²", role: "Real Estate" },
+              { name: "SILK", role: "Development" },
+              { name: "ALLIANCE", role: "Group" },
+              { name: "ROOMS", role: "Hotels & Resorts" },
+              { name: "TBILISI HILLS", role: "Golf & Villas" },
+              { name: "RADISSON", role: "BLU Collection" },
+              { name: "DOMUS", role: "Architectural" },
+            ].map((partner) => (
+              <div
+                key={partner.name}
+                className="p-4 rounded-xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-stone-400 dark:hover:border-stone-700 hover:scale-102"
+              >
+                <span className="text-xs sm:text-sm font-black tracking-widest text-stone-800 dark:text-stone-200">
+                  {partner.name}
+                </span>
+                <span className="text-[9px] text-stone-400 uppercase tracking-wider mt-0.5 font-medium">
+                  {partner.role}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 5. PORTFOLIO / COMPLETED PROJECTS (Latest 3 Projects) */}
       <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
@@ -624,6 +713,131 @@ export default function Home() {
                   </div>
                 </Link>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5.5. CALCULATOR PROMO BANNER */}
+      <section className="bg-[#f5f3ee] dark:bg-stone-900/40 py-12 sm:py-16 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+        <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
+          <div className="bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900 text-white rounded-3xl p-8 sm:p-12 lg:p-14 border border-stone-800 shadow-2xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8">
+            {/* Background architectural glow */}
+            <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="max-w-2xl relative z-10">
+              <div className="inline-flex items-center gap-2 bg-amber-500/20 text-amber-400 text-xs font-bold px-3 py-1 rounded-full mb-3 border border-amber-500/30">
+                <Calculator className="w-3.5 h-3.5" />
+                <span>ინტერაქტიული ხელსაწყო</span>
+              </div>
+              <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                დაითვალეთ თქვენი კიბის ან ეზოს ზუსტი ბიუჯეტი
+              </h2>
+              <p className="text-stone-300 text-sm sm:text-base mt-3 leading-relaxed">
+                მიუთითეთ საფეხურების რაოდენობა ან ეზოს ფართობი და ჩვენი ონლაინ კალკულატორი მყისიერად დაგიანგარიშებთ საჭირო ერთეულებს, საერთო წონასა და სავარაუდო ხარჯთაღრიცხვას.
+              </p>
+
+              <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-stone-300">
+                <span className="flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-amber-400" /> L-საფეხურებისა და ფილების გათვლა
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-amber-400" /> წონის & ბიუჯეტის შეფასება
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-amber-400" /> 1-კლიკით ოფიციალური შეთავაზება
+                </span>
+              </div>
+            </div>
+
+            <div className="relative z-10 shrink-0">
+              <Link
+                to="/calculator"
+                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-sm transition-all shadow-xl hover:scale-105"
+              >
+                <Calculator className="w-5 h-5" />
+                <span>კალკულატორის გახსნა →</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5.8. BLOG & SEO KNOWLEDGE BASE PREVIEW */}
+      <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+        <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
+          <div className="flex items-end justify-between gap-3 mb-8 sm:mb-12">
+            <div>
+              <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block">
+                ცოდნის ბაზა & რჩევები
+              </span>
+              <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 dark:text-white mt-0.5 sm:mt-1">
+                არქიტექტურული ბეტონის გზამკვლევი
+              </h2>
+            </div>
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
+            >
+              <span>ყველა სტატიის ნახვა</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            {BLOG_POSTS.slice(0, 3).map((post) => (
+              <article
+                key={post.id}
+                className="group bg-[#fbfbf9] dark:bg-stone-900 rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300 flex flex-col h-full"
+              >
+                <Link
+                  to={`/blog/${post.slug}`}
+                  className="aspect-[16/10] overflow-hidden relative bg-stone-100 dark:bg-stone-800 block"
+                >
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <span className="absolute top-3.5 left-3.5 bg-stone-950/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg border border-white/10 shadow-sm">
+                    {post.category}
+                  </span>
+                </Link>
+
+                <div className="p-6 flex-grow flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 text-[11px] text-stone-400 mb-2">
+                      <Clock className="w-3 h-3 text-amber-500" />
+                      <span>{post.readTime}</span>
+                      <span>•</span>
+                      <span>{post.date}</span>
+                    </div>
+
+                    <Link to={`/blog/${post.slug}`}>
+                      <h3 className="text-base font-bold text-stone-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition leading-snug line-clamp-2">
+                        {post.title}
+                      </h3>
+                    </Link>
+
+                    <p className="text-xs text-stone-600 dark:text-stone-400 mt-2 line-clamp-2 leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  </div>
+
+                  <div className="mt-5 pt-4 border-t border-stone-200/80 dark:border-stone-800/80 flex items-center justify-between">
+                    <span className="text-[11px] text-stone-400">#{post.tags[0]}</span>
+                    <Link
+                      to={`/blog/${post.slug}`}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform"
+                    >
+                      <span>კითხვა</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              </article>
             ))}
           </div>
         </div>

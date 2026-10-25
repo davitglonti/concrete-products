@@ -4,6 +4,7 @@ import { useData } from "../context/DataContext";
 import { useFavorites } from "../context/FavoritesContext";
 import { useCompare } from "../context/CompareContext";
 import ProductCard from "../components/ui/ProductCard";
+import { CONCRETE_TEXTURES } from "../data/textureData";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -20,6 +21,8 @@ import {
   Award,
   Truck,
   Scale,
+  Palette,
+  Calculator,
 } from "lucide-react";
 
 export default function ProductDetails() {
@@ -33,6 +36,7 @@ export default function ProductDetails() {
   const [sent, setSent] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [selectedTexture, setSelectedTexture] = useState(CONCRETE_TEXTURES[0]);
 
   // Collect all images (array or single string fallback)
   const images = product
@@ -110,8 +114,9 @@ export default function ProductDetails() {
     e.preventDefault();
     addInquiry({
       ...form,
-      productName: product.name,
+      productName: `${product.name} (ფერი: ${selectedTexture.name})`,
       productId: product.id,
+      selectedColor: selectedTexture.name,
       source: "Product Details Page",
     });
     setSent(true);
@@ -164,9 +169,22 @@ export default function ProductDetails() {
                 <img
                   src={activeImage}
                   alt={product.name}
+                  style={{
+                    filter: selectedTexture.cssFilter,
+                    transition: "filter 0.4s ease",
+                  }}
                   onClick={() => setIsLightboxOpen(true)}
                   className="w-full h-full object-cover cursor-zoom-in transition-all duration-300 group-hover:scale-102"
                 />
+
+                {/* Active Texture Badge on Image */}
+                <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-md border border-white/10 pointer-events-none">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full border border-white/30"
+                    style={{ backgroundColor: selectedTexture.hex }}
+                  />
+                  <span>{selectedTexture.name}</span>
+                </div>
 
                 {/* Arrow Controls */}
                 {images.length > 1 && (
@@ -374,6 +392,77 @@ export default function ProductDetails() {
                     {product.description}
                   </p>
                 )}
+
+                {/* INTERACTIVE COLOR & TEXTURE SWITCHER */}
+                <div className="mt-5 p-5 rounded-2xl bg-[#f9f8f5] dark:bg-stone-900/50 border border-stone-200/90 dark:border-stone-800">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
+                      <Palette className="w-4 h-4 text-amber-500" />
+                      არქიტექტურული ფერი და ტექსტურა
+                    </span>
+                    <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                      {selectedTexture.finish}
+                    </span>
+                  </div>
+
+                  {/* Color Swatch Selector */}
+                  <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                    {CONCRETE_TEXTURES.map((tex) => {
+                      const isSelected = selectedTexture.id === tex.id;
+                      return (
+                        <button
+                          key={tex.id}
+                          type="button"
+                          onClick={() => setSelectedTexture(tex)}
+                          className={`group relative flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all duration-200 ${
+                            isSelected
+                              ? "bg-white dark:bg-stone-800 border-amber-500 shadow-md ring-2 ring-amber-500/25 text-stone-900 dark:text-white scale-102"
+                              : "bg-white/80 dark:bg-stone-900 border-stone-200/90 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-400 dark:hover:border-stone-700 hover:text-stone-900 dark:hover:text-stone-200"
+                          }`}
+                        >
+                          <span
+                            className={`w-4 h-4 rounded-full border shadow-sm transition-transform group-hover:scale-110 ${
+                              isSelected ? "ring-2 ring-amber-500 ring-offset-1" : "border-stone-300 dark:border-stone-600"
+                            }`}
+                            style={{ backgroundColor: tex.hex }}
+                          />
+                          <span>{tex.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Active texture details info bar */}
+                  <div className="mt-3 pt-3 border-t border-stone-200/70 dark:border-stone-800/70 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-stone-500 dark:text-stone-400">
+                    <span className="truncate">
+                      პიგმენტაცია: <strong className="text-stone-800 dark:text-stone-200 font-semibold">{selectedTexture.pigment}</strong>
+                    </span>
+                    <span className="text-stone-600 dark:text-stone-300 italic">{selectedTexture.desc}</span>
+                  </div>
+                </div>
+
+                {/* Link to Calculator banner */}
+                <div className="mt-3.5 p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                      <Calculator className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-stone-900 dark:text-white">
+                        გჭირდებათ ზუსტი რაოდენობისა და ბიუჯეტის დათვლა?
+                      </p>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                        გამოიყენეთ საფეხურებისა და ფილების ონლაინ კალკულატორი
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/calculator"
+                    className="shrink-0 px-3 py-1.5 rounded-lg bg-stone-900 text-white dark:bg-white dark:text-stone-950 text-xs font-bold hover:bg-stone-800 dark:hover:bg-stone-100 transition shadow-sm"
+                  >
+                    კალკულატორი →
+                  </Link>
+                </div>
 
                 {/* Technical Specifications Table */}
                 <div className="mt-5 bg-stone-50 dark:bg-stone-950/70 border border-stone-200/90 dark:border-stone-800 rounded-2xl p-5">

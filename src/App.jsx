@@ -14,6 +14,9 @@ const Portfolio = lazy(() => import("./pages/Portfolio"));
 const ProjectDetails = lazy(() => import("./pages/ProjectDetails"));
 const Compare = lazy(() => import("./pages/Compare"));
 const FAQ = lazy(() => import("./pages/FAQ"));
+const Calculator = lazy(() => import("./pages/Calculator"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 
@@ -39,6 +42,9 @@ export default function App() {
                     <Route path="/portfolio" element={<Portfolio />} />
                     <Route path="/portfolio/:id" element={<ProjectDetails />} />
                     <Route path="/compare" element={<Compare />} />
+                    <Route path="/calculator" element={<Calculator />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:id" element={<BlogPost />} />
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>

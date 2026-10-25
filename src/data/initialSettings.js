@@ -17,7 +17,9 @@ export const DEFAULT_SITE_SETTINGS = {
   navbarLinks: [
     { id: "nav-home", label: "მთავარი", path: "/", enabled: true, isExternal: false },
     { id: "nav-products", label: "პროდუქცია", path: "/products", enabled: true, isExternal: false },
+    { id: "nav-calc", label: "კალკულატორი", path: "/calculator", enabled: true, isExternal: false },
     { id: "nav-portfolio", label: "შესრულებული სამუშაოები", path: "/portfolio", enabled: true, isExternal: false },
+    { id: "nav-blog", label: "ბლოგი", path: "/blog", enabled: true, isExternal: false },
     { id: "nav-faq", label: "კითხვა-პასუხი", path: "/faq", enabled: false, isExternal: false },
   ],
   navbarCtaText: "დაგვიკავშირდით",
@@ -33,7 +35,9 @@ export const DEFAULT_SITE_SETTINGS = {
   footerLinks: [
     { id: "foot-home", label: "მთავარი", path: "/", enabled: true, isExternal: false },
     { id: "foot-products", label: "პროდუქციის კატალოგი", path: "/products", enabled: true, isExternal: false },
+    { id: "foot-calc", label: "ონლაინ კალკულატორი", path: "/calculator", enabled: true, isExternal: false },
     { id: "foot-portfolio", label: "შესრულებული სამუშაოები", path: "/portfolio", enabled: true, isExternal: false },
+    { id: "foot-blog", label: "ბლოგი & გზამკვლევი", path: "/blog", enabled: true, isExternal: false },
     { id: "foot-faq", label: "კითხვა-პასუხი (FAQ)", path: "/faq", enabled: true, isExternal: false },
     { id: "foot-admin", label: "ადმინ პანელი (/admin)", path: "/admin", enabled: true, isExternal: false },
   ],
