@@ -126,11 +126,23 @@ export const INITIAL_PRODUCTS = [
     concreteGrade: "B40 (ფიბრობეტონი)",
     frostResistance: "F300",
     surface: "გლუვი არქიტექტურული",
-    colors: ["ღია ნაცრისფერი", "გრაფიტი", "ტერაკოტა"],
+    baseColorName: "კლასიკური ნაცრისფერი",
+    colors: ["კლასიკური ნაცრისფერი", "მწვანე / ზურმუხტისფერი"],
     image: "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&fm=webp&w=1000&q=80",
     images: [
       "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&fm=webp&w=800&q=75",
-      "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&fm=webp&w=800&q=75",
+    ],
+    colorVariants: [
+      {
+        id: "var-green",
+        colorName: "მწვანე / ზურმუხტისფერი",
+        colorHex: "#3b6e4c",
+        price: 280,
+        image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&fm=webp&w=800&q=75",
+        images: [
+          "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&fm=webp&w=800&q=75",
+        ],
+      },
     ],
     featured: true,
   },

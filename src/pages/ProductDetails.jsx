@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { useFavorites } from "../context/FavoritesContext";
 import { useCompare } from "../context/CompareContext";
 import ProductCard from "../components/ui/ProductCard";
-import { CONCRETE_TEXTURES } from "../data/textureData";
+import { CONCRETE_TEXTURES, findColorDetails } from "../data/textureData";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -23,10 +23,13 @@ import {
   Scale,
   Palette,
   Calculator,
+  Camera,
+  Check,
 } from "lucide-react";
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { products, addInquiry } = useData();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isInCompare, toggleCompare } = useCompare();
@@ -36,24 +39,214 @@ export default function ProductDetails() {
   const [sent, setSent] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [selectedTexture, setSelectedTexture] = useState(CONCRETE_TEXTURES[0]);
+  const [activeVariantId, setActiveVariantId] = useState(null);
 
   // Collect all images (array or single string fallback)
-  const images = product
-    ? Array.isArray(product.images) && product.images.length > 0
-      ? product.images
-      : product.image
-      ? [product.image]
-      : []
-    : [];
+  const images = useMemo(() => {
+    if (!product) return [];
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      return product.images;
+    }
+    if (product.image) {
+      return [product.image];
+    }
+    return [];
+  }, [product]);
 
-  const activeImage = images[selectedImageIndex] || images[0] || "";
+  // Compute ACTUAL available color variants (strictly if the item actually has other colors)
+  const actualVariants = useMemo(() => {
+    if (!product) return [];
+    const variants = [];
+    const seenColors = new Set();
+
+    // 1. Explicit product.colorVariants
+    if (Array.isArray(product.colorVariants) && product.colorVariants.length > 0) {
+      // Base Product Variant
+      const baseName =
+        product.baseColorName || (product.colors && product.colors[0]) || "კლასიკური ნაცრისფერი";
+      const baseImages =
+        Array.isArray(product.images) && product.images.length > 0
+          ? product.images
+          : product.image
+          ? [product.image]
+          : [];
+      const baseDetails = findColorDetails(baseName);
+      seenColors.add(baseName.toLowerCase());
+
+      variants.push({
+        id: "base-variant",
+        name: baseName,
+        hex: product.baseColorHex || baseDetails.hex,
+        image: baseImages[0] || "",
+        images: baseImages,
+        price: product.price,
+        isSibling: false,
+      });
+
+      // Additional Color Variants
+      product.colorVariants.forEach((cv, idx) => {
+        const name = cv.colorName || cv.name || `ფერი ${idx + 1}`;
+        if (seenColors.has(name.toLowerCase())) return;
+        seenColors.add(name.toLowerCase());
+        const details = findColorDetails(name);
+        const varImages =
+          Array.isArray(cv.images) && cv.images.length > 0
+            ? cv.images
+            : cv.image
+            ? [cv.image]
+            : [];
+        variants.push({
+          id: cv.id || `var-${idx}`,
+          name,
+          hex: cv.colorHex || cv.hex || details.hex,
+          image: varImages[0] || (cv.imageIndex !== undefined ? images[cv.imageIndex] : images[0]),
+          images: varImages.length > 0 ? varImages : [images[0] || ""],
+          price: cv.price ? cv.price : product.price,
+          isSibling: false,
+        });
+      });
+
+      return variants;
+    }
+
+    // 2. Legacy fallback: Images within this product tagged with colors
+    const imageColors = product.imageColors || {};
+    const hasAssignedColors = Object.keys(imageColors).length > 0;
+    const isMultiColor =
+      images.length >= 2 &&
+      (images[1].includes("1485955900006") ||
+        images[1].toLowerCase().includes("green") ||
+        (product.colors && product.colors.length > 1));
+
+    if (hasAssignedColors || isMultiColor) {
+      images.forEach((img, idx) => {
+        let cName = imageColors[idx] || imageColors[String(idx)];
+        if (!cName && isMultiColor) {
+          cName = idx === 1 ? "მწვანე" : "კლასიკური ნაცრისფერი";
+        }
+        if (cName && !seenColors.has(cName.toLowerCase())) {
+          seenColors.add(cName.toLowerCase());
+          const details = findColorDetails(cName);
+          const colorImgs = images.filter((_, i) => {
+            const ic = imageColors[i] || imageColors[String(i)];
+            return ic
+              ? ic.toLowerCase() === cName.toLowerCase()
+              : isMultiColor && (idx === 1 ? i === 1 : i === 0);
+          });
+          variants.push({
+            id: `img-var-${idx}`,
+            name: cName,
+            hex: details.hex,
+            image: img,
+            images: colorImgs.length > 0 ? colorImgs : [img],
+            isSibling: false,
+          });
+        }
+      });
+    }
+
+    // 3. Sibling products in the catalog that are the exact same item in another color
+    const baseTitle = product.name
+      .replace(/\s*\([^)]*\)/g, "")
+      .replace(/\s*-\s*(მწვანე|ნაცრისფერი|თეთრი|შავი|წითელი|ბეჟი|ტერაკოტა|ანტრაციტი).*/gi, "")
+      .trim()
+      .toLowerCase();
+
+    if (products && baseTitle.length >= 3) {
+      products.forEach((p) => {
+        if (p.id === product.id) return;
+        const otherBase = p.name
+          .replace(/\s*\([^)]*\)/g, "")
+          .replace(/\s*-\s*(მწვანე|ნაცრისფერი|თეთრი|შავი|წითელი|ბეჟი|ტერაკოტა|ანტრაციტი).*/gi, "")
+          .trim()
+          .toLowerCase();
+
+        const isMatchingItem =
+          p.category === product.category &&
+          (otherBase === baseTitle ||
+            p.name.toLowerCase().startsWith(baseTitle) ||
+            product.name.toLowerCase().startsWith(otherBase));
+
+        if (isMatchingItem) {
+          let colorName = p.colors?.[0] || "";
+          if (!colorName) {
+            const match = p.name.match(/\(([^)]+)\)/) || p.name.match(/-\s*([^\s-]+)/);
+            colorName = match ? match[1].trim() : p.name;
+          }
+          if (!seenColors.has(colorName.toLowerCase())) {
+            seenColors.add(colorName.toLowerCase());
+            const details = findColorDetails(colorName);
+            variants.push({
+              id: `sibling-${p.id}`,
+              name: colorName,
+              hex: details.hex,
+              image: p.image || p.images?.[0] || "",
+              price: p.price,
+              isSibling: true,
+              productId: p.id,
+            });
+          }
+        }
+      });
+    }
+
+    // Ensure the current product itself is present as the primary variant if other variants exist
+    if (
+      variants.length > 0 &&
+      !variants.some((v) => v.id.startsWith("img-var-0") || v.image === images[0])
+    ) {
+      const primaryColorName = product.colors?.[0] || "სტანდარტული";
+      if (!seenColors.has(primaryColorName.toLowerCase())) {
+        variants.unshift({
+          id: "primary-var",
+          name: primaryColorName,
+          hex: findColorDetails(primaryColorName).hex,
+          image: images[0] || "",
+          images: [images[0] || ""],
+          isSibling: false,
+        });
+      }
+    }
+
+    return variants;
+  }, [product, images, products]);
+
+  // Selected variant
+  const activeVariant = useMemo(() => {
+    if (actualVariants.length === 0) return null;
+    return actualVariants.find((v) => v.id === activeVariantId) || actualVariants[0];
+  }, [actualVariants, activeVariantId]);
+
+  // Gallery images for the currently selected variant
+  const currentGalleryImages = useMemo(() => {
+    if (activeVariant?.images && activeVariant.images.length > 0) {
+      return activeVariant.images;
+    }
+    if (activeVariant?.image) {
+      return [activeVariant.image];
+    }
+    if (images.length > 0) {
+      return images;
+    }
+    return [];
+  }, [activeVariant, images]);
+
+  const activeImage =
+    currentGalleryImages[selectedImageIndex] ||
+    currentGalleryImages[0] ||
+    images[0] ||
+    "";
 
   // Scroll to top and reset image index when product id changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     setSelectedImageIndex(0);
-  }, [id]);
+    if (actualVariants.length > 0) {
+      setActiveVariantId(actualVariants[0].id);
+    } else {
+      setActiveVariantId(null);
+    }
+  }, [id, actualVariants.length]);
 
   // Compute related / similar products (same category first, fallback to others)
   const relatedProducts = useMemo(() => {
@@ -73,15 +266,15 @@ export default function ProductDetails() {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") setIsLightboxOpen(false);
       if (e.key === "ArrowLeft") {
-        setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+        setSelectedImageIndex((prev) => (prev === 0 ? currentGalleryImages.length - 1 : prev - 1));
       }
       if (e.key === "ArrowRight") {
-        setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+        setSelectedImageIndex((prev) => (prev === currentGalleryImages.length - 1 ? 0 : prev + 1));
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen, images.length]);
+  }, [isLightboxOpen, currentGalleryImages.length]);
 
   if (!product) {
     return (
@@ -102,21 +295,31 @@ export default function ProductDetails() {
 
   const handlePrevImage = (e) => {
     e?.stopPropagation();
-    setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setSelectedImageIndex((prev) => (prev === 0 ? currentGalleryImages.length - 1 : prev - 1));
   };
 
   const handleNextImage = (e) => {
     e?.stopPropagation();
-    setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setSelectedImageIndex((prev) => (prev === currentGalleryImages.length - 1 ? 0 : prev + 1));
+  };
+
+  const handleSelectVariant = (v) => {
+    if (v.isSibling && v.productId) {
+      navigate(`/product/${v.productId}`);
+      return;
+    }
+    setActiveVariantId(v.id);
+    setSelectedImageIndex(0);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const chosenColor = activeVariant?.name || "სტანდარტული";
     addInquiry({
       ...form,
-      productName: `${product.name} (ფერი: ${selectedTexture.name})`,
+      productName: `${product.name} (ფერი: ${chosenColor})`,
       productId: product.id,
-      selectedColor: selectedTexture.name,
+      selectedColor: chosenColor,
       source: "Product Details Page",
     });
     setSent(true);
@@ -124,11 +327,11 @@ export default function ProductDetails() {
   };
 
   return (
-    <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen pt-3 sm:pt-5 pb-16 lg:pb-24 transition-colors duration-200">
-      <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12">
+    <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen pt-2 sm:pt-4 pb-16 lg:pb-24 transition-colors duration-200">
+      <div className="w-full px-2 sm:px-4 lg:px-6 xl:px-8">
         
         {/* Luxury Breadcrumb Bar */}
-        <div className="flex items-center justify-between gap-4 mb-4 pb-1 text-xs">
+        <div className="flex items-center justify-between gap-4 mb-3 pb-1 text-xs">
           <div className="flex items-center gap-2 text-stone-500 dark:text-stone-400 font-medium overflow-hidden">
             <Link to="/" className="hover:text-stone-900 dark:hover:text-white transition">
               მთავარი
@@ -158,36 +361,34 @@ export default function ProductDetails() {
           </Link>
         </div>
 
-        {/* Main Product Showcase Studio Card */}
-        <div className="bg-white dark:bg-[#121211] p-5 sm:p-8 lg:p-10 rounded-3xl border border-stone-200/90 dark:border-stone-800/90 shadow-xl shadow-stone-900/5 dark:shadow-black/40 transition-colors duration-200">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-14">
+        {/* Main Product Showcase Studio Card (Expanded full screen with dominant gallery) */}
+        <div className="bg-white dark:bg-[#121211] p-4 sm:p-6 lg:p-7 xl:p-8 rounded-2xl sm:rounded-3xl border border-stone-200/90 dark:border-stone-800/90 shadow-xl shadow-stone-900/5 dark:shadow-black/40 transition-colors duration-200">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10">
             
-            {/* LEFT COLUMN: ARCHITECTURAL GALLERY (5 / 12 cols on desktop) */}
-            <div className="lg:col-span-5 flex flex-col">
+            {/* LEFT COLUMN: ARCHITECTURAL GALLERY (7 / 12 cols on desktop) */}
+            <div className="lg:col-span-7 xl:col-span-7 flex flex-col lg:sticky lg:top-24 h-fit">
               {/* Main Image Stage */}
-              <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 dark:border-stone-800 bg-stone-100 dark:bg-stone-950 aspect-[4/3] sm:aspect-[16/11] lg:aspect-[4/3] group select-none shadow-inner">
+              <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 dark:border-stone-800 bg-stone-100 dark:bg-stone-950 aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/11] min-h-[440px] sm:min-h-[520px] lg:min-h-[580px] xl:min-h-[660px] group select-none shadow-inner">
                 <img
                   src={activeImage}
                   alt={product.name}
-                  style={{
-                    filter: selectedTexture.cssFilter,
-                    transition: "filter 0.4s ease",
-                  }}
                   onClick={() => setIsLightboxOpen(true)}
                   className="w-full h-full object-cover cursor-zoom-in transition-all duration-300 group-hover:scale-102"
                 />
 
-                {/* Active Texture Badge on Image */}
-                <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-md border border-white/10 pointer-events-none">
-                  <span
-                    className="w-2.5 h-2.5 rounded-full border border-white/30"
-                    style={{ backgroundColor: selectedTexture.hex }}
-                  />
-                  <span>{selectedTexture.name}</span>
-                </div>
+                {/* Active Variant Badge on Image */}
+                {activeVariant && actualVariants.length > 1 && (
+                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-md border border-white/10 pointer-events-none">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full border border-white/30"
+                      style={{ backgroundColor: activeVariant.hex }}
+                    />
+                    <span>{activeVariant.name}</span>
+                  </div>
+                )}
 
                 {/* Arrow Controls */}
-                {images.length > 1 && (
+                {currentGalleryImages.length > 1 && (
                   <>
                     <button
                       type="button"
@@ -210,7 +411,7 @@ export default function ProductDetails() {
                     <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-md border border-white/10">
                       <ImageIcon className="w-3.5 h-3.5 text-stone-300" />
                       <span>
-                        {selectedImageIndex + 1} / {images.length}
+                        {selectedImageIndex + 1} / {currentGalleryImages.length}
                       </span>
                     </div>
                   </>
@@ -240,10 +441,10 @@ export default function ProductDetails() {
                 </button>
               </div>
 
-              {/* Thumbnail Strip */}
-              {images.length > 1 && (
+              {/* Thumbnail Strip (Only shown if this variant has multiple photos, e.g. different angles) */}
+              {currentGalleryImages.length > 1 && (
                 <div className="flex items-center gap-2.5 mt-3 overflow-x-auto pb-1.5 pt-1 scrollbar-thin">
-                  {images.map((img, idx) => (
+                  {currentGalleryImages.map((img, idx) => (
                     <button
                       key={idx}
                       type="button"
@@ -284,8 +485,8 @@ export default function ProductDetails() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN: SPECS, PRICING & INQUIRY (7 / 12 cols on desktop) */}
-            <div className="lg:col-span-7 flex flex-col justify-between">
+            {/* RIGHT COLUMN: SPECS, PRICING & INQUIRY (5 / 12 cols on desktop) */}
+            <div className="lg:col-span-5 xl:col-span-5 flex flex-col justify-between">
               <div>
                 {/* Meta header: Category Badge & Availability */}
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -393,53 +594,62 @@ export default function ProductDetails() {
                   </p>
                 )}
 
-                {/* INTERACTIVE COLOR & TEXTURE SWITCHER */}
-                <div className="mt-5 p-5 rounded-2xl bg-[#f9f8f5] dark:bg-stone-900/50 border border-stone-200/90 dark:border-stone-800">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
-                      <Palette className="w-4 h-4 text-amber-500" />
-                      არქიტექტურული ფერი და ტექსტურა
-                    </span>
-                    <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
-                      {selectedTexture.finish}
-                    </span>
-                  </div>
+                {/* AMAZON-STYLE COLOR VARIANT PICKER (Shown ONLY if this exact item has other colors) */}
+                {actualVariants.length > 1 && (
+                  <div className="mt-5 p-4 sm:p-5 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200/90 dark:border-stone-800">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">
+                        ფერი:
+                      </span>
+                      <span className="text-sm font-extrabold text-stone-900 dark:text-white">
+                        {activeVariant?.name}
+                      </span>
+                    </div>
 
-                  {/* Color Swatch Selector */}
-                  <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-                    {CONCRETE_TEXTURES.map((tex) => {
-                      const isSelected = selectedTexture.id === tex.id;
-                      return (
-                        <button
-                          key={tex.id}
-                          type="button"
-                          onClick={() => setSelectedTexture(tex)}
-                          className={`group relative flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all duration-200 ${
-                            isSelected
-                              ? "bg-white dark:bg-stone-800 border-amber-500 shadow-md ring-2 ring-amber-500/25 text-stone-900 dark:text-white scale-102"
-                              : "bg-white/80 dark:bg-stone-900 border-stone-200/90 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:border-stone-400 dark:hover:border-stone-700 hover:text-stone-900 dark:hover:text-stone-200"
-                          }`}
-                        >
-                          <span
-                            className={`w-4 h-4 rounded-full border shadow-sm transition-transform group-hover:scale-110 ${
-                              isSelected ? "ring-2 ring-amber-500 ring-offset-1" : "border-stone-300 dark:border-stone-600"
+                    {/* Swatches Grid with photo previews (like Amazon) */}
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                      {actualVariants.map((v) => {
+                        const isSelected = activeVariant?.id === v.id || activeVariant?.name === v.name;
+                        return (
+                          <button
+                            key={v.id}
+                            type="button"
+                            onClick={() => handleSelectVariant(v)}
+                            className={`group relative flex items-center gap-2.5 p-2 rounded-xl border-2 transition-all duration-200 text-left ${
+                              isSelected
+                                ? "border-amber-500 bg-white dark:bg-stone-800 shadow-md ring-2 ring-amber-500/25 scale-[1.02]"
+                                : "border-stone-200 dark:border-stone-800 bg-white/70 dark:bg-stone-950/70 hover:border-stone-400 dark:hover:border-stone-700"
                             }`}
-                            style={{ backgroundColor: tex.hex }}
-                          />
-                          <span>{tex.name}</span>
-                        </button>
-                      );
-                    })}
+                          >
+                            <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-900">
+                              <img
+                                src={v.image}
+                                alt={v.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              />
+                            </div>
+                            <div className="min-w-0 flex-1 pr-1">
+                              <span
+                                className={`text-xs font-bold block truncate ${
+                                  isSelected
+                                    ? "text-stone-900 dark:text-white"
+                                    : "text-stone-700 dark:text-stone-300"
+                                }`}
+                              >
+                                {v.name}
+                              </span>
+                              {v.price && (
+                                <span className="text-[11px] text-amber-600 dark:text-amber-400 font-extrabold block">
+                                  {v.price} ₾
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-
-                  {/* Active texture details info bar */}
-                  <div className="mt-3 pt-3 border-t border-stone-200/70 dark:border-stone-800/70 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-stone-500 dark:text-stone-400">
-                    <span className="truncate">
-                      პიგმენტაცია: <strong className="text-stone-800 dark:text-stone-200 font-semibold">{selectedTexture.pigment}</strong>
-                    </span>
-                    <span className="text-stone-600 dark:text-stone-300 italic">{selectedTexture.desc}</span>
-                  </div>
-                </div>
+                )}
 
                 {/* Link to Calculator banner */}
                 <div className="mt-3.5 p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/20 flex items-center justify-between gap-3">
@@ -642,7 +852,7 @@ export default function ProductDetails() {
           </button>
 
           {/* Prev / Next controls */}
-          {images.length > 1 && (
+          {currentGalleryImages.length > 1 && (
             <>
               <button
                 type="button"
@@ -670,9 +880,9 @@ export default function ProductDetails() {
               alt={product.name}
               className="max-h-[80vh] max-w-full object-contain rounded-xl shadow-2xl"
             />
-            {images.length > 1 && (
+            {currentGalleryImages.length > 1 && (
               <p className="text-stone-400 text-xs mt-4">
-                ფოტო {selectedImageIndex + 1} / {images.length} • {product.name}
+                ფოტო {selectedImageIndex + 1} / {currentGalleryImages.length} • {product.name} ({activeColorOption?.name})
               </p>
             )}
           </div>

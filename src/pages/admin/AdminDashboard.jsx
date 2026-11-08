@@ -24,7 +24,9 @@ import {
   Tag,
   Layers,
   Sliders,
+  Palette,
 } from "lucide-react";
+import { findColorDetails } from "../../data/textureData";
 
 export default function AdminDashboard() {
   const {
@@ -83,8 +85,11 @@ export default function AdminDashboard() {
     concreteGrade: "B35",
     frostResistance: "F300",
     surface: "ქვიშაჭავლური",
+    baseColorName: "კლასიკური ნაცრისფერი",
     image: "",
     images: [],
+    colors: [],
+    colorVariants: [],
   });
 
   const [tempProductUrl, setTempProductUrl] = useState("");
@@ -269,6 +274,103 @@ export default function AdminDashboard() {
         image: reordered[0] || "",
       };
     });
+  };
+
+  // Color Variants Management
+  const handleAddColorVariant = () => {
+    setNewProd((prev) => ({
+      ...prev,
+      colorVariants: [
+        ...(prev.colorVariants || []),
+        {
+          id: "var_" + Date.now(),
+          colorName: "",
+          colorHex: "#3b6e4c",
+          price: "",
+          images: [],
+        },
+      ],
+    }));
+  };
+
+  const handleRemoveColorVariant = (varId) => {
+    setNewProd((prev) => ({
+      ...prev,
+      colorVariants: (prev.colorVariants || []).filter((v) => v.id !== varId),
+    }));
+  };
+
+  const handleUpdateColorVariant = (varId, updates) => {
+    setNewProd((prev) => ({
+      ...prev,
+      colorVariants: (prev.colorVariants || []).map((v) =>
+        v.id === varId ? { ...v, ...updates } : v
+      ),
+    }));
+  };
+
+  const handleVariantFileChange = (varId, e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    let loaded = 0;
+    const newUrls = [];
+    files.forEach((file) => {
+      processImageFile(file, (dataUrl) => {
+        newUrls.push(dataUrl);
+        loaded++;
+        if (loaded === files.length) {
+          setNewProd((prev) => ({
+            ...prev,
+            colorVariants: (prev.colorVariants || []).map((v) => {
+              if (v.id !== varId) return v;
+              const existing = Array.isArray(v.images) ? v.images : (v.image ? [v.image] : []);
+              const updated = [...existing, ...newUrls];
+              return {
+                ...v,
+                images: updated,
+                image: updated[0] || "",
+              };
+            }),
+          }));
+        }
+      });
+    });
+    e.target.value = "";
+  };
+
+  const handleRemoveVariantImage = (varId, imgIdx) => {
+    setNewProd((prev) => ({
+      ...prev,
+      colorVariants: (prev.colorVariants || []).map((v) => {
+        if (v.id !== varId) return v;
+        const existing = Array.isArray(v.images) ? v.images : (v.image ? [v.image] : []);
+        const updated = existing.filter((_, idx) => idx !== imgIdx);
+        return {
+          ...v,
+          images: updated,
+          image: updated[0] || "",
+        };
+      }),
+    }));
+  };
+
+  const handleSetMainVariantImage = (varId, imgIdx) => {
+    setNewProd((prev) => ({
+      ...prev,
+      colorVariants: (prev.colorVariants || []).map((v) => {
+        if (v.id !== varId) return v;
+        const existing = Array.isArray(v.images) ? v.images : (v.image ? [v.image] : []);
+        if (imgIdx === 0 || !existing[imgIdx]) return v;
+        const target = existing[imgIdx];
+        const rest = existing.filter((_, idx) => idx !== imgIdx);
+        const reordered = [target, ...rest];
+        return {
+          ...v,
+          images: reordered,
+          image: reordered[0],
+        };
+      }),
+    }));
   };
 
   const handleProjectFileChange = (e) => {
@@ -461,10 +563,27 @@ export default function AdminDashboard() {
     }
 
     const categoryObj = (categories || []).find((c) => c.id === newProd.category);
+    const cleanedVariants = (newProd.colorVariants || []).map((v, idx) => {
+      const vImgs = Array.isArray(v.images) && v.images.length > 0 ? v.images : (v.image ? [v.image] : []);
+      const cName = v.colorName?.trim() || `დამატებითი ფერი ${idx + 1}`;
+      return {
+        id: v.id || `var_${Date.now()}_${idx}`,
+        colorName: cName,
+        colorHex: v.colorHex || findColorDetails(cName).hex,
+        price: v.price ? Number(v.price) : 0,
+        image: vImgs[0] || "",
+        images: vImgs,
+      };
+    });
+
+    const baseColor = newProd.baseColorName?.trim() || "კლასიკური ნაცრისფერი";
     const prodPayload = {
       ...newProd,
       image: allImages[0],
       images: allImages,
+      baseColorName: baseColor,
+      colorVariants: cleanedVariants,
+      colors: [baseColor, ...cleanedVariants.map((v) => v.colorName)],
       categoryLabel: categoryObj ? categoryObj.label : newProd.categoryLabel,
       price: newProd.price ? Number(newProd.price) : 0,
     };
@@ -490,8 +609,11 @@ export default function AdminDashboard() {
       concreteGrade: "B35",
       frostResistance: "F300",
       surface: "ქვიშაჭავლური",
+      baseColorName: "კლასიკური ნაცრისფერი",
       image: "",
       images: [],
+      colors: [],
+      colorVariants: [],
     });
     setTempProductUrl("");
     if (productFileInputRef.current) productFileInputRef.current.value = "";
@@ -505,6 +627,46 @@ export default function AdminDashboard() {
         : item.image
         ? [item.image]
         : [];
+
+    let initialVariants = Array.isArray(item.colorVariants) ? [...item.colorVariants] : [];
+    let initialBaseImages = [...itemImages];
+    let baseColorName =
+      item.baseColorName || (Array.isArray(item.colors) ? item.colors[0] : "") || "კლასიკური ნაცრისფერი";
+
+    // Auto-migrate legacy imageColors if present and no colorVariants yet:
+    if (initialVariants.length === 0 && item.imageColors && Object.keys(item.imageColors).length > 0) {
+      const mainColor = item.imageColors[0] || baseColorName;
+      baseColorName = mainColor;
+      const baseImgs = [];
+      const varMap = {};
+
+      itemImages.forEach((img, idx) => {
+        const col = item.imageColors[idx];
+        if (!col || col.toLowerCase() === mainColor.toLowerCase()) {
+          baseImgs.push(img);
+        } else {
+          if (!varMap[col]) {
+            varMap[col] = [];
+          }
+          varMap[col].push(img);
+        }
+      });
+
+      if (Object.keys(varMap).length > 0) {
+        initialBaseImages = baseImgs.length > 0 ? baseImgs : [itemImages[0]];
+        Object.entries(varMap).forEach(([cName, cImgs], idx) => {
+          initialVariants.push({
+            id: `migrated-var-${idx}`,
+            colorName: cName,
+            colorHex: findColorDetails(cName).hex,
+            price: item.price || 0,
+            images: cImgs,
+            image: cImgs[0] || "",
+          });
+        });
+      }
+    }
+
     setNewProd({
       name: item.name || "",
       category: item.category || "steps",
@@ -518,8 +680,11 @@ export default function AdminDashboard() {
       concreteGrade: item.concreteGrade || "B35",
       frostResistance: item.frostResistance || "F300",
       surface: item.surface || "ქვიშაჭავლური",
-      image: itemImages[0] || "",
-      images: itemImages,
+      baseColorName,
+      image: initialBaseImages[0] || "",
+      images: initialBaseImages,
+      colorVariants: initialVariants,
+      colors: Array.isArray(item.colors) ? item.colors : [],
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -539,8 +704,11 @@ export default function AdminDashboard() {
       concreteGrade: "B35",
       frostResistance: "F300",
       surface: "ქვიშაჭავლური",
+      baseColorName: "კლასიკური ნაცრისფერი",
       image: "",
       images: [],
+      colors: [],
+      colorVariants: [],
     });
     setTempProductUrl("");
     if (productFileInputRef.current) productFileInputRef.current.value = "";
@@ -909,18 +1077,23 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* IMAGE UPLOAD ZONE (Multi-image from Computer/Phone or URL) */}
+              {/* PRIMARY PRODUCT PHOTOS (Base Color) */}
               <div className="p-4 rounded-xl bg-stone-950/70 border border-stone-800 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
-                    <span>პროდუქტის სურათები *</span>
-                    {(newProd.images?.length > 0 || newProd.image) && (
-                      <span className="text-[11px] text-amber-400 font-normal">
-                        ({newProd.images?.length || (newProd.image ? 1 : 0)} ფოტო)
-                      </span>
-                    )}
-                  </label>
+                <div className="flex items-center justify-between pb-1 border-b border-stone-800/60">
+                  <div>
+                    <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
+                      <span>ძირითადი ფოტოები (მთავარი ფერი) *</span>
+                      {(newProd.images?.length > 0 || newProd.image) && (
+                        <span className="text-[11px] text-amber-400 font-normal">
+                          ({newProd.images?.length || (newProd.image ? 1 : 0)} ფოტო)
+                        </span>
+                      )}
+                    </label>
+                    <span className="text-[10px] text-stone-400 block mt-0.5">
+                      ატვირთეთ ფოტოები ძირითად ფერში.
+                    </span>
+                  </div>
                   <div className="flex gap-1 text-[11px]">
                     <button
                       type="button"
@@ -947,6 +1120,20 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
+                {/* Base Color Name input */}
+                <div className="flex items-center gap-2 bg-stone-900/60 p-2 rounded-lg border border-stone-800/80">
+                  <span className="text-[11px] text-stone-400 font-medium whitespace-nowrap">
+                    ძირითადი ფერის დასახელება:
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="მაგ: კლასიკური ნაცრისფერი"
+                    value={newProd.baseColorName || ""}
+                    onChange={(e) => setNewProd({ ...newProd, baseColorName: e.target.value })}
+                    className="flex-1 bg-stone-950 border border-stone-800 rounded px-2.5 py-1 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
                 {/* Upload from Computer / Phone (supports selecting multiple files) */}
                 {productImageMode === "file" ? (
                   <div>
@@ -967,10 +1154,10 @@ export default function AdminDashboard() {
                         <Upload className="w-6 h-6" />
                       </div>
                       <span className="text-xs sm:text-sm font-bold text-white block">
-                        ფოტოების არჩევა / ატვირთვა
+                        ძირითადი ფოტოების არჩევა / ატვირთვა
                       </span>
                       <span className="text-[11px] text-stone-400 mt-1 max-w-xs block leading-relaxed">
-                        დააჭირეთ აქ გალერეიდან ან კამერიდან ფოტოების ასარჩევად (შესაძლებელია რამდენიმე ერთდროულად)
+                        დააჭირეთ აქ ფოტოების ასარჩევად (შესაძლებელია რამდენიმე ერთდროულად)
                       </span>
                       <button
                         type="button"
@@ -1008,54 +1195,56 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
-                {/* Uploaded Images Gallery Grid Preview */}
+                {/* Uploaded Base Images Gallery Grid Preview */}
                 {(newProd.images?.length > 0 || newProd.image) && (
                   <div className="space-y-2 pt-2 border-t border-stone-800/80">
                     <div className="flex items-center justify-between text-[11px] text-stone-400">
-                      <span>ატვირთული ფოტოები (პირველია მთავარი):</span>
+                      <span>ატვირთული ძირითადი ფოტოები (პირველია მთავარი):</span>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                       {(newProd.images?.length > 0 ? newProd.images : [newProd.image]).map(
                         (img, idx) => (
                           <div
                             key={idx}
-                            className={`relative group rounded-xl overflow-hidden border aspect-square bg-stone-900 transition-all ${
+                            className={`relative group rounded-xl overflow-hidden border bg-stone-900 transition-all flex flex-col ${
                               idx === 0
                                 ? "border-amber-500 ring-2 ring-amber-500/30"
                                 : "border-stone-800 hover:border-stone-600"
                             }`}
                           >
-                            <img
-                              src={img}
-                              alt={`Upload ${idx + 1}`}
-                              className="w-full h-full object-cover"
-                            />
+                            <div className="relative aspect-square w-full">
+                              <img
+                                src={img}
+                                alt={`Upload ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
 
-                            {/* Main photo indicator / Action */}
-                            {idx === 0 ? (
-                              <span className="absolute top-1 left-1 bg-amber-500 text-stone-950 font-black text-[9px] px-1.5 py-0.5 rounded shadow flex items-center gap-0.5">
-                                <Star className="w-2.5 h-2.5 fill-stone-950" /> მთავარი
-                              </span>
-                            ) : (
+                              {/* Main photo indicator / Action */}
+                              {idx === 0 ? (
+                                <span className="absolute top-1 left-1 bg-amber-500 text-stone-950 font-black text-[9px] px-1.5 py-0.5 rounded shadow flex items-center gap-0.5">
+                                  <Star className="w-2.5 h-2.5 fill-stone-950" /> მთავარი
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleSetMainProductImage(idx)}
+                                  className="absolute top-1 left-1 bg-black/85 hover:bg-amber-500 hover:text-stone-950 text-white text-[9px] font-bold px-1.5 py-0.5 rounded transition shadow border border-white/20"
+                                  title="მთავარ ფოტოდ დაყენება"
+                                >
+                                  მთავარი
+                                </button>
+                              )}
+
+                              {/* Delete single image */}
                               <button
                                 type="button"
-                                onClick={() => handleSetMainProductImage(idx)}
-                                className="absolute top-1 left-1 bg-black/85 hover:bg-amber-500 hover:text-stone-950 text-white text-[9px] font-bold px-1.5 py-0.5 rounded transition shadow border border-white/20"
-                                title="მთავარ ფოტოდ დაყენება"
+                                onClick={() => handleRemoveProductImage(idx)}
+                                className="absolute top-1 right-1 p-1 bg-black/85 hover:bg-red-600 text-white rounded-full transition shadow border border-white/20"
+                                title="ფოტოს წაშლა"
                               >
-                                მთავარი
+                                <X className="w-3.5 h-3.5" />
                               </button>
-                            )}
-
-                            {/* Delete single image */}
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveProductImage(idx)}
-                              className="absolute top-1 right-1 p-1 bg-black/85 hover:bg-red-600 text-white rounded-full transition shadow border border-white/20"
-                              title="ფოტოს წაშლა"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
+                            </div>
                           </div>
                         )
                       )}
@@ -1071,6 +1260,247 @@ export default function AdminDashboard() {
                         <span className="text-[11px] font-bold">+ დამატება</span>
                       </button>
                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* DEDICATED COLOR VARIANTS SECTION */}
+              <div className="p-4 rounded-xl bg-stone-950/70 border border-stone-800 space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-stone-800/80">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
+                      <Palette className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <span>სხვა ფერის ვარიანტები</span>
+                        {newProd.colorVariants?.length > 0 && (
+                          <span className="px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-extrabold">
+                            {newProd.colorVariants.length} ფერი
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-[10px] text-stone-400">
+                        თუ პროდუქტი არსებობს სხვა ფერშიც (მაგ. მწვანე, ანტრაციტი)
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleAddColorVariant}
+                    className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-bold rounded-lg transition flex items-center gap-1 shadow-sm active:scale-95"
+                  >
+                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>+ ფერის დამატება</span>
+                  </button>
+                </div>
+
+                {/* Variants List */}
+                {(!newProd.colorVariants || newProd.colorVariants.length === 0) ? (
+                  <div className="p-4 rounded-xl border border-dashed border-stone-800 bg-stone-900/30 text-center">
+                    <p className="text-xs text-stone-400">
+                      დამატებითი ფერის ვარიანტები ჯერ არ არის.
+                    </p>
+                    <p className="text-[11px] text-stone-500 mt-1">
+                      თუ გაქვთ იგივე პროდუქტი სხვა ფერში, დააჭირეთ „+ ფერის დამატება“-ს და ცალკე აუტვირთეთ ფოტოები.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3.5">
+                    {newProd.colorVariants.map((variant, vIdx) => (
+                      <div
+                        key={variant.id || vIdx}
+                        className="rounded-xl border border-stone-800 bg-stone-900/90 p-3.5 space-y-3"
+                      >
+                        {/* Variant Header */}
+                        <div className="flex items-center justify-between pb-2 border-b border-stone-800/80">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0 shadow-sm"
+                              style={{ backgroundColor: variant.colorHex || "#3b6e4c" }}
+                            />
+                            <span className="text-xs font-bold text-white">
+                              ვარიანტი #{vIdx + 1}: {variant.colorName || "ახალი ფერი"}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveColorVariant(variant.id)}
+                            className="text-stone-400 hover:text-red-400 text-xs flex items-center gap-1 transition px-2 py-0.5 rounded hover:bg-red-500/10"
+                            title="ამ ფერის წაშლა"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>წაშლა</span>
+                          </button>
+                        </div>
+
+                        {/* Color Name, Hex Swatch, & Price */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                          <div className="sm:col-span-1">
+                            <label className="text-[10px] text-stone-400 block mb-1">
+                              ფერის დასახელება:
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="მაგ: მწვანე, თეთრი, შავი..."
+                              value={variant.colorName || ""}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                const details = findColorDetails(val);
+                                handleUpdateColorVariant(variant.id, {
+                                  colorName: val,
+                                  ...(details?.hex && (!variant.colorHex || variant.colorHex === "#3b6e4c")
+                                    ? { colorHex: details.hex }
+                                    : {}),
+                                });
+                              }}
+                              className="w-full bg-stone-950 border border-stone-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[10px] text-stone-400 block mb-1">
+                              ფერის წერტილი (HEX):
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={variant.colorHex || "#3b6e4c"}
+                                onChange={(e) =>
+                                  handleUpdateColorVariant(variant.id, { colorHex: e.target.value })
+                                }
+                                className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0"
+                              />
+                              <input
+                                type="text"
+                                value={variant.colorHex || "#3b6e4c"}
+                                onChange={(e) =>
+                                  handleUpdateColorVariant(variant.id, { colorHex: e.target.value })
+                                }
+                                className="flex-1 bg-stone-950 border border-stone-800 rounded-lg px-2.5 py-1 text-xs text-white font-mono focus:outline-none focus:border-amber-500"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="text-[10px] text-stone-400 block mb-1">
+                              ფასი (₾) [არასავალდებულო]:
+                            </label>
+                            <input
+                              type="number"
+                              placeholder={`იგივე ფასი (${newProd.price || 0} ₾)`}
+                              value={variant.price || ""}
+                              onChange={(e) =>
+                                handleUpdateColorVariant(variant.id, { price: e.target.value })
+                              }
+                              className="w-full bg-stone-950 border border-stone-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Dedicated Photos for this Variant */}
+                        <div className="pt-2 border-t border-stone-800/80 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-bold text-stone-300 flex items-center gap-1">
+                              <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
+                              ამ ფერის ფოტოები ({variant.images?.length || 0}):
+                            </span>
+
+                            {/* Hidden file input for this variant */}
+                            <input
+                              type="file"
+                              id={`var-file-${variant.id}`}
+                              accept="image/*"
+                              multiple
+                              className="hidden"
+                              onChange={(e) => handleVariantFileChange(variant.id, e)}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => document.getElementById(`var-file-${variant.id}`)?.click()}
+                              className="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-white text-[11px] font-bold rounded-lg transition flex items-center gap-1 border border-stone-700"
+                            >
+                              <Upload className="w-3 h-3 text-amber-400" />
+                              + ფოტოს ატვირთვა
+                            </button>
+                          </div>
+
+                          {/* Photos grid */}
+                          {variant.images && variant.images.length > 0 ? (
+                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1">
+                              {variant.images.map((img, imgIdx) => (
+                                <div
+                                  key={imgIdx}
+                                  className={`relative rounded-lg overflow-hidden border bg-stone-950 group ${
+                                    imgIdx === 0
+                                      ? "border-amber-500 ring-1 ring-amber-500/40"
+                                      : "border-stone-800"
+                                  }`}
+                                >
+                                  <div className="relative aspect-square w-full">
+                                    <img
+                                      src={img}
+                                      alt={`${variant.colorName} ${imgIdx + 1}`}
+                                      className="w-full h-full object-cover"
+                                    />
+                                    {imgIdx === 0 ? (
+                                      <span className="absolute top-1 left-1 bg-amber-500 text-stone-950 font-bold text-[8px] px-1 py-0.2 rounded shadow">
+                                        მთავარი
+                                      </span>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSetMainVariantImage(variant.id, imgIdx)}
+                                        className="absolute top-1 left-1 bg-black/80 hover:bg-amber-500 hover:text-stone-950 text-white text-[8px] font-bold px-1 py-0.2 rounded shadow transition"
+                                        title="მთავარ ფოტოდ დაყენება"
+                                      >
+                                        მთავარი
+                                      </button>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveVariantImage(variant.id, imgIdx)}
+                                      className="absolute top-1 right-1 p-0.5 bg-black/80 hover:bg-red-600 text-white rounded-full transition shadow"
+                                      title="წაშლა"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+
+                              <button
+                                type="button"
+                                onClick={() => document.getElementById(`var-file-${variant.id}`)?.click()}
+                                className="rounded-lg border border-dashed border-stone-800 hover:border-amber-500 flex flex-col items-center justify-center p-1.5 text-stone-400 hover:text-white transition aspect-square bg-stone-950/40"
+                              >
+                                <Plus className="w-4 h-4 text-amber-500 mb-0.5" />
+                                <span className="text-[10px] font-bold">+ დამატება</span>
+                              </button>
+                            </div>
+                          ) : (
+                            <div
+                              onClick={() => document.getElementById(`var-file-${variant.id}`)?.click()}
+                              className="p-3 border border-dashed border-stone-800 hover:border-amber-500/70 rounded-xl bg-stone-950/40 cursor-pointer text-center transition"
+                            >
+                              <p className="text-[11px] text-stone-400">
+                                📷 დააჭირეთ აქ ამ ფერის ფოტოს ასატვირთად
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={handleAddColorVariant}
+                      className="w-full py-2 bg-stone-800/80 hover:bg-stone-800 text-stone-300 hover:text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 border border-stone-700/60"
+                    >
+                      <Plus className="w-4 h-4 text-amber-400" />
+                      <span>+ კიდევ ერთი ფერის დამატება</span>
+                    </button>
                   </div>
                 )}
               </div>
