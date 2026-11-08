@@ -57,6 +57,62 @@ export const DEFAULT_SITE_SETTINGS = {
     tiktok: "",
     youtube: "",
   },
+
+  // 7. Homepage "Why Choose Us" (საწარმოო სტანდარტი)
+  whyChooseUs: {
+    badge: "საწარმოო სტანდარტი",
+    title: "რატომ ირჩევენ ჩვენს არქიტექტურულ ბეტონს?",
+    subtitle: "თითოეული ნაკეთობა გადის ვიბროჩამოსხმისა და თერმული გამოშრობის სრულ ტექნოლოგიურ ციკლს.",
+    items: [
+      {
+        id: "feat-1",
+        icon: "Snowflake",
+        title: "ყინვაგამძლეობა F300",
+        description: "სპეციალური ჰიდროფობიური დანამატები გამორიცხავს წყლის შეწოვას და ბზარების გაჩენას მკაცრ ზამთარშიც.",
+      },
+      {
+        id: "feat-2",
+        icon: "ShieldCheck",
+        title: "მაღალი სიმტკიცე (M500)",
+        description: "ბაზალტისა და პოლიპროპილენის ფიბრო-ბოჭკოთი არმირებული სტრუქტურა უძლებს მაღალ სტატიკურ და დინამიკურ დატვირთვას.",
+      },
+      {
+        id: "feat-3",
+        icon: "Sparkles",
+        title: "მდგრადი პიგმენტაცია",
+        description: "ვიყენებთ გერმანულ (Bayferrox) მინერალურ პიგმენტებს, რომლებიც სრულ მასაშია შერეული და მზეზე არ ხუნდება.",
+      },
+      {
+        id: "feat-4",
+        icon: "Compass",
+        title: "ინდივიდუალური ყალიბები",
+        description: "სტანდარტული კატალოგის გარდა, ვამზადებთ არასტანდარტული ზომის საფეხურებსა და საყვავილეებს არქიტექტორის ნახაზით.",
+      },
+    ],
+  },
+
+  // 8. Homepage "Trust & Partners" (სანდო პარტნიორობა)
+  trustSection: {
+    badge: "სანდო პარტნიორობა",
+    title: "ჩვენ გვენდობიან წამყვანი დეველოპერები & არქიტექტორები",
+    subtitle: "ჩვენი არქიტექტურული ბეტონის ნაკეთობები ამშვენებს პრემიუმ საცხოვრებელ კომპლექსებს, სასტუმროებსა და კერძო ვილებს.",
+    stats: [
+      { id: "stat-1", value: "150+", label: "დასრულებული ობიექტი", highlight: false },
+      { id: "stat-2", value: "15 000+", label: "მ² დაგებული ფილა", highlight: false },
+      { id: "stat-3", value: "M500 / F300", label: "სერტიფიცირებული ბეტონი", highlight: true },
+      { id: "stat-4", value: "10 წელი", label: "მასალის ოფიციალური გარანტია", highlight: false },
+    ],
+    partners: [
+      { id: "p-1", name: "ARCHI", role: "Development" },
+      { id: "p-2", name: "m²", role: "Real Estate" },
+      { id: "p-3", name: "SILK", role: "Development" },
+      { id: "p-4", name: "ALLIANCE", role: "Group" },
+      { id: "p-5", name: "ROOMS", role: "Hotels & Resorts" },
+      { id: "p-6", name: "TBILISI HILLS", role: "Golf & Villas" },
+      { id: "p-7", name: "RADISSON", role: "BLU Collection" },
+      { id: "p-8", name: "DOMUS", role: "Architectural" },
+    ],
+  },
 };
 
 /**

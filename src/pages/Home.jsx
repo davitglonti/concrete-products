@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import ProductCard from "../components/ui/ProductCard";
 import { CATEGORIES, HERO_SLIDES } from "../data/initialData";
+import { getFeatureIcon } from "../components/admin/HomeSectionsManager";
 import {
   ArrowRight,
   Sparkles,
@@ -21,7 +22,67 @@ import {
 } from "lucide-react";
 
 export default function Home() {
-  const { products, projects, categories, addInquiry } = useData();
+  const { products, projects, categories, addInquiry, siteSettings } = useData();
+
+  const whyChooseUs = siteSettings?.whyChooseUs || {
+    badge: "საწარმოო სტანდარტი",
+    title: "რატომ ირჩევენ ჩვენს არქიტექტურულ ბეტონს?",
+    subtitle:
+      "თითოეული ნაკეთობა გადის ვიბროჩამოსხმისა და თერმული გამოშრობის სრულ ტექნოლოგიურ ციკლს.",
+    items: [
+      {
+        id: "feat-1",
+        icon: "Snowflake",
+        title: "ყინვაგამძლეობა F300",
+        description:
+          "სპეციალური ჰიდროფობიური დანამატები გამორიცხავს წყლის შეწოვას და ბზარების გაჩენას მკაცრ ზამთარშიც.",
+      },
+      {
+        id: "feat-2",
+        icon: "ShieldCheck",
+        title: "მაღალი სიმტკიცე (M500)",
+        description:
+          "ბაზალტისა და პოლიპროპილენის ფიბრო-ბოჭკოთი არმირებული სტრუქტურა უძლებს მაღალ სტატიკურ და დინამიკურ დატვირთვას.",
+      },
+      {
+        id: "feat-3",
+        icon: "Sparkles",
+        title: "მდგრადი პიგმენტაცია",
+        description:
+          "ვიყენებთ გერმანულ (Bayferrox) მინერალურ პიგმენტებს, რომლებიც სრულ მასაშია შერეული და მზეზე არ ხუნდება.",
+      },
+      {
+        id: "feat-4",
+        icon: "Compass",
+        title: "ინდივიდუალური ყალიბები",
+        description:
+          "სტანდარტული კატალოგის გარდა, ვამზადებთ არასტანდარტული ზომის საფეხურებსა და საყვავილეებს არქიტექტორის ნახაზით.",
+      },
+    ],
+  };
+
+  const trustSection = siteSettings?.trustSection || {
+    badge: "სანდო პარტნიორობა",
+    title: "ჩვენ გვენდობიან წამყვანი დეველოპერები & არქიტექტორები",
+    subtitle:
+      "ჩვენი არქიტექტურული ბეტონის ნაკეთობები ამშვენებს პრემიუმ საცხოვრებელ კომპლექსებს, სასტუმროებსა და კერძო ვილებს.",
+    stats: [
+      { id: "stat-1", value: "150+", label: "დასრულებული ობიექტი", highlight: false },
+      { id: "stat-2", value: "15 000+", label: "მ² დაგებული ფილა", highlight: false },
+      { id: "stat-3", value: "M500 / F300", label: "სერტიფიცირებული ბეტონი", highlight: true },
+      { id: "stat-4", value: "10 წელი", label: "მასალის ოფიციალური გარანტია", highlight: false },
+    ],
+    partners: [
+      { id: "p-1", name: "ARCHI", role: "Development" },
+      { id: "p-2", name: "m²", role: "Real Estate" },
+      { id: "p-3", name: "SILK", role: "Development" },
+      { id: "p-4", name: "ALLIANCE", role: "Group" },
+      { id: "p-5", name: "ROOMS", role: "Hotels & Resorts" },
+      { id: "p-6", name: "TBILISI HILLS", role: "Golf & Villas" },
+      { id: "p-7", name: "RADISSON", role: "BLU Collection" },
+      { id: "p-8", name: "DOMUS", role: "Architectural" },
+    ],
+  };
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -381,132 +442,62 @@ export default function Home() {
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <span className="text-stone-500 dark:text-stone-400 text-xs font-bold uppercase tracking-widest block">
-              საწარმოო სტანდარტი
+              {whyChooseUs.badge}
             </span>
             <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 dark:text-white mt-2">
-              რატომ ირჩევენ ჩვენს არქიტექტურულ ბეტონს?
+              {whyChooseUs.title}
             </h2>
             <p className="text-stone-600 dark:text-stone-300 text-xs sm:text-sm lg:text-base mt-3 leading-relaxed">
-              თითოეული ნაკეთობა გადის ვიბროჩამოსხმისა და თერმული გამოშრობის სრულ ტექნოლოგიურ ციკლს.
+              {whyChooseUs.subtitle}
             </p>
           </div>
 
           {/* Desktop Grid (Original Layout — Hidden on Mobile) */}
           <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
-            {/* Feature 1 */}
-            <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-5 shadow-sm">
-                <Snowflake className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-2">
-                ყინვაგამძლეობა F300
-              </h3>
-              <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
-                სპეციალური ჰიდროფობიური დანამატები გამორიცხავს წყლის შეწოვას და ბზარების გაჩენას მკაცრ ზამთარშიც.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-5 shadow-sm">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-2">
-                მაღალი სიმტკიცე (M500)
-              </h3>
-              <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
-                ბაზალტისა და პოლიპროპილენის ფიბრო-ბოჭკოთი არმირებული სტრუქტურა უძლებს მაღალ სტატიკურ და დინამიკურ დატვირთვას.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-5 shadow-sm">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-2">
-                მდგრადი პიგმენტაცია
-              </h3>
-              <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
-                ვიყენებთ გერმანულ (Bayferrox) მინერალურ პიგმენტებს, რომლებიც სრულ მასაშია შერეული და მზეზე არ ხუნდება.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-5 shadow-sm">
-                <Compass className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-2">
-                ინდივიდუალური ყალიბები
-              </h3>
-              <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
-                სტანდარტული კატალოგის გარდა, ვამზადებთ არასტანდარტული ზომის საფეხურებსა და საყვავილეებს არქიტექტორის ნახაზით.
-              </p>
-            </div>
+            {whyChooseUs.items.map((item, idx) => {
+              const IconComp = getFeatureIcon(item.icon);
+              return (
+                <div
+                  key={item.id || idx}
+                  className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-7 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 transition-all duration-300"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-5 shadow-sm">
+                    <IconComp className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              );
+            })}
           </div>
 
           {/* Mobile Horizontal Swiper (Visible only on Mobile < md) */}
           <div className="flex md:hidden overflow-x-auto no-scrollbar gap-3.5 pb-2 pt-1 -mx-4 px-4 snap-x snap-mandatory scroll-px-4">
-            {/* Feature 1 */}
-            <div className="snap-start flex-shrink-0 w-[72vw] min-w-[240px] max-w-[320px] bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-4 shadow-sm">
-                  <Snowflake className="w-6 h-6" />
+            {whyChooseUs.items.map((item, idx) => {
+              const IconComp = getFeatureIcon(item.icon);
+              return (
+                <div
+                  key={item.id || idx}
+                  className="snap-start flex-shrink-0 w-[72vw] min-w-[240px] max-w-[320px] bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-6 shadow-sm flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-4 shadow-sm">
+                      <IconComp className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-base font-bold text-stone-900 dark:text-white mb-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-base font-bold text-stone-900 dark:text-white mb-2">
-                  ყინვაგამძლეობა F300
-                </h3>
-                <p className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed">
-                  სპეციალური ჰიდროფობიური დანამატები გამორიცხავს წყლის შეწოვას და ბზარების გაჩენას მკაცრ ზამთარშიც.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="snap-start flex-shrink-0 w-[72vw] min-w-[240px] max-w-[320px] bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-4 shadow-sm">
-                  <ShieldCheck className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-stone-900 dark:text-white mb-2">
-                  მაღალი სიმტკიცე (M500)
-                </h3>
-                <p className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed">
-                  ბაზალტისა და პოლიპროპილენის ფიბრო-ბოჭკოთი არმირებული სტრუქტურა უძლებს მაღალ სტატიკურ და დინამიკურ დატვირთვას.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="snap-start flex-shrink-0 w-[72vw] min-w-[240px] max-w-[320px] bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-4 shadow-sm">
-                  <Sparkles className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-stone-900 dark:text-white mb-2">
-                  მდგრადი პიგმენტაცია
-                </h3>
-                <p className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed">
-                  ვიყენებთ გერმანულ (Bayferrox) მინერალურ პიგმენტებს, რომლებიც სრულ მასაშია შერეული და მზეზე არ ხუნდება.
-                </p>
-              </div>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="snap-start flex-shrink-0 w-[72vw] min-w-[240px] max-w-[320px] bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-100 mb-4 shadow-sm">
-                  <Compass className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-stone-900 dark:text-white mb-2">
-                  ინდივიდუალური ყალიბები
-                </h3>
-                <p className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed">
-                  სტანდარტული კატალოგის გარდა, ვამზადებთ არასტანდარტული ზომის საფეხურებსა და საყვავილეებს არქიტექტორის ნახაზით.
-                </p>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -516,80 +507,57 @@ export default function Home() {
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
           <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
             <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest block mb-1.5">
-              სანდო პარტნიორობა
+              {trustSection.badge}
             </span>
             <h2 className="text-xl sm:text-3xl font-extrabold text-stone-900 dark:text-white">
-              ჩვენ გვენდობიან წამყვანი დეველოპერები & არქიტექტორები
+              {trustSection.title}
             </h2>
             <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-2">
-              ჩვენი არქიტექტურული ბეტონის ნაკეთობები ამშვენებს პრემიუმ საცხოვრებელ კომპლექსებს, სასტუმროებსა და კერძო ვილებს.
+              {trustSection.subtitle}
             </p>
           </div>
 
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-10">
-            <div className="p-4 sm:p-6 rounded-2xl bg-[#fbfbf9] dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 text-center">
-              <span className="text-2xl sm:text-4xl font-black text-stone-950 dark:text-white block font-mono">
-                150+
-              </span>
-              <span className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 block">
-                დასრულებული ობიექტი
-              </span>
-            </div>
-
-            <div className="p-4 sm:p-6 rounded-2xl bg-[#fbfbf9] dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 text-center">
-              <span className="text-2xl sm:text-4xl font-black text-stone-950 dark:text-white block font-mono">
-                15 000+
-              </span>
-              <span className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 block">
-                მ² დაგებული ფილა
-              </span>
-            </div>
-
-            <div className="p-4 sm:p-6 rounded-2xl bg-[#fbfbf9] dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 text-center">
-              <span className="text-2xl sm:text-4xl font-black text-amber-600 dark:text-amber-400 block font-mono">
-                M500 / F300
-              </span>
-              <span className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 block">
-                სერტიფიცირებული ბეტონი
-              </span>
-            </div>
-
-            <div className="p-4 sm:p-6 rounded-2xl bg-[#fbfbf9] dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 text-center">
-              <span className="text-2xl sm:text-4xl font-black text-stone-950 dark:text-white block font-mono">
-                10 წელი
-              </span>
-              <span className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 block">
-                მასალის ოფიციალური გარანტია
-              </span>
-            </div>
-          </div>
-
-          {/* Partner Brands Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            {[
-              { name: "ARCHI", role: "Development" },
-              { name: "m²", role: "Real Estate" },
-              { name: "SILK", role: "Development" },
-              { name: "ALLIANCE", role: "Group" },
-              { name: "ROOMS", role: "Hotels & Resorts" },
-              { name: "TBILISI HILLS", role: "Golf & Villas" },
-              { name: "RADISSON", role: "BLU Collection" },
-              { name: "DOMUS", role: "Architectural" },
-            ].map((partner) => (
+            {trustSection.stats.map((st, idx) => (
               <div
-                key={partner.name}
-                className="p-4 rounded-xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-stone-400 dark:hover:border-stone-700 hover:scale-102"
+                key={st.id || idx}
+                className="p-4 sm:p-6 rounded-2xl bg-[#fbfbf9] dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 text-center"
               >
-                <span className="text-xs sm:text-sm font-black tracking-widest text-stone-800 dark:text-stone-200">
-                  {partner.name}
+                <span
+                  className={`text-2xl sm:text-4xl font-black block font-mono ${
+                    st.highlight
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-stone-950 dark:text-white"
+                  }`}
+                >
+                  {st.value}
                 </span>
-                <span className="text-[9px] text-stone-400 uppercase tracking-wider mt-0.5 font-medium">
-                  {partner.role}
+                <span className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 block">
+                  {st.label}
                 </span>
               </div>
             ))}
           </div>
+
+          {/* Partner Brands Grid */}
+          {trustSection.partners && trustSection.partners.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+              {trustSection.partners.map((partner, idx) => (
+                <div
+                  key={partner.id || partner.name || idx}
+                  className="p-4 rounded-xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-stone-400 dark:hover:border-stone-700 hover:scale-102"
+                >
+                  <span className="text-xs sm:text-sm font-black tracking-widest text-stone-800 dark:text-stone-200">
+                    {partner.name}
+                  </span>
+                  <span className="text-[9px] text-stone-400 uppercase tracking-wider mt-0.5 font-medium">
+                    {partner.role}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

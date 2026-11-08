@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useData } from "../../context/DataContext";
+import HomeSectionsManager from "./HomeSectionsManager";
 import {
   Sliders,
   Image as ImageIcon,
@@ -269,6 +270,19 @@ export default function SiteSettingsManager() {
         >
           <Phone className="w-4 h-4" />
           <span>საკონტაქტო მონაცემები</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSubTab("homepage")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
+            activeSubTab === "homepage"
+              ? "bg-amber-500 text-stone-950 shadow-sm"
+              : "text-stone-300 hover:bg-stone-800 hover:text-white"
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          <span>მთავარი გვერდის ბლოკები</span>
         </button>
 
         <div className="ml-auto flex items-center gap-2">
@@ -1273,6 +1287,9 @@ export default function SiteSettingsManager() {
           </div>
         </div>
       )}
+
+      {/* SUB-TAB 5: HOMEPAGE SECTIONS */}
+      {activeSubTab === "homepage" && <HomeSectionsManager />}
     </div>
   );
 }
