@@ -1,5 +1,10 @@
+import { HERO_SLIDES } from "./initialData";
+
 // Default site-wide configuration settings
 export const DEFAULT_SITE_SETTINGS = {
+  // 0. Hero Carousel Slides
+  heroSlides: HERO_SLIDES,
+
   // 1. Branding & Identity
   brandName: "MONOLITH",
   brandSuffix: ".GE",

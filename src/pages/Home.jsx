@@ -83,6 +83,11 @@ export default function Home() {
       { id: "p-8", name: "DOMUS", role: "Architectural" },
     ],
   };
+  const heroSlides =
+    Array.isArray(siteSettings?.heroSlides) && siteSettings.heroSlides.length > 0
+      ? siteSettings.heroSlides
+      : HERO_SLIDES;
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -96,10 +101,10 @@ export default function Home() {
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 6000);
     return () => clearInterval(interval);
-  }, [isPaused]);
+  }, [isPaused, heroSlides.length]);
 
   // Track slides that need rendering as user navigates
   useEffect(() => {
@@ -146,11 +151,11 @@ export default function Home() {
   };
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
   };
 
   const handleQuickConsult = (e) => {
@@ -165,7 +170,8 @@ export default function Home() {
 
   const featuredProducts = products.filter((p) => p.featured).slice(0, 4);
   const latestProjects = [...projects].slice(0, 3);
-  const slide = HERO_SLIDES[currentSlide];
+  const activeSlideIndex = currentSlide < heroSlides.length ? currentSlide : 0;
+  const slide = heroSlides[activeSlideIndex] || heroSlides[0];
 
   return (
     <div className="flex flex-col w-full bg-[#fbfbf9] dark:bg-stone-950 transition-colors duration-200">
@@ -179,12 +185,12 @@ export default function Home() {
         onTouchEnd={handleTouchEnd}
       >
         {/* Full-bleed background images with crossfade & gentle Ken Burns zoom */}
-        {HERO_SLIDES.map((item, index) => {
+        {heroSlides.map((item, index) => {
           const isLoaded = loadedSlides.has(index);
-          const isActive = index === currentSlide;
+          const isActive = index === activeSlideIndex;
           return (
             <div
-              key={item.id}
+              key={item.id || index}
               className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
                 isActive ? "opacity-100 z-1" : "opacity-0 pointer-events-none z-0"
               }`}
@@ -193,7 +199,7 @@ export default function Home() {
                 <img
                   src={item.image}
                   srcSet={`
-                    ${item.image.replace("w=1280", "w=640&q=75")} 640w,
+                    ${item.image?.includes("unsplash.com") ? item.image.replace("w=1280", "w=640&q=75") + " 640w," : ""}
                     ${item.image} 1280w
                   `}
                   sizes="(max-width: 640px) 100vw, 1280px"
@@ -220,30 +226,36 @@ export default function Home() {
           <div className="max-w-2xl lg:max-w-3xl">
 
             {/* Clean Tag */}
-            <span className="inline-block text-amber-400 text-xs sm:text-sm font-bold tracking-widest uppercase mb-2 sm:mb-3 drop-shadow">
-              {slide.tag}
-            </span>
+            {slide.tag && (
+              <span className="inline-block text-amber-400 text-xs sm:text-sm font-bold tracking-widest uppercase mb-2 sm:mb-3 drop-shadow">
+                {slide.tag}
+              </span>
+            )}
 
             {/* Grand Headline: Bold Title + Amber Highlight */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] drop-shadow-lg">
-              {slide.titleMain} <br />
-              <span className="text-amber-400 drop-shadow">
-                {slide.titleHighlight}
-              </span>
+              {slide.titleMain} {slide.titleHighlight && <br />}
+              {slide.titleHighlight && (
+                <span className="text-amber-400 drop-shadow">
+                  {slide.titleHighlight}
+                </span>
+              )}
             </h1>
 
             {/* Subtitle */}
-            <p className="text-stone-200 text-sm sm:text-base lg:text-lg mt-3 sm:mt-5 max-w-xl leading-relaxed drop-shadow font-normal line-clamp-2 sm:line-clamp-3">
-              {slide.subtitle}
-            </p>
+            {slide.subtitle && (
+              <p className="text-stone-200 text-sm sm:text-base lg:text-lg mt-3 sm:mt-5 max-w-xl leading-relaxed drop-shadow font-normal line-clamp-2 sm:line-clamp-3">
+                {slide.subtitle}
+              </p>
+            )}
 
             {/* Action Buttons Row */}
             <div className="mt-6 sm:mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
               <Link
-                to={slide.categoryLink}
+                to={slide.categoryLink || "/products"}
                 className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl text-xs sm:text-sm inline-flex items-center gap-2 shadow-xl shadow-amber-500/25 transition hover:scale-105 active:scale-95"
               >
-                <span>{slide.buttonText}</span>
+                <span>{slide.buttonText || "კატალოგის ნახვა"}</span>
                 <ArrowRight className="w-4 h-4 stroke-[2.5]" />
               </Link>
               <Link
@@ -279,7 +291,7 @@ export default function Home() {
 
         {/* Clean Minimalist Dots at Bottom Center */}
         <div className="absolute bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 sm:gap-2.5">
-          {HERO_SLIDES.map((_, idx) => (
+          {heroSlides.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentSlide(idx)}
@@ -288,7 +300,7 @@ export default function Home() {
             >
               <span
                 className={`h-2 rounded-full transition-all duration-300 block ${
-                  idx === currentSlide
+                  idx === activeSlideIndex
                     ? "w-8 bg-amber-400 shadow-md shadow-amber-400/50"
                     : "w-2 bg-white/40 hover:bg-white/70"
                 }`}
