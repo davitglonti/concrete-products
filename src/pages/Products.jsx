@@ -117,7 +117,7 @@ export default function Products() {
                 className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex-shrink-0 ${
                   selectedCategory === cat.id
                     ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
-                    : "bg-[#f5f3ee] dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700"
+                    : "bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700"
                 }`}
               >
                 {cat.label}
@@ -135,14 +135,14 @@ export default function Products() {
                 placeholder="ძებნა დასახელებით..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-[#f5f3ee] dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl pl-9 sm:pl-10 pr-4 py-2 text-xs sm:text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:border-stone-800 dark:focus:border-stone-100 focus:bg-white dark:focus:bg-stone-900 transition"
+                className="w-full bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl pl-9 sm:pl-10 pr-4 py-2 text-xs sm:text-sm text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:border-stone-800 dark:focus:border-stone-100 focus:bg-white dark:focus:bg-stone-900 transition"
               />
             </div>
 
             {/* Right: Sort + Desktop Column Switcher */}
             <div className="flex items-center justify-between sm:justify-end gap-2">
               {/* Sort Selector */}
-              <div className="flex items-center gap-1.5 bg-[#f5f3ee] dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-2.5 sm:px-3 py-1.5 flex-1 sm:flex-initial">
+              <div className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-2.5 sm:px-3 py-1.5 flex-1 sm:flex-initial">
                 <ArrowUpDown className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 flex-shrink-0" />
                 <select
                   value={sortBy}
@@ -158,7 +158,7 @@ export default function Products() {
               </div>
 
               {/* Desktop Column Toggle: 4 or 5 items per row */}
-              <div className="hidden lg:flex items-center gap-1 bg-[#f5f3ee] dark:bg-stone-800 p-1 rounded-xl border border-stone-200 dark:border-stone-700">
+              <div className="hidden lg:flex items-center gap-1 bg-stone-100 dark:bg-stone-800 p-1 rounded-xl border border-stone-200 dark:border-stone-700">
                 <button
                   type="button"
                   onClick={() => setColumns(4)}

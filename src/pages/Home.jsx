@@ -311,20 +311,25 @@ export default function Home() {
       </section>
 
       {/* 2. CATEGORIES SECTION (Desktop Carousel Slider + Mobile Horizontal Swiper) */}
-      <section className="bg-[#f5f3ee] dark:bg-stone-900/40 py-10 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+      <section className="bg-stone-50/80 dark:bg-stone-900/40 py-12 sm:py-16 lg:py-20 border-b border-stone-200/70 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex items-center justify-between gap-2 mb-4 sm:mb-8">
-            <h2 className="text-base sm:text-3xl lg:text-4xl font-black text-stone-900 dark:text-white tracking-tight">
-              კატეგორიები
-            </h2>
+          <div className="flex items-end justify-between gap-4 mb-6 sm:mb-10">
+            <div>
+              <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 block mb-1">
+                კოლექციები
+              </span>
+              <h2 className="text-xl sm:text-3xl lg:text-4xl font-black text-stone-900 dark:text-white tracking-tight">
+                კატეგორიები
+              </h2>
+            </div>
 
             <Link
               to="/products"
-              className="inline-flex items-center gap-1 text-stone-600 hover:text-stone-950 dark:text-stone-400 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
+              className="inline-flex items-center gap-1.5 text-stone-700 hover:text-amber-600 dark:text-stone-300 dark:hover:text-amber-400 text-xs sm:text-sm font-bold transition shrink-0 group bg-white dark:bg-stone-900 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-stone-200/80 dark:border-stone-800 shadow-sm hover:shadow"
             >
-              <span className="sm:hidden">სრული კატალოგი</span>
+              <span className="sm:hidden">ყველა</span>
               <span className="hidden sm:inline">სრული კატალოგის ნახვა</span>
-              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-400 dark:text-stone-500" />
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-400 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all" />
             </Link>
           </div>
 
@@ -332,99 +337,110 @@ export default function Home() {
           <div
             className="hidden sm:flex overflow-x-auto no-scrollbar gap-6 xl:gap-8 pb-3 pt-1 scroll-smooth snap-x snap-mandatory"
           >
-            {(categories && categories.length > 0 ? categories : CATEGORIES).map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/products?category=${cat.id}`}
-                className="group flex-shrink-0 snap-start w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3*1.5rem)/4)] xl:w-[calc((100%-3*2rem)/4)] bg-white dark:bg-stone-900 rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-600 transition-all duration-300 flex flex-col"
-              >
-                <div className="aspect-[4/3] overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
-                  <img
-                    src={cat.image}
-                    srcSet={
-                      cat.image.includes("w=800")
-                        ? `${cat.image.replace("w=800", "w=400&q=75")} 400w, ${cat.image} 800w`
-                        : undefined
-                    }
-                    sizes="(max-width: 640px) 120px, (max-width: 1024px) 300px, 400px"
-                    alt={cat.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {cat.badge && (
-                    <span className="absolute top-3.5 left-3.5 bg-stone-800/90 dark:bg-stone-950/85 backdrop-blur text-white text-xs font-bold px-3 py-1 rounded-lg border border-stone-700/60 shadow-sm truncate max-w-[80%]">
-                      {cat.badge}
-                    </span>
-                  )}
-                </div>
-                <div className="p-6 flex-grow flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-lg lg:text-xl font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition line-clamp-1">
-                      {cat.title}
-                    </h3>
-                    {cat.description && (
-                      <p className="text-sm text-stone-600 dark:text-stone-400 mt-2 line-clamp-2 leading-relaxed">
-                        {cat.description}
-                      </p>
+            {(categories && categories.length > 0 ? categories : CATEGORIES).map((cat) => {
+              const cleanBadge = cat.badge ? cat.badge.split(",")[0].trim() : null;
+              return (
+                <Link
+                  key={cat.id}
+                  to={`/products?category=${cat.id}`}
+                  className="group flex-shrink-0 snap-start w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3*1.5rem)/4)] xl:w-[calc((100%-3*2rem)/4)] bg-white dark:bg-stone-900 rounded-3xl overflow-hidden border border-stone-200/80 dark:border-stone-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.1)] hover:-translate-y-1.5 hover:border-amber-500/50 dark:hover:border-stone-600 transition-all duration-300 flex flex-col"
+                >
+                  <div className="aspect-[4/3] overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
+                    <img
+                      src={cat.image}
+                      srcSet={
+                        cat.image.includes("w=800")
+                          ? `${cat.image.replace("w=800", "w=400&q=75")} 400w, ${cat.image} 800w`
+                          : undefined
+                      }
+                      sizes="(max-width: 640px) 120px, (max-width: 1024px) 300px, 400px"
+                      alt={cat.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {cleanBadge && (
+                      <span className="absolute top-3.5 left-3.5 bg-white/95 dark:bg-stone-900/90 backdrop-blur-md text-stone-900 dark:text-white text-[11px] sm:text-xs font-bold px-3 py-1 rounded-xl border border-stone-200/90 dark:border-stone-700/80 shadow-md truncate max-w-[80%]">
+                        {cleanBadge}
+                      </span>
                     )}
                   </div>
-                  <div className="mt-5 pt-4 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between text-xs font-bold text-stone-800 dark:text-stone-200 group-hover:translate-x-1 transition-transform">
-                    <span>დათვალიერება</span>
-                    <ArrowRight className="w-4 h-4" />
+                  <div className="p-5 sm:p-6 flex-grow flex flex-col justify-between min-h-[140px]">
+                    <div>
+                      <h3 className="text-lg lg:text-xl font-extrabold text-stone-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-1">
+                        {cat.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-2 line-clamp-2 leading-relaxed min-h-[2.5rem]">
+                        {cat.description || "პრემიუმ არქიტექტურული ბეტონის ნაკეთობები"}
+                      </p>
+                    </div>
+                    <div className="mt-4 pt-3.5 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between text-xs font-bold text-stone-800 dark:text-stone-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      <span>კატალოგის დათვალიერება</span>
+                      <div className="w-7 h-7 rounded-full bg-stone-100 dark:bg-stone-800 group-hover:bg-amber-500 group-hover:text-stone-950 flex items-center justify-center transition-all duration-300 group-hover:translate-x-1 shadow-sm">
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Mobile Horizontal Swiper (Visible only on Mobile < sm, 3-4 visible) */}
           <div className="flex sm:hidden overflow-x-auto no-scrollbar gap-2.5 pb-2 pt-1 -mx-4 px-4 snap-x snap-mandatory scroll-px-4">
-            {(categories && categories.length > 0 ? categories : CATEGORIES).map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/products?category=${cat.id}`}
-                className="group flex-shrink-0 snap-start w-[27vw] min-w-[96px] max-w-[125px] bg-white dark:bg-stone-900 rounded-2xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-md transition flex flex-col"
-              >
-                <div className="aspect-square overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
-                  <img
-                    src={cat.image.includes("w=800") ? cat.image.replace("w=800", "w=200&q=70") : cat.image}
-                    alt={cat.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover"
-                  />
-                  {cat.badge && (
-                    <span className="absolute top-1.5 left-1.5 bg-stone-900/85 backdrop-blur text-white text-[8px] font-bold px-1.5 py-0.5 rounded border border-stone-700/50 shadow-sm truncate max-w-[85%]">
-                      {cat.badge}
-                    </span>
-                  )}
-                </div>
-                <div className="p-2 flex-grow flex flex-col justify-center">
-                  <h3 className="text-[11px] font-bold text-stone-900 dark:text-white line-clamp-2 leading-tight text-center">
-                    {cat.title}
-                  </h3>
-                </div>
-              </Link>
-            ))}
+            {(categories && categories.length > 0 ? categories : CATEGORIES).map((cat) => {
+              const cleanBadge = cat.badge ? cat.badge.split(",")[0].trim() : null;
+              return (
+                <Link
+                  key={cat.id}
+                  to={`/products?category=${cat.id}`}
+                  className="group flex-shrink-0 snap-start w-[28vw] min-w-[100px] max-w-[130px] bg-white dark:bg-stone-900 rounded-2xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-md transition flex flex-col"
+                >
+                  <div className="aspect-square overflow-hidden bg-stone-100 dark:bg-stone-800 relative">
+                    <img
+                      src={cat.image.includes("w=800") ? cat.image.replace("w=800", "w=200&q=70") : cat.image}
+                      alt={cat.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover"
+                    />
+                    {cleanBadge && (
+                      <span className="absolute top-1.5 left-1.5 bg-white/95 dark:bg-stone-900/90 backdrop-blur-md text-stone-900 dark:text-white text-[8px] font-bold px-1.5 py-0.5 rounded border border-stone-200/80 dark:border-stone-700/60 shadow-sm truncate max-w-[85%]">
+                        {cleanBadge}
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-2 flex-grow flex flex-col justify-center">
+                    <h3 className="text-[11px] font-bold text-stone-900 dark:text-white line-clamp-2 leading-tight text-center">
+                      {cat.title}
+                    </h3>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* 3. FEATURED PRODUCTS (Original Desktop Grid + Mobile Horizontal Swiper) */}
-      <section className="bg-white dark:bg-stone-950 py-10 sm:py-16 lg:py-20 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+      <section className="bg-white dark:bg-stone-950 py-12 sm:py-16 lg:py-20 border-b border-stone-200/70 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex items-center justify-between gap-2 mb-4 sm:mb-8">
-            <h2 className="text-base sm:text-3xl lg:text-4xl font-black text-stone-900 dark:text-white tracking-tight">
-              გამორჩეული პროდუქცია
-            </h2>
+          <div className="flex items-end justify-between gap-4 mb-6 sm:mb-10">
+            <div>
+              <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 block mb-1">
+                რჩეული მოდელები
+              </span>
+              <h2 className="text-xl sm:text-3xl lg:text-4xl font-black text-stone-900 dark:text-white tracking-tight">
+                გამორჩეული პროდუქცია
+              </h2>
+            </div>
             <Link
               to="/products"
-              className="inline-flex items-center gap-1 text-stone-600 hover:text-stone-950 dark:text-stone-400 dark:hover:text-white text-xs sm:text-sm font-semibold transition shrink-0"
+              className="inline-flex items-center gap-1.5 text-stone-700 hover:text-amber-600 dark:text-stone-300 dark:hover:text-amber-400 text-xs sm:text-sm font-bold transition shrink-0 group bg-stone-50 dark:bg-stone-900 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-stone-200/80 dark:border-stone-800 shadow-sm hover:shadow"
             >
-              <span className="sm:hidden">სრული კატალოგი</span>
+              <span className="sm:hidden">ყველა</span>
               <span className="hidden sm:inline">სრული კატალოგის ნახვა</span>
-              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-400 dark:text-stone-500" />
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-400 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all" />
             </Link>
           </div>
 
@@ -450,7 +466,7 @@ export default function Home() {
       </section>
 
       {/* 4. WHY CHOOSE OUR CONCRETE? (Original Desktop Grid + Mobile Horizontal Swiper) */}
-      <section className="bg-[#f5f3ee] dark:bg-stone-900/60 py-16 lg:py-24 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+      <section className="bg-stone-50/80 dark:bg-stone-900/60 py-16 lg:py-24 border-b border-stone-200/70 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <span className="text-stone-500 dark:text-stone-400 text-xs font-bold uppercase tracking-widest block">
@@ -701,7 +717,7 @@ export default function Home() {
       </section>
 
       {/* 5.5. CALCULATOR PROMO BANNER */}
-      <section className="bg-[#f5f3ee] dark:bg-stone-900/40 py-12 sm:py-16 border-b border-stone-200/80 dark:border-stone-800 transition-colors duration-200">
+      <section className="bg-white dark:bg-stone-900/40 py-12 sm:py-16 border-b border-stone-200/70 dark:border-stone-800 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
           <div className="bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900 text-white rounded-3xl p-8 sm:p-12 lg:p-14 border border-stone-800 shadow-2xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8">
             {/* Background architectural glow */}
@@ -746,7 +762,7 @@ export default function Home() {
       </section>
 
       {/* 6. BOTTOM CONSULTATION BANNER (Expanded Widescreen Layout) */}
-      <section className="bg-[#f5f3ee] dark:bg-stone-950 py-16 transition-colors duration-200">
+      <section className="bg-stone-50/80 dark:bg-stone-950 py-16 transition-colors duration-200">
         <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
           <div className="bg-stone-800 text-white dark:bg-stone-900 border border-stone-700/80 rounded-3xl p-8 sm:p-12 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xl">
             <div className="max-w-xl">

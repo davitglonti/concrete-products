@@ -86,7 +86,7 @@ export default function ProductCard({ product }) {
   return (
     <Link
       to={`/products/${product.id}`}
-      className="group rounded-2xl overflow-hidden transition-all duration-300 flex flex-col border bg-white dark:bg-stone-900 border-stone-200/90 dark:border-stone-800 shadow-sm hover:shadow-xl hover:border-stone-400 dark:hover:border-stone-700 relative h-full"
+      className="group rounded-2xl overflow-hidden transition-all duration-300 flex flex-col border bg-white dark:bg-stone-900 border-stone-200/90 dark:border-stone-800 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:border-amber-500/50 dark:hover:border-stone-700 relative h-full"
     >
       {/* Image container */}
       <div
@@ -140,14 +140,14 @@ export default function ProductCard({ product }) {
         )}
 
         {/* Category Badge (Top Left) */}
-        <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-stone-800/90 dark:bg-stone-950/85 backdrop-blur text-white text-[10px] sm:text-xs font-semibold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md border border-stone-700/60 shadow-sm truncate max-w-[55%] pointer-events-none z-10">
+        <span className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 bg-white/95 dark:bg-stone-900/90 backdrop-blur-md text-stone-900 dark:text-white text-[10px] sm:text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg border border-stone-200/90 dark:border-stone-700/80 shadow-md truncate max-w-[60%] pointer-events-none z-10">
           {product.categoryLabel}
         </span>
 
         {/* Multi-image counter badge (Bottom Left) */}
         {hasMultiple && (
-          <span className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-stone-900/80 backdrop-blur text-white text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md flex items-center gap-1 border border-stone-700/40 pointer-events-none z-10">
-            <ImageIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-stone-300" />
+          <span className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-white/90 dark:bg-stone-900/85 backdrop-blur-md text-stone-900 dark:text-white text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md flex items-center gap-1 border border-stone-200/70 dark:border-stone-700/50 pointer-events-none z-10 shadow-sm">
+            <ImageIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-stone-600 dark:text-stone-300" />
             <span>
               {isShowingSecond ? "2" : "1"} / {allImages.length}
             </span>
@@ -162,10 +162,10 @@ export default function ProductCard({ product }) {
             onClick={handleCompareClick}
             aria-label={compared ? "შედარებიდან წაშლა" : "შედარებაში დამატება"}
             title={compared ? "შედარებაშია (წაშლა)" : "შედარებაში დამატება"}
-            className={`p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all duration-200 shadow-md ${
+            className={`p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all duration-200 shadow-sm border ${
               compared
-                ? "bg-amber-500 text-stone-950 scale-110 shadow-amber-500/40 ring-1 ring-amber-400"
-                : "bg-white/90 dark:bg-stone-900/90 text-stone-600 dark:text-stone-300 hover:text-amber-500 hover:bg-white dark:hover:bg-stone-900"
+                ? "bg-amber-500 text-stone-950 scale-110 shadow-amber-500/40 border-amber-400 ring-1 ring-amber-400"
+                : "bg-white/95 dark:bg-stone-900/90 border-stone-200/80 dark:border-stone-700/80 text-stone-700 dark:text-stone-300 hover:text-amber-600 hover:bg-white dark:hover:bg-stone-900"
             }`}
           >
             <Scale className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
@@ -177,10 +177,10 @@ export default function ProductCard({ product }) {
             onClick={handleFavoriteClick}
             aria-label={favorited ? "ფავორიტებიდან წაშლა" : "ფავორიტებში დამატება"}
             title={favorited ? "ფავორიტებშია" : "ფავორიტებში დამატება"}
-            className={`p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all duration-200 shadow-md ${
+            className={`p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all duration-200 shadow-sm border ${
               favorited
-                ? "bg-red-500 text-white scale-110 shadow-red-500/30"
-                : "bg-white/90 dark:bg-stone-900/90 text-stone-600 dark:text-stone-300 hover:text-red-500 hover:bg-white dark:hover:bg-stone-900"
+                ? "bg-red-500 text-white scale-110 shadow-red-500/30 border-red-400"
+                : "bg-white/95 dark:bg-stone-900/90 border-stone-200/80 dark:border-stone-700/80 text-stone-700 dark:text-stone-300 hover:text-red-500 hover:bg-white dark:hover:bg-stone-900"
             }`}
           >
             <Heart
