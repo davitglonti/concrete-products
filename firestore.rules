@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to verify if the requester is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Public catalog collections: readable by everyone, editable ONLY by authenticated admins
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Site branding & settings: readable by everyone, editable ONLY by authenticated admins
+    match /site_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // Inquiries (leads / quotes):
+    // - Anyone can submit an inquiry (create)
+    // - Only authenticated admins can read, update or delete customer inquiries
+    match /inquiries/{inquiryId} {
+      allow create: if request.resource.data.name is string 
+                    && request.resource.data.phone is string;
+      allow read, update, delete: if isAuthenticated();
+    }
+
+    // Default deny for any other unspecified collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

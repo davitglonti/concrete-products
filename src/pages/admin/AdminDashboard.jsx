@@ -1,11 +1,19 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, Suspense, lazy } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../../context/DataContext";
-import AdminLogin from "./AdminLogin";
-import SiteSettingsManager from "../../components/admin/SiteSettingsManager";
-import HomeSectionsManager from "../../components/admin/HomeSectionsManager";
-import SEOManager from "../../components/admin/SEOManager";
-import CalculatorManager from "../../components/admin/CalculatorManager";
+
+// Lazy-loaded administrative managers to keep AdminDashboard initial bundle lightweight
+const SiteSettingsManager = lazy(() => import("../../components/admin/SiteSettingsManager"));
+const HomeSectionsManager = lazy(() => import("../../components/admin/HomeSectionsManager"));
+const SEOManager = lazy(() => import("../../components/admin/SEOManager"));
+const CalculatorManager = lazy(() => import("../../components/admin/CalculatorManager"));
+
+const AdminTabLoader = () => (
+  <div className="p-12 flex flex-col items-center justify-center bg-stone-900/50 border border-stone-800 rounded-3xl">
+    <div className="w-8 h-8 border-2 border-stone-700 border-t-amber-500 rounded-full animate-spin mb-3" />
+    <span className="text-xs text-stone-400 font-mono">მოდული იტვირთება...</span>
+  </div>
+);
 import {
   Trash2,
   Plus,
@@ -2484,17 +2492,13 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* TAB: HOMEPAGE SECTIONS */}
-        {tab === "homeSections" && <HomeSectionsManager />}
-
-        {/* TAB: SEO & GOOGLE */}
-        {tab === "seo" && <SEOManager />}
-
-        {/* TAB: CALCULATOR MANAGER */}
-        {tab === "calculator" && <CalculatorManager />}
-
-        {/* TAB 5: SITE SETTINGS & NAVIGATION */}
-        {tab === "settings" && <SiteSettingsManager />}
+        {/* LAZY LOADED ADMIN TABS */}
+        <Suspense fallback={<AdminTabLoader />}>
+          {tab === "homeSections" && <HomeSectionsManager />}
+          {tab === "seo" && <SEOManager />}
+          {tab === "calculator" && <CalculatorManager />}
+          {tab === "settings" && <SiteSettingsManager />}
+        </Suspense>
       </div>
     </div>
   );

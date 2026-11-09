@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { INITIAL_PRODUCTS, INITIAL_PROJECTS, CATEGORIES } from "../data/initialData";
 import { DEFAULT_SITE_SETTINGS, applyFavicon } from "../data/initialSettings";
 import { getPersistentItem, setPersistentItem } from "../utils/storage";
+import { isFirebaseConfigured } from "../config/firebaseEnv";
 import {
   subscribeToCollections,
   dbSaveProduct,
@@ -63,7 +64,7 @@ const mergeSiteSettings = (base, incoming) => {
 };
 
 export const DataProvider = ({ children }) => {
-  // Synchronous initial load with localStorage & smart merge with rich INITIAL_PRODUCTS
+  // Synchronous initial load with localStorage & smart fallback
   const [products, setProducts] = useState(() => {
     try {
       const saved = localStorage.getItem("monolith_products");
@@ -142,7 +143,8 @@ export const DataProvider = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [firebaseStatus, setFirebaseStatus] = useState("connecting");
   const [firebaseErrorMsg, setFirebaseErrorMsg] = useState("");
-  const isFirebaseConfigured = true;
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Track deleted IDs in this session to prevent merge resurrection
   const deletedProductIdsRef = useRef(new Set());
@@ -214,16 +216,8 @@ export const DataProvider = ({ children }) => {
     applyFavicon(iconToApply);
   }, [siteSettings?.logoImage, siteSettings?.favicon, siteSettings?.syncFaviconWithLogo]);
 
-  // Firebase Auth state: only initialize on /admin to keep public routes 100% fast
+  // Global Firebase Auth state subscription (reliable across all routes)
   useEffect(() => {
-    const isAdminRoute =
-      typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
-
-    if (!isAdminRoute) {
-      setAuthLoading(false);
-      return;
-    }
-
     let unsub = () => {};
     dbSubscribeToAuth((user) => {
       if (user) {
@@ -234,82 +228,81 @@ export const DataProvider = ({ children }) => {
         setIsAdminAuthenticated(false);
       }
       setAuthLoading(false);
-    }).then((unsubFn) => {
-      if (typeof unsubFn === "function") unsub = unsubFn;
-    });
+    })
+      .then((unsubFn) => {
+        if (typeof unsubFn === "function") unsub = unsubFn;
+      })
+      .catch(() => {
+        setAuthLoading(false);
+      });
 
     return () => unsub();
   }, []);
 
-  // Real-time synchronization:
-  // On admin routes, sync immediately. On public routes, defer by 2.5s to let LCP & FCP achieve 100 score!
+  // Real-time synchronization: starts immediately in the background
   useEffect(() => {
     let isMounted = true;
     let unsub = () => {};
 
-    const isAdminRoute =
-      typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
-
     const startSync = async () => {
+      setIsSyncing(true);
       const unsubFn = await subscribeToCollections({
-        includeInquiries: isAdminRoute,
+        includeInquiries: true,
         onStatusChange: (status, msg) => {
           if (!isMounted) return;
           setFirebaseStatus(status);
           if (msg) setFirebaseErrorMsg(msg);
+          setIsSyncing(false);
+          setIsLoading(false);
         },
         onProducts: (remoteProducts) => {
           if (!isMounted) return;
-          setProducts((currentLocal) => {
-            const remoteMap = new Map(remoteProducts.map((p) => [p.id, p]));
-            const result = remoteProducts.filter(
+          if (Array.isArray(remoteProducts) && remoteProducts.length > 0) {
+            const clean = remoteProducts.filter(
               (rp) => !deletedProductIdsRef.current.has(rp.id)
             );
-            currentLocal.forEach((lp) => {
-              if (!remoteMap.has(lp.id) && !deletedProductIdsRef.current.has(lp.id)) {
-                result.push(lp);
-              }
-            });
-            return result;
-          });
+            setProducts(clean);
+            setPersistentItem("monolith_products", clean);
+          }
+          setIsSyncing(false);
+          setIsLoading(false);
         },
         onCategories: (remoteCats) => {
           if (!isMounted) return;
-          setCategories((currentLocal) => {
-            const remoteMap = new Map(remoteCats.map((c) => [c.id, c]));
-            const result = remoteCats.filter(
+          if (Array.isArray(remoteCats) && remoteCats.length > 0) {
+            const clean = remoteCats.filter(
               (rc) => !deletedCategoryIdsRef.current.has(rc.id)
             );
-            currentLocal.forEach((lc) => {
-              if (!remoteMap.has(lc.id) && !deletedCategoryIdsRef.current.has(lc.id)) {
-                result.push(lc);
-              }
-            });
-            return result;
-          });
+            setCategories(clean);
+            setPersistentItem("monolith_categories", clean);
+          }
         },
         onProjects: (remoteProjects) => {
           if (!isMounted) return;
-          setProjects((currentLocal) => {
-            const remoteMap = new Map(remoteProjects.map((p) => [p.id, p]));
-            const result = remoteProjects.filter(
+          if (Array.isArray(remoteProjects) && remoteProjects.length > 0) {
+            const clean = remoteProjects.filter(
               (rp) => !deletedProjectIdsRef.current.has(rp.id)
             );
-            currentLocal.forEach((lp) => {
-              if (!remoteMap.has(lp.id) && !deletedProjectIdsRef.current.has(lp.id)) {
-                result.push(lp);
-              }
-            });
-            return result;
-          });
+            setProjects(clean);
+            setPersistentItem("monolith_projects", clean);
+          }
         },
         onInquiries: (remoteInquiries) => {
           if (!isMounted) return;
-          setInquiries(remoteInquiries);
+          if (Array.isArray(remoteInquiries)) {
+            setInquiries(remoteInquiries);
+            setPersistentItem("monolith_inquiries", remoteInquiries);
+          }
         },
         onSettings: (remoteSettings) => {
           if (!isMounted) return;
-          setSiteSettings((prev) => mergeSiteSettings(prev, remoteSettings));
+          if (remoteSettings) {
+            setSiteSettings((prev) => {
+              const merged = mergeSiteSettings(prev, remoteSettings);
+              setPersistentItem("monolith_site_settings", merged);
+              return merged;
+            });
+          }
         },
       });
 
@@ -318,16 +311,7 @@ export const DataProvider = ({ children }) => {
       }
     };
 
-    if (isAdminRoute) {
-      startSync();
-    } else {
-      const timer = setTimeout(startSync, 2500);
-      return () => {
-        isMounted = false;
-        clearTimeout(timer);
-        unsub();
-      };
-    }
+    startSync();
 
     return () => {
       isMounted = false;
@@ -335,8 +319,8 @@ export const DataProvider = ({ children }) => {
     };
   }, []);
 
-  // CRUD for Products
-  const addProduct = async (productData) => {
+  // CRUD for Products (wrapped in useCallback for stable references)
+  const addProduct = useCallback(async (productData) => {
     const newProd = {
       ...productData,
       id: productData.id || `prod-${Date.now()}`,
@@ -356,23 +340,23 @@ export const DataProvider = ({ children }) => {
     }
 
     dbSaveProduct(newProd);
-  };
+  }, []);
 
-  const updateProduct = async (id, updatedData) => {
+  const updateProduct = useCallback(async (id, updatedData) => {
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...updatedData } : p))
     );
     dbUpdateProduct(id, updatedData);
-  };
+  }, []);
 
-  const deleteProduct = async (id) => {
+  const deleteProduct = useCallback(async (id) => {
     deletedProductIdsRef.current.add(id);
     setProducts((prev) => prev.filter((p) => p.id !== id));
     dbDeleteProduct(id);
-  };
+  }, []);
 
   // CRUD for Categories
-  const addCategory = async (categoryData) => {
+  const addCategory = useCallback(async (categoryData) => {
     const slug =
       categoryData.id?.trim() ||
       categoryData.title
@@ -400,23 +384,23 @@ export const DataProvider = ({ children }) => {
     }
 
     dbSaveCategory(newCat);
-  };
+  }, []);
 
-  const updateCategory = async (id, updatedData) => {
+  const updateCategory = useCallback(async (id, updatedData) => {
     setCategories((prev) =>
       prev.map((c) => (c.id === id ? { ...c, ...updatedData } : c))
     );
     dbUpdateCategory(id, updatedData);
-  };
+  }, []);
 
-  const deleteCategory = async (id) => {
+  const deleteCategory = useCallback(async (id) => {
     deletedCategoryIdsRef.current.add(id);
     setCategories((prev) => prev.filter((c) => c.id !== id));
     dbDeleteCategory(id);
-  };
+  }, []);
 
   // CRUD for Projects
-  const addProject = async (projectData) => {
+  const addProject = useCallback(async (projectData) => {
     const newProj = {
       ...projectData,
       id: projectData.id || `proj-${Date.now()}`,
@@ -436,23 +420,23 @@ export const DataProvider = ({ children }) => {
     }
 
     dbSaveProject(newProj);
-  };
+  }, []);
 
-  const updateProject = async (id, updatedData) => {
+  const updateProject = useCallback(async (id, updatedData) => {
     setProjects((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...updatedData } : p))
     );
     dbUpdateProject(id, updatedData);
-  };
+  }, []);
 
-  const deleteProject = async (id) => {
+  const deleteProject = useCallback(async (id) => {
     deletedProjectIdsRef.current.add(id);
     setProjects((prev) => prev.filter((p) => p.id !== id));
     dbDeleteProject(id);
-  };
+  }, []);
 
   // Inquiries
-  const addInquiry = async (inquiryData) => {
+  const addInquiry = useCallback(async (inquiryData) => {
     const newInq = {
       ...inquiryData,
       id: `inq-${Date.now()}`,
@@ -460,28 +444,29 @@ export const DataProvider = ({ children }) => {
     };
     setInquiries((prev) => [newInq, ...prev]);
     dbSaveInquiry(newInq);
-  };
+  }, []);
 
   // Initial Seed tool
-  const seedInitialDataToFirebase = async () => {
+  const seedInitialDataToFirebase = useCallback(async () => {
     return await dbSeedAll(categories, products, projects);
-  };
+  }, [categories, products, projects]);
 
   // Site Settings
-  const updateSiteSettings = async (updates) => {
-    const merged = { ...siteSettings, ...updates };
-    setSiteSettings(merged);
-    setPersistentItem("monolith_site_settings", merged);
-    try {
-      localStorage.setItem("monolith_site_settings", JSON.stringify(merged));
-    } catch (e) {
-      console.warn("localStorage site settings error:", e);
-    }
-    dbSaveSiteSettings(merged);
-    return merged;
-  };
+  const updateSiteSettings = useCallback(async (updates) => {
+    setSiteSettings((prev) => {
+      const merged = { ...prev, ...updates };
+      setPersistentItem("monolith_site_settings", merged);
+      try {
+        localStorage.setItem("monolith_site_settings", JSON.stringify(merged));
+      } catch (e) {
+        console.warn("localStorage site settings error:", e);
+      }
+      dbSaveSiteSettings(merged);
+      return merged;
+    });
+  }, []);
 
-  const resetSiteSettings = async () => {
+  const resetSiteSettings = useCallback(async () => {
     setSiteSettings(DEFAULT_SITE_SETTINGS);
     setPersistentItem("monolith_site_settings", DEFAULT_SITE_SETTINGS);
     try {
@@ -489,55 +474,85 @@ export const DataProvider = ({ children }) => {
     } catch (e) {}
     dbResetSiteSettings(DEFAULT_SITE_SETTINGS);
     return DEFAULT_SITE_SETTINGS;
-  };
+  }, []);
 
-  const loginAdmin = async (email, password) => {
+  const loginAdmin = useCallback(async (email, password) => {
     const res = await dbSignInAdmin(email, password);
     if (res.success) {
       setAdminUser(res.user);
       setIsAdminAuthenticated(true);
     }
     return res;
-  };
+  }, []);
 
-  const logoutAdmin = async () => {
+  const logoutAdmin = useCallback(async () => {
     await dbSignOutAdmin();
     setAdminUser(null);
     setIsAdminAuthenticated(false);
-  };
+  }, []);
 
-  return (
-    <DataContext.Provider
-      value={{
-        products,
-        categories,
-        projects,
-        inquiries,
-        addProduct,
-        updateProduct,
-        deleteProduct,
-        addCategory,
-        updateCategory,
-        deleteCategory,
-        addProject,
-        updateProject,
-        deleteProject,
-        addInquiry,
-        seedInitialDataToFirebase,
-        firebaseStatus,
-        firebaseErrorMsg,
-        isFirebaseConfigured,
-        isAdminAuthenticated,
-        adminUser,
-        authLoading,
-        loginAdmin,
-        logoutAdmin,
-        siteSettings,
-        updateSiteSettings,
-        resetSiteSettings,
-      }}
-    >
-      {children}
-    </DataContext.Provider>
+  // Memoized context value to prevent unnecessary re-renders of the tree
+  const contextValue = useMemo(
+    () => ({
+      products,
+      categories,
+      projects,
+      inquiries,
+      isLoading,
+      isSyncing,
+      addProduct,
+      updateProduct,
+      deleteProduct,
+      addCategory,
+      updateCategory,
+      deleteCategory,
+      addProject,
+      updateProject,
+      deleteProject,
+      addInquiry,
+      seedInitialDataToFirebase,
+      firebaseStatus,
+      firebaseErrorMsg,
+      isFirebaseConfigured,
+      isAdminAuthenticated,
+      adminUser,
+      authLoading,
+      loginAdmin,
+      logoutAdmin,
+      siteSettings,
+      updateSiteSettings,
+      resetSiteSettings,
+    }),
+    [
+      products,
+      categories,
+      projects,
+      inquiries,
+      isLoading,
+      isSyncing,
+      addProduct,
+      updateProduct,
+      deleteProduct,
+      addCategory,
+      updateCategory,
+      deleteCategory,
+      addProject,
+      updateProject,
+      deleteProject,
+      addInquiry,
+      seedInitialDataToFirebase,
+      firebaseStatus,
+      firebaseErrorMsg,
+      isAdminAuthenticated,
+      adminUser,
+      authLoading,
+      loginAdmin,
+      logoutAdmin,
+      siteSettings,
+      updateSiteSettings,
+      resetSiteSettings,
+    ]
   );
+
+  return <DataContext.Provider value={contextValue}>{children}</DataContext.Provider>;
 };

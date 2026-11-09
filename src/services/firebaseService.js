@@ -279,9 +279,15 @@ export const dbResetSiteSettings = async (defaultSettings) => {
 // Seed
 export const dbSeedAll = async (categories, products, projects) => {
   try {
-    const { db, isFirebaseConfigured, doc, setDoc } = await loadFirebase();
+    const { db, auth, isFirebaseConfigured, doc, setDoc } = await loadFirebase();
     if (!isFirebaseConfigured || !db) {
-      return { success: false, message: "Firebase არ არის კონფიგურირებული" };
+      return { success: false, message: "Firebase არ არის კონფიგურირებული (.env)" };
+    }
+    if (!auth || !auth.currentUser) {
+      return {
+        success: false,
+        message: "მონაცემთა ატვირთვა მოითხოვს ადმინისტრატორის ავტორიზაციას. გთხოვთ გაიაროთ ავტორიზაცია.",
+      };
     }
     for (const cat of categories) {
       await setDoc(doc(db, "categories", cat.id), sanitizeForFirestore(cat));
@@ -298,8 +304,8 @@ export const dbSeedAll = async (categories, products, projects) => {
     return {
       success: false,
       message:
-        err.message.includes("PERMISSION_DENIED") || err.message.includes("Cloud Firestore API")
-          ? "Firestore Rules ჯერ ჩაკეტილია. Firebase Console -> Firestore Database -> Rules-ში ჩაწერეთ allow read, write: if true; და დააჭირეთ Publish."
+        err.message.includes("PERMISSION_DENIED") || err.message.includes("permission-denied")
+          ? "წვდომა შეზღუდულია Firestore Security Rules-ით. ოპერაციის შესასრულებლად საჭიროა ადმინისტრატორის ავტორიზაცია."
           : err.message,
     };
   }

@@ -1,15 +1,24 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 export default function AdminLogin() {
-  const { loginAdmin } = useData();
+  const { loginAdmin, isAdminAuthenticated, authLoading } = useData();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/admin";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // If already authenticated and not loading, redirect immediately
+  if (!authLoading && isAdminAuthenticated) {
+    return <Navigate to={from} replace />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +33,9 @@ export default function AdminLogin() {
     const res = await loginAdmin(email, password);
     setIsLoading(false);
 
-    if (!res.success) {
+    if (res.success) {
+      navigate(from, { replace: true });
+    } else {
       setErrorMsg(res.message || "ავტორიზაცია ვერ მოხერხდა.");
     }
   };
@@ -104,7 +115,7 @@ export default function AdminLogin() {
                 type={showPassword ? "text" : "password"}
                 required
                 autoComplete="current-password"
-                placeholder="შეიყვანეთ პაროლი"
+                placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -115,24 +126,28 @@ export default function AdminLogin() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white p-1 transition"
-                title={showPassword ? "პაროლის დამალვა" : "პაროლის ჩვენება"}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition"
+                tabIndex="-1"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
 
-          {/* Submit button */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full mt-2 bg-white hover:bg-stone-200 disabled:opacity-50 text-stone-950 font-bold py-3.5 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+            className="w-full mt-2 py-3.5 px-4 bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-stone-950 font-black rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer"
           >
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>მიმდინარეობს შესვლა...</span>
+                <span>მოწმდება...</span>
               </>
             ) : (
               <span>ადმინ პანელში შესვლა</span>
@@ -140,10 +155,12 @@ export default function AdminLogin() {
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-stone-800 text-center">
-          <span className="text-[11px] text-stone-500 font-medium">
-            დაცულია Google Firebase Authentication სერვისით
-          </span>
+        {/* Security badge footer */}
+        <div className="mt-6 pt-5 border-t border-stone-800/80 text-center">
+          <p className="text-[11px] text-stone-400 flex items-center justify-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            დაცული არხი (Firebase Auth 256-bit SSL)
+          </p>
         </div>
       </div>
     </div>

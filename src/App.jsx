@@ -5,6 +5,7 @@ import { DataProvider } from "./context/DataContext";
 import { FavoritesProvider } from "./context/FavoritesContext";
 import { CompareProvider } from "./context/CompareContext";
 import PublicLayout from "./components/layout/PublicLayout";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 
 // Route-level code splitting for lightning-fast initial page load
@@ -18,6 +19,7 @@ const Calculator = lazy(() => import("./pages/Calculator"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 
 const PageLoader = () => (
@@ -49,7 +51,16 @@ export default function App() {
                     <Route path="*" element={<NotFound />} />
                   </Route>
 
-                  <Route path="/admin" element={<AdminDashboard />} />
+                  {/* Admin Auth & Protected Dashboard */}
+                  <Route path="/admin/login" element={<AdminLogin />} />
+                  <Route
+                    path="/admin"
+                    element={
+                      <ProtectedRoute>
+                        <AdminDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
                 </Routes>
               </Suspense>
             </BrowserRouter>

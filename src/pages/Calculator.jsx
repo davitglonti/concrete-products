@@ -136,6 +136,7 @@ export default function Calculator() {
     if (!isStepsReady) {
       return {
         totalLinearMeters: "0.0",
+        totalSquareMeters: "0.00",
         estimatedWeightKg: 0,
         estimatedCost: 0,
         adhesiveBags: 0,
@@ -147,11 +148,28 @@ export default function Calculator() {
     const model = currentStepModel;
     const texture = currentStepTexture;
 
-    const currentLen = Number(stepLength);
-    const totalLinearMeters = (Number(stepCount) * currentLen) / 100;
-    const estimatedWeightKg = Math.round(totalLinearMeters * (model.weightPerMeter || 35));
+    const currentLen = Number(stepLength) || 120;
+    const currentDepth = Number(stepDepth) || 35;
+    const count = Number(stepCount) || 1;
+
+    // Linear meters: (count * length in cm) / 100
+    const totalLinearMeters = (count * currentLen) / 100;
+
+    // Surface area in m²: count * (length in m) * (depth in m)
+    const totalSquareMeters = (count * (currentLen / 100) * (currentDepth / 100)).toFixed(2);
+
+    // Baseline depth ratio (standard architectural baseline is 35cm)
+    const depthRatio = currentDepth / 35;
+
+    // Weight scales directly with volume/depth
+    const baseWeightPerMeter = Number(model?.weightPerMeter) || 35;
+    const estimatedWeightKg = Math.round(totalLinearMeters * baseWeightPerMeter * depthRatio);
+
+    // Cost scales with baseline manufacturing plus material depth factor
+    const basePricePerMeter = Number(model?.basePricePerMeter) || 85;
+    const depthCostFactor = 0.7 + 0.3 * depthRatio;
     const estimatedCost = Math.round(
-      totalLinearMeters * (model.basePricePerMeter || 85) * (texture?.priceMultiplier || 1)
+      totalLinearMeters * basePricePerMeter * depthCostFactor * (texture?.priceMultiplier || 1)
     );
 
     const ratio = adhesiveRatio > 0 ? adhesiveRatio : 3.5;
@@ -159,13 +177,14 @@ export default function Calculator() {
 
     return {
       totalLinearMeters: totalLinearMeters.toFixed(1),
+      totalSquareMeters,
       estimatedWeightKg,
       estimatedCost,
       adhesiveBags,
       model,
       texture,
     };
-  }, [isStepsReady, currentStepModel, currentStepTexture, stepCount, stepLength, adhesiveRatio]);
+  }, [isStepsReady, currentStepModel, currentStepTexture, stepCount, stepLength, stepDepth, adhesiveRatio]);
 
   // Calculations: Pavers
   const paversCalc = useMemo(() => {
@@ -185,11 +204,22 @@ export default function Calculator() {
     const texture = currentPaverTexture;
 
     const effectiveArea = Number(paverArea) * (1 + (Number(paverReserve) || 0) / 100);
-    const tileArea = Number(size.areaPerTile) > 0 ? Number(size.areaPerTile) : 0.5;
-    const totalTiles = Math.ceil(effectiveArea / tileArea);
-    const estimatedWeightKg = Math.round(effectiveArea * (Number(size.weightPerSqm) || 140));
+
+    // Calculate realistic tile area in m²
+    // If areaPerTile is missing/zero, attempt dimension calculation or fallback to standard 0.05 m²
+    let tileArea = Number(size?.areaPerTile);
+    if (!tileArea || tileArea <= 0) {
+      if (size?.width && size?.length) {
+        tileArea = (Number(size.width) * Number(size.length)) / 10000;
+      } else {
+        tileArea = 0.05; // 0.05 m² is a realistic ~20x25cm concrete paving tile
+      }
+    }
+
+    const totalTiles = tileArea > 0 ? Math.ceil(effectiveArea / tileArea) : 0;
+    const estimatedWeightKg = Math.round(effectiveArea * (Number(size?.weightPerSqm) || 140));
     const estimatedCost = Math.round(
-      effectiveArea * (Number(size.basePricePerSqm) || 75) * (texture?.priceMultiplier || 1)
+      effectiveArea * (Number(size?.basePricePerSqm) || 75) * (texture?.priceMultiplier || 1)
     );
 
     return {

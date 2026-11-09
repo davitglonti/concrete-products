@@ -1,22 +1,33 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCYzyoeEBTocZaORaYceQ2kcaC4En_L8gY",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "concreteproducts-46cf3.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "concreteproducts-46cf3",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "concreteproducts-46cf3.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "112387655478",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:112387655478:web:937a20eec0a485330ed597",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-5MZ73SX57L"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-export const isFirebaseConfigured = Boolean(
-  firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY"
-);
+import { isFirebaseConfigured } from "./firebaseEnv";
+export { isFirebaseConfigured };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+let app = null;
+let db = null;
+let auth = null;
+
+if (isFirebaseConfigured) {
+  try {
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    db = getFirestore(app);
+    auth = getAuth(app);
+  } catch (err) {
+    console.warn("Firebase initialization warning:", err?.message || err);
+  }
+}
+
+export { app, db, auth };
 export default app;
