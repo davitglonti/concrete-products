@@ -46,43 +46,41 @@ export default function Calculator() {
   const adhesiveRatio = Number(calcConfig?.adhesiveRatio) || 3.5;
   const defaultReserve = Number(calcConfig?.defaultReserve) || 5;
 
-  // --- STEPS CALCULATOR STATE ---
-  const [stepType, setStepType] = useState(() => stepModelsList[0]?.id || "l-step");
-  const [stepCount, setStepCount] = useState(12);
-  const [stepLength, setStepLength] = useState(() => stepLengths[1] || 120); // cm
-  const [stepDepth, setStepDepth] = useState(() => stepDepths[1] || 35); // cm
-  const [stepColor, setStepColor] = useState(CONCRETE_TEXTURES[0]?.id || "c-light-grey");
+  // --- STEPS CALCULATOR STATE (Initially unselected) ---
+  const [stepType, setStepType] = useState(null);
+  const [stepCount, setStepCount] = useState(null);
+  const [stepLength, setStepLength] = useState(null); // cm
+  const [stepDepth, setStepDepth] = useState(null); // cm
+  const [stepColor, setStepColor] = useState(null);
 
-  // --- PAVERS CALCULATOR STATE ---
-  const [paverArea, setPaverArea] = useState(50); // m²
-  const [paverSize, setPaverSize] = useState(
-    () => paverSizesList[1]?.id || paverSizesList[0]?.id || "80x80"
-  );
+  // --- PAVERS CALCULATOR STATE (Initially unselected) ---
+  const [paverArea, setPaverArea] = useState(null); // m²
+  const [paverSize, setPaverSize] = useState(null);
   const [paverReserve, setPaverReserve] = useState(() => defaultReserve || 5); // %
-  const [paverColor, setPaverColor] = useState(CONCRETE_TEXTURES[0]?.id || "c-light-grey");
+  const [paverColor, setPaverColor] = useState(null);
 
-  // Keep selected IDs valid if models/sizes change from admin
+  // Clear selection ONLY if selected item was deleted from admin
   useEffect(() => {
-    if (!stepModelsList.some((m) => m.id === stepType)) {
-      if (stepModelsList[0]?.id) setStepType(stepModelsList[0].id);
+    if (stepType && !stepModelsList.some((m) => m.id === stepType)) {
+      setStepType(null);
     }
   }, [stepModelsList, stepType]);
 
   useEffect(() => {
-    if (!paverSizesList.some((s) => s.id === paverSize)) {
-      if (paverSizesList[0]?.id) setPaverSize(paverSizesList[0].id);
+    if (paverSize && !paverSizesList.some((s) => s.id === paverSize)) {
+      setPaverSize(null);
     }
   }, [paverSizesList, paverSize]);
 
   useEffect(() => {
-    if (!stepLengths.includes(stepLength)) {
-      if (stepLengths[0]) setStepLength(stepLengths[0]);
+    if (stepLength && !stepLengths.includes(stepLength)) {
+      setStepLength(null);
     }
   }, [stepLengths, stepLength]);
 
   useEffect(() => {
-    if (!stepDepths.includes(stepDepth)) {
-      if (stepDepths[0]) setStepDepth(stepDepths[0]);
+    if (stepDepth && !stepDepths.includes(stepDepth)) {
+      setStepDepth(null);
     }
   }, [stepDepths, stepDepth]);
 
@@ -90,48 +88,72 @@ export default function Calculator() {
   const [form, setForm] = useState({ name: "", phone: "", address: "", notes: "" });
   const [submitted, setSubmitted] = useState(false);
 
-  // Active step model object
+  // Active step model & texture
   const currentStepModel = useMemo(() => {
-    return (
-      stepModelsList.find((m) => m.id === stepType) ||
-      stepModelsList[0] || {
-        id: "default-step",
-        name: "საფეხური",
-        basePricePerMeter: 85,
-        weightPerMeter: 35,
-        desc: "",
-      }
-    );
+    if (!stepType) return null;
+    return stepModelsList.find((m) => m.id === stepType) || null;
   }, [stepModelsList, stepType]);
 
-  // Active paver format object
+  const currentStepTexture = useMemo(() => {
+    if (!stepColor) return null;
+    return CONCRETE_TEXTURES.find((t) => t.id === stepColor) || null;
+  }, [stepColor]);
+
+  // Active paver format & texture
   const currentPaverSize = useMemo(() => {
-    return (
-      paverSizesList.find((s) => s.id === paverSize) ||
-      paverSizesList[0] || {
-        id: "default-paver",
-        name: "ფილა",
-        areaPerTile: 0.5,
-        basePricePerSqm: 75,
-        weightPerSqm: 140,
-        desc: "",
-      }
-    );
+    if (!paverSize) return null;
+    return paverSizesList.find((s) => s.id === paverSize) || null;
   }, [paverSizesList, paverSize]);
+
+  const currentPaverTexture = useMemo(() => {
+    if (!paverColor) return null;
+    return CONCRETE_TEXTURES.find((t) => t.id === paverColor) || null;
+  }, [paverColor]);
+
+  // Readiness flags: calculations & prices appear ONLY when all parameters are selected
+  const isStepsReady = Boolean(
+    stepType &&
+    currentStepModel &&
+    stepCount &&
+    stepCount > 0 &&
+    stepLength &&
+    stepDepth &&
+    stepColor &&
+    currentStepTexture
+  );
+
+  const isPaversReady = Boolean(
+    paverSize &&
+    currentPaverSize &&
+    paverArea &&
+    paverArea > 0 &&
+    paverColor &&
+    currentPaverTexture
+  );
 
   // Calculations: Steps
   const stepsCalc = useMemo(() => {
-    const model = currentStepModel;
-    const texture = CONCRETE_TEXTURES.find((t) => t.id === stepColor) || CONCRETE_TEXTURES[0];
+    if (!isStepsReady) {
+      return {
+        totalLinearMeters: "0.0",
+        estimatedWeightKg: 0,
+        estimatedCost: 0,
+        adhesiveBags: 0,
+        model: currentStepModel,
+        texture: currentStepTexture,
+      };
+    }
 
-    const currentLen = Number(stepLength) || 120;
-    const totalLinearMeters = (stepCount * currentLen) / 100;
+    const model = currentStepModel;
+    const texture = currentStepTexture;
+
+    const currentLen = Number(stepLength);
+    const totalLinearMeters = (Number(stepCount) * currentLen) / 100;
     const estimatedWeightKg = Math.round(totalLinearMeters * (model.weightPerMeter || 35));
     const estimatedCost = Math.round(
       totalLinearMeters * (model.basePricePerMeter || 85) * (texture?.priceMultiplier || 1)
     );
 
-    // Recommended adhesive: ~1 bag per adhesiveRatio linear meters
     const ratio = adhesiveRatio > 0 ? adhesiveRatio : 3.5;
     const adhesiveBags = Math.ceil(totalLinearMeters / ratio);
 
@@ -143,14 +165,26 @@ export default function Calculator() {
       model,
       texture,
     };
-  }, [currentStepModel, stepCount, stepLength, stepColor, adhesiveRatio]);
+  }, [isStepsReady, currentStepModel, currentStepTexture, stepCount, stepLength, adhesiveRatio]);
 
   // Calculations: Pavers
   const paversCalc = useMemo(() => {
-    const size = currentPaverSize;
-    const texture = CONCRETE_TEXTURES.find((t) => t.id === paverColor) || CONCRETE_TEXTURES[0];
+    if (!isPaversReady) {
+      return {
+        effectiveArea: "0.0",
+        totalTiles: 0,
+        estimatedWeightKg: 0,
+        estimatedWeightTons: "0.00",
+        estimatedCost: 0,
+        size: currentPaverSize,
+        texture: currentPaverTexture,
+      };
+    }
 
-    const effectiveArea = paverArea * (1 + (Number(paverReserve) || 0) / 100);
+    const size = currentPaverSize;
+    const texture = currentPaverTexture;
+
+    const effectiveArea = Number(paverArea) * (1 + (Number(paverReserve) || 0) / 100);
     const tileArea = Number(size.areaPerTile) > 0 ? Number(size.areaPerTile) : 0.5;
     const totalTiles = Math.ceil(effectiveArea / tileArea);
     const estimatedWeightKg = Math.round(effectiveArea * (Number(size.weightPerSqm) || 140));
@@ -167,10 +201,19 @@ export default function Calculator() {
       size,
       texture,
     };
-  }, [currentPaverSize, paverArea, paverReserve, paverColor]);
+  }, [isPaversReady, currentPaverSize, currentPaverTexture, paverArea, paverReserve]);
 
   const handleSubmitInquiry = (e) => {
     e.preventDefault();
+
+    if (activeTab === "steps" && !isStepsReady) {
+      alert("გთხოვთ ჯერ აირჩიოთ საფეხურის ყველა პარამეტრი (მოდელი, რაოდენობა, ზომები და ფერი).");
+      return;
+    }
+    if (activeTab === "pavers" && !isPaversReady) {
+      alert("გთხოვთ ჯერ აირჩიოთ ფილის ყველა პარამეტრი (ფორმატი, ფართობი და ფერი).");
+      return;
+    }
 
     let detailsSummary = "";
     if (activeTab === "steps") {
@@ -285,36 +328,72 @@ export default function Calculator() {
                   </div>
                 </div>
 
-                {/* Step Count Slider */}
+                {/* Step Count Input & Slider */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
                       საფეხურების რაოდენობა:
                     </label>
-                    <span className="text-base font-extrabold text-amber-600 dark:text-amber-400 font-mono">
-                      {stepCount} ცალი
-                    </span>
+                    <div className="flex items-baseline gap-1.5">
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        placeholder="მიუთითეთ"
+                        value={stepCount ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value === "" ? null : Math.max(1, Number(e.target.value));
+                          setStepCount(val);
+                        }}
+                        className="w-28 text-right font-extrabold text-amber-600 dark:text-amber-400 bg-stone-100 dark:bg-stone-800 px-2.5 py-1 rounded-lg border border-stone-300 dark:border-stone-700 font-mono text-sm outline-none focus:border-amber-500 placeholder:text-xs placeholder:font-normal placeholder:text-stone-400"
+                      />
+                      <span className="text-xs font-bold text-stone-500">ცალი</span>
+                    </div>
                   </div>
                   <input
                     type="range"
                     min="1"
                     max="50"
-                    value={stepCount}
+                    value={stepCount || 1}
                     onChange={(e) => setStepCount(Number(e.target.value))}
                     className="w-full accent-amber-500 h-2 bg-stone-200 dark:bg-stone-800 rounded-lg cursor-pointer"
                   />
-                  <div className="flex justify-between text-[11px] text-stone-400 mt-1">
+                  <div className="flex justify-between items-center text-[11px] text-stone-400 mt-1.5">
                     <span>1 საფეხური</span>
-                    <span>25</span>
+                    <div className="flex gap-1.5">
+                      {[5, 10, 12, 15, 20].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setStepCount(num)}
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition ${
+                            stepCount === num
+                              ? "bg-amber-500 text-stone-950 font-extrabold"
+                              : "bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-300 dark:hover:bg-stone-700"
+                          }`}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
                     <span>50 საფეხური</span>
                   </div>
                 </div>
 
                 {/* Step Length Selector */}
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 block mb-2">
-                    საფეხურის სიგრძე:
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
+                      საფეხურის სიგრძე:
+                    </label>
+                    {stepLength ? (
+                      <span className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400">
+                        {stepLength} სმ
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-stone-400">აირჩიეთ სიგრძე</span>
+                    )}
+                  </div>
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                     {stepLengths.map((len) => (
                       <button
@@ -323,7 +402,7 @@ export default function Calculator() {
                         onClick={() => setStepLength(len)}
                         className={`py-2 px-3 rounded-xl border text-xs font-bold transition ${
                           stepLength === len
-                            ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 border-transparent shadow-sm"
+                            ? "bg-amber-500 text-stone-950 dark:bg-amber-400 dark:text-stone-950 border-amber-500 font-extrabold shadow-sm ring-2 ring-amber-500/20"
                             : "bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:border-stone-400"
                         }`}
                       >
@@ -335,9 +414,18 @@ export default function Calculator() {
 
                 {/* Step Depth */}
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 block mb-2">
-                    საფეხურის სიღრმე / სიგანე:
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
+                      საფეხურის სიღრმე / სიგანე:
+                    </label>
+                    {stepDepth ? (
+                      <span className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400">
+                        {stepDepth} სმ
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-stone-400">აირჩიეთ სიღრმე</span>
+                    )}
+                  </div>
                   <div className="grid grid-cols-3 gap-2.5">
                     {stepDepths.map((depth) => (
                       <button
@@ -346,7 +434,7 @@ export default function Calculator() {
                         onClick={() => setStepDepth(depth)}
                         className={`py-2 px-3 rounded-xl border text-xs font-bold transition ${
                           stepDepth === depth
-                            ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 border-transparent shadow-sm"
+                            ? "bg-amber-500 text-stone-950 dark:bg-amber-400 dark:text-stone-950 border-amber-500 font-extrabold shadow-sm ring-2 ring-amber-500/20"
                             : "bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:border-stone-400"
                         }`}
                       >
@@ -358,9 +446,18 @@ export default function Calculator() {
 
                 {/* Color Selector */}
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 block mb-2.5">
-                    არქიტექტურული ფერი / პიგმენტაცია:
-                  </label>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
+                      არქიტექტურული ფერი / პიგმენტაცია:
+                    </label>
+                    {currentStepTexture ? (
+                      <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                        {currentStepTexture.name}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-stone-400">აირჩიეთ ფერი</span>
+                    )}
+                  </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     {CONCRETE_TEXTURES.map((tex) => (
                       <button
@@ -392,16 +489,20 @@ export default function Calculator() {
                     <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
                       დასაფარი ეზოს / ტერასის ფართობი:
                     </label>
-                    <div className="flex items-baseline gap-1">
+                    <div className="flex items-baseline gap-1.5">
                       <input
                         type="number"
-                        min="5"
-                        max="1000"
-                        value={paverArea}
-                        onChange={(e) => setPaverArea(Math.max(1, Number(e.target.value)))}
-                        className="w-20 text-right font-extrabold text-amber-600 dark:text-amber-400 bg-stone-100 dark:bg-stone-800 px-2.5 py-1 rounded-lg border border-stone-300 dark:border-stone-700 font-mono text-base"
+                        min="1"
+                        max="2000"
+                        placeholder="მიუთითეთ"
+                        value={paverArea ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value === "" ? null : Math.max(1, Number(e.target.value));
+                          setPaverArea(val);
+                        }}
+                        className="w-28 text-right font-extrabold text-amber-600 dark:text-amber-400 bg-stone-100 dark:bg-stone-800 px-2.5 py-1 rounded-lg border border-stone-300 dark:border-stone-700 font-mono text-sm outline-none focus:border-amber-500 placeholder:text-xs placeholder:font-normal placeholder:text-stone-400"
                       />
-                      <span className="text-sm font-bold text-stone-500">მ²</span>
+                      <span className="text-xs font-bold text-stone-500">მ²</span>
                     </div>
                   </div>
                   <input
@@ -409,13 +510,28 @@ export default function Calculator() {
                     min="10"
                     max="300"
                     step="5"
-                    value={paverArea}
+                    value={paverArea || 10}
                     onChange={(e) => setPaverArea(Number(e.target.value))}
                     className="w-full accent-amber-500 h-2 bg-stone-200 dark:bg-stone-800 rounded-lg cursor-pointer"
                   />
-                  <div className="flex justify-between text-[11px] text-stone-400 mt-1">
+                  <div className="flex justify-between items-center text-[11px] text-stone-400 mt-1.5">
                     <span>10 მ²</span>
-                    <span>150 მ²</span>
+                    <div className="flex gap-1.5">
+                      {[25, 50, 75, 100, 150].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setPaverArea(num)}
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition ${
+                            paverArea === num
+                              ? "bg-amber-500 text-stone-950 font-extrabold"
+                              : "bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-300 dark:hover:bg-stone-700"
+                          }`}
+                        >
+                          {num} მ²
+                        </button>
+                      ))}
+                    </div>
                     <span>300+ მ²</span>
                   </div>
                 </div>
@@ -482,9 +598,18 @@ export default function Calculator() {
 
                 {/* Color Selector */}
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 block mb-2.5">
-                    არქიტექტურული ფერი / პიგმენტაცია:
-                  </label>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
+                      არქიტექტურული ფერი / პიგმენტაცია:
+                    </label>
+                    {currentPaverTexture ? (
+                      <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                        {currentPaverTexture.name}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-stone-400">აირჩიეთ ფერი</span>
+                    )}
+                  </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     {CONCRETE_TEXTURES.map((tex) => (
                       <button
@@ -523,10 +648,23 @@ export default function Calculator() {
               <div className="mt-2 pb-5 border-b border-stone-300/60 dark:border-stone-800">
                 <span className="text-xs text-stone-500 dark:text-stone-400">სავარაუდო ღირებულება:</span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-3xl sm:text-4xl font-black text-stone-950 dark:text-white tracking-tight">
-                    ~{activeTab === "steps" ? stepsCalc.estimatedCost : paversCalc.estimatedCost} ₾
-                  </span>
-                  <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">დღგ-ს ჩათვლით</span>
+                  {(activeTab === "steps" ? isStepsReady : isPaversReady) ? (
+                    <>
+                      <span className="text-3xl sm:text-4xl font-black text-stone-950 dark:text-white tracking-tight animate-fade-in">
+                        ~{activeTab === "steps" ? stepsCalc.estimatedCost : paversCalc.estimatedCost} ₾
+                      </span>
+                      <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">დღგ-ს ჩათვლით</span>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-2xl sm:text-3xl font-extrabold text-stone-400 dark:text-stone-600 font-mono tracking-wider">
+                        — ₾
+                      </span>
+                      <span className="text-xs text-amber-700 dark:text-amber-400 font-semibold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+                        მონიშნეთ პარამეტრები
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -535,47 +673,113 @@ export default function Calculator() {
                 {activeTab === "steps" ? (
                   <>
                     <div className="flex justify-between items-center">
+                      <span className="text-stone-600 dark:text-stone-400">საფეხურის მოდელი:</span>
+                      <strong className="text-stone-900 dark:text-white">
+                        {currentStepModel ? (
+                          currentStepModel.name
+                        ) : (
+                          <span className="text-stone-400 font-normal">არ არის არჩეული</span>
+                        )}
+                      </strong>
+                    </div>
+                    <div className="flex justify-between items-center">
                       <span className="text-stone-600 dark:text-stone-400">საფეხურების რაოდენობა:</span>
-                      <strong className="text-stone-900 dark:text-white">{stepCount} ცალი</strong>
+                      <strong className="text-stone-900 dark:text-white">
+                        {stepCount ? (
+                          `${stepCount} ცალი`
+                        ) : (
+                          <span className="text-stone-400 font-normal">არ არის მითითებული</span>
+                        )}
+                      </strong>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-stone-600 dark:text-stone-400">საერთო გრძივი მეტრი:</span>
-                      <strong className="text-stone-900 dark:text-white">{stepsCalc.totalLinearMeters} გრძ.მ</strong>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-stone-600 dark:text-stone-400">სავარაუდო ჯამური წონა:</span>
-                      <strong className="text-stone-900 dark:text-white">~{stepsCalc.estimatedWeightKg} კგ</strong>
+                      <span className="text-stone-600 dark:text-stone-400">ზომები (სიგრძე × სიღრმე):</span>
+                      <strong className="text-stone-900 dark:text-white">
+                        {stepLength && stepDepth ? (
+                          `${stepLength} × ${stepDepth} სმ`
+                        ) : (
+                          <span className="text-stone-400 font-normal">არ არის არჩეული</span>
+                        )}
+                      </strong>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-stone-600 dark:text-stone-400">არჩეული ფერი:</span>
-                      <strong className="text-stone-900 dark:text-white">{stepsCalc.texture.name}</strong>
+                      <strong className="text-stone-900 dark:text-white">
+                        {currentStepTexture ? (
+                          currentStepTexture.name
+                        ) : (
+                          <span className="text-stone-400 font-normal">არ არის არჩეული</span>
+                        )}
+                      </strong>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-stone-600 dark:text-stone-400">საერთო გრძივი მეტრი:</span>
+                      <strong className="text-stone-900 dark:text-white">
+                        {isStepsReady ? `${stepsCalc.totalLinearMeters} გრძ.მ` : "—"}
+                      </strong>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-stone-600 dark:text-stone-400">სავარაუდო ჯამური წონა:</span>
+                      <strong className="text-stone-900 dark:text-white">
+                        {isStepsReady ? `~${stepsCalc.estimatedWeightKg} კგ` : "—"}
+                      </strong>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-stone-600 dark:text-stone-400">რეკომენდებული წებო (C2TE):</span>
-                      <strong className="text-stone-900 dark:text-white">~{stepsCalc.adhesiveBags} ტომარა</strong>
+                      <strong className="text-stone-900 dark:text-white">
+                        {isStepsReady ? `~${stepsCalc.adhesiveBags} ტომარა` : "—"}
+                      </strong>
                     </div>
                   </>
                 ) : (
                   <>
                     <div className="flex justify-between items-center">
+                      <span className="text-stone-600 dark:text-stone-400">ფილის ფორმატი:</span>
+                      <strong className="text-stone-900 dark:text-white">
+                        {currentPaverSize ? (
+                          currentPaverSize.name
+                        ) : (
+                          <span className="text-stone-400 font-normal">არ არის არჩეული</span>
+                        )}
+                      </strong>
+                    </div>
+                    <div className="flex justify-between items-center">
                       <span className="text-stone-600 dark:text-stone-400">სუფთა ფართობი:</span>
-                      <strong className="text-stone-900 dark:text-white">{paverArea} მ²</strong>
+                      <strong className="text-stone-900 dark:text-white">
+                        {paverArea ? (
+                          `${paverArea} მ²`
+                        ) : (
+                          <span className="text-stone-400 font-normal">არ არის მითითებული</span>
+                        )}
+                      </strong>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-stone-600 dark:text-stone-400">ფართობი რეზერვით:</span>
-                      <strong className="text-stone-900 dark:text-white">{paversCalc.effectiveArea} მ²</strong>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-stone-600 dark:text-stone-400">საჭირო ფილების რაოდენობა:</span>
-                      <strong className="text-stone-900 dark:text-white">{paversCalc.totalTiles} ცალი</strong>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-stone-600 dark:text-stone-400">სავარაუდო წონა:</span>
-                      <strong className="text-stone-900 dark:text-white">~{paversCalc.estimatedWeightTons} ტონა</strong>
+                      <strong className="text-stone-900 dark:text-white">
+                        {isPaversReady ? `${paversCalc.effectiveArea} მ²` : "—"}
+                      </strong>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-stone-600 dark:text-stone-400">არჩეული ფერი:</span>
-                      <strong className="text-stone-900 dark:text-white">{paversCalc.texture.name}</strong>
+                      <strong className="text-stone-900 dark:text-white">
+                        {currentPaverTexture ? (
+                          currentPaverTexture.name
+                        ) : (
+                          <span className="text-stone-400 font-normal">არ არის არჩეული</span>
+                        )}
+                      </strong>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-stone-600 dark:text-stone-400">საჭირო ფილების რაოდენობა:</span>
+                      <strong className="text-stone-900 dark:text-white">
+                        {isPaversReady ? `${paversCalc.totalTiles} ცალი` : "—"}
+                      </strong>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-stone-600 dark:text-stone-400">სავარაუდო წონა:</span>
+                      <strong className="text-stone-900 dark:text-white">
+                        {isPaversReady ? `~${paversCalc.estimatedWeightTons} ტონა` : "—"}
+                      </strong>
                     </div>
                   </>
                 )}
@@ -628,10 +832,15 @@ export default function Calculator() {
 
                     <button
                       type="submit"
-                      className="w-full py-3 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-white dark:text-stone-950 dark:hover:bg-stone-100 font-extrabold text-xs transition shadow-md flex items-center justify-center gap-2"
+                      disabled={activeTab === "steps" ? !isStepsReady : !isPaversReady}
+                      className="w-full py-3 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-white dark:bg-white dark:text-stone-950 dark:hover:bg-stone-100 font-extrabold text-xs transition shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       <Send className="w-3.5 h-3.5" />
-                      <span>ხარჯთაღრიცხვის მოთხოვნის გაგზავნა</span>
+                      <span>
+                        {(activeTab === "steps" ? isStepsReady : isPaversReady)
+                          ? "ხარჯთაღრიცხვის მოთხოვნის გაგზავნა"
+                          : "გთხოვთ ჯერ აირჩიოთ პარამეტრები"}
+                      </span>
                     </button>
                   </form>
                 )}
