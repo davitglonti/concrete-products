@@ -25,64 +25,67 @@ import {
 export default function SEOManager() {
   const { siteSettings, updateSiteSettings } = useData();
 
-  const [seo, setSeo] = useState(() => ({
-    siteTitle:
-      siteSettings?.seo?.siteTitle ||
-      "MONOLITH.GE — არქიტექტურული ბეტონის ნაკეთობები საქართველოში",
-    siteDescription:
-      siteSettings?.seo?.siteDescription ||
-      "უმაღლესი ხარისხის (M500 / F300) არქიტექტურული და დეკორატიული ბეტონის საწარმო საქართველოში: მონოლითური საფეხურები, დიდფორმატიანი ეზოს ფილები, ქოთნები და ურბანული ავეჯი.",
-    keywords:
-      siteSettings?.seo?.keywords ||
-      "ბეტონის საფეხურები, კიბის საფეხურები, ეზოს ფილები, ბეტონის საყვავილეები, ურბანული ავეჯი, არქიტექტურული ბეტონი, ბეტონის ნაკეთობები თბილისი, M500 ბეტონი, F300 ყინვაგამძლეობა, საფეხურები ფასი",
-    ogImage:
-      siteSettings?.seo?.ogImage ||
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&fm=webp&w=1200&q=80",
-    googleVerification: siteSettings?.seo?.googleVerification || "",
-    googleAnalyticsId: siteSettings?.seo?.googleAnalyticsId || "",
-    pageMeta: {
-      products: {
-        title:
-          siteSettings?.seo?.pageMeta?.products?.title ||
-          "პროდუქციის კატალოგი & ფასები | ბეტონის საფეხურები და ფილები",
-        description:
-          siteSettings?.seo?.pageMeta?.products?.description ||
-          "არქიტექტურული და დეკორატიული ბეტონის ნაკეთობების სრული კატალოგი: კიბის მონოლითური საფეხურები, დიდფორმატიანი ეზოს ფილები, ქოთნები და ურბანული ავეჯი.",
+  const [seo, setSeo] = useState(() => {
+    const rawSeo = siteSettings?.seo || {};
+    return {
+      siteTitle:
+        rawSeo.siteTitle ||
+        "MONOLITH.GE — არქიტექტურული ბეტონის ნაკეთობები საქართველოში",
+      siteDescription:
+        rawSeo.siteDescription ||
+        "უმაღლესი ხარისხის (M500 / F300) არქიტექტურული და დეკორატიული ბეტონის საწარმო საქართველოში: მონოლითური საფეხურები, დიდფორმატიანი ეზოს ფილები, ქოთნები და ურბანული ავეჯი.",
+      keywords:
+        rawSeo.keywords ||
+        "ბეტონის საფეხურები, კიბის საფეხურები, ეზოს ფილები, ბეტონის საყვავილეები, ურბანული ავეჯი, არქიტექტურული ბეტონი, ბეტონის ნაკეთობები თბილისი, M500 ბეტონი, F300 ყინვაგამძლეობა, საფეხურები ფასი",
+      ogImage:
+        rawSeo.ogImage ||
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&fm=webp&w=1200&q=80",
+      googleVerification: rawSeo.googleVerification || "",
+      googleAnalyticsId: rawSeo.googleAnalyticsId || "",
+      pageMeta: {
+        products: {
+          title:
+            rawSeo.pageMeta?.products?.title ||
+            "პროდუქციის კატალოგი & ფასები | ბეტონის საფეხურები და ფილები",
+          description:
+            rawSeo.pageMeta?.products?.description ||
+            "არქიტექტურული და დეკორატიული ბეტონის ნაკეთობების სრული კატალოგი: კიბის მონოლითური საფეხურები, დიდფორმატიანი ეზოს ფილები, ქოთნები და ურბანული ავეჯი.",
+        },
+        calculator: {
+          title:
+            rawSeo.pageMeta?.calculator?.title ||
+            "ბეტონის საფეხურებისა და ფილების ონლაინ კალკულატორი",
+          description:
+            rawSeo.pageMeta?.calculator?.description ||
+            "დაითვალეთ კიბის საფეხურების, ეზოს ფილებისა და ბორდიურების საჭირო რაოდენობა, საერთო წონა და ხარჯთაღრიცხვა ონლაინ რეჟიმში.",
+        },
+        portfolio: {
+          title:
+            rawSeo.pageMeta?.portfolio?.title ||
+            "შესრულებული პროექტები | არქიტექტურული ბეტონი ობიექტებზე",
+          description:
+            rawSeo.pageMeta?.portfolio?.description ||
+            "იხილეთ ჩვენი დამზადებული მონოლითური საფეხურები, ტერასის ფილები და საყვავილეები რეალურ საცხოვრებელ და კომერციულ ობიექტებზე საქართველოში.",
+        },
+        faq: {
+          title:
+            rawSeo.pageMeta?.faq?.title ||
+            "ხშირად დასმული კითხვები (FAQ) | არქიტექტურული ბეტონი",
+          description:
+            rawSeo.pageMeta?.faq?.description ||
+            "პასუხები ყველაზე გავრცელებულ კითხვებზე: ბეტონის საფეხურების მონტაჟი, მოვლა, ყინვაგამძლეობა, დამზადების ვადები და მიწოდება საქართველოში.",
+        },
+        blog: {
+          title:
+            rawSeo.pageMeta?.blog?.title ||
+            "ბლოგი & გზამკვლევი | არქიტექტურული ბეტონი",
+          description:
+            rawSeo.pageMeta?.blog?.description ||
+            "პროფესიონალური სტატიები ბეტონის საფეხურების შერჩევის, ექსპლუატაციის, ფილების მონტაჟისა და თანამედროვე ლანდშაფტის დიზაინის შესახებ.",
+        },
       },
-      calculator: {
-        title:
-          siteSettings?.seo?.pageMeta?.calculator?.title ||
-          "ბეტონის საფეხურებისა და ფილების ონლაინ კალკულატორი",
-        description:
-          siteSettings?.seo?.pageMeta?.calculator?.description ||
-          "დაითვალეთ კიბის საფეხურების, ეზოს ფილებისა და ბორდიურების საჭირო რაოდენობა, საერთო წონა და ხარჯთაღრიცხვა ონლაინ რეჟიმში.",
-      },
-      portfolio: {
-        title:
-          siteSettings?.seo?.pageMeta?.portfolio?.title ||
-          "შესრულებული პროექტები | არქიტექტურული ბეტონი ობიექტებზე",
-        description:
-          siteSettings?.seo?.pageMeta?.portfolio?.description ||
-          "იხილეთ ჩვენი დამზადებული მონოლითური საფეხურები, ტერასის ფილები და საყვავილეები რეალურ საცხოვრებელ და კომერციულ ობიექტებზე საქართველოში.",
-      },
-      faq: {
-        title:
-          siteSettings?.seo?.pageMeta?.faq?.title ||
-          "ხშირად დასმული კითხვები (FAQ) | არქიტექტურული ბეტონი",
-        description:
-          siteSettings?.seo?.pageMeta?.faq?.description ||
-          "პასუხები ყველაზე გავრცელებულ კითხვებზე: ბეტონის საფეხურების მონტაჟი, მოვლა, ყინვაგამძლეობა, დამზადების ვადები და მიწოდება საქართველოში.",
-      },
-      blog: {
-        title:
-          siteSettings?.seo?.pageMeta?.blog?.title ||
-          "ბლოგი & გზამკვლევი | არქიტექტურული ბეტონი",
-        description:
-          siteSettings?.seo?.pageMeta?.blog?.description ||
-          "პროფესიონალური სტატიები ბეტონის საფეხურების შერჩევის, ექსპლუატაციის, ფილების მონტაჟისა და თანამედროვე ლანდშაფტის დიზაინის შესახებ.",
-      },
-    },
-  }));
+    };
+  });
 
   const [activeTab, setActiveTab] = useState("general"); // "general" | "google" | "pages" | "checklist"
   const [activePageKey, setActivePageKey] = useState("products");
@@ -329,15 +332,15 @@ export default function SEOManager() {
               </label>
               <span
                 className={`text-[11px] font-mono ${
-                  seo.siteTitle.length > 65 ? "text-red-400" : "text-amber-400"
+                  (seo.siteTitle || "").length > 65 ? "text-red-400" : "text-amber-400"
                 }`}
               >
-                {seo.siteTitle.length} / 60 რეკომენდებული
+                {(seo.siteTitle || "").length} / 60 რეკომენდებული
               </span>
             </div>
             <input
               type="text"
-              value={seo.siteTitle}
+              value={seo.siteTitle || ""}
               onChange={(e) => setSeo((prev) => ({ ...prev, siteTitle: e.target.value }))}
               placeholder="MONOLITH.GE — არქიტექტურული ბეტონის ნაკეთობები საქართველოში"
               className="w-full bg-stone-950 border border-stone-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"
@@ -355,15 +358,15 @@ export default function SEOManager() {
               </label>
               <span
                 className={`text-[11px] font-mono ${
-                  seo.siteDescription.length > 165 ? "text-red-400" : "text-amber-400"
+                  (seo.siteDescription || "").length > 165 ? "text-red-400" : "text-amber-400"
                 }`}
               >
-                {seo.siteDescription.length} / 160 რეკომენდებული
+                {(seo.siteDescription || "").length} / 160 რეკომენდებული
               </span>
             </div>
             <textarea
               rows={3}
-              value={seo.siteDescription}
+              value={seo.siteDescription || ""}
               onChange={(e) => setSeo((prev) => ({ ...prev, siteDescription: e.target.value }))}
               placeholder="უმაღლესი ხარისხის (M500 / F300) არქიტექტურული და დეკორატიული ბეტონის საწარმო საქართველოში..."
               className="w-full bg-stone-950 border border-stone-800 rounded-xl p-3.5 text-xs text-stone-200 focus:outline-none focus:border-amber-500 leading-relaxed"
@@ -603,7 +606,7 @@ export default function SEOManager() {
           </div>
 
           {/* Form for Active Page */}
-          {seo.pageMeta[activePageKey] && (
+          {seo.pageMeta && seo.pageMeta[activePageKey] && (
             <div className="bg-stone-950 border border-stone-800 rounded-xl p-5 space-y-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-stone-200">

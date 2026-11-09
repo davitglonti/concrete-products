@@ -27,6 +27,7 @@ import {
   Layers,
   Sliders,
   Palette,
+  Search,
 } from "lucide-react";
 import { findColorDetails } from "../../data/textureData";
 
