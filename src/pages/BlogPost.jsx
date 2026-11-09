@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
+import SEO from "../components/common/SEO";
 import { BLOG_POSTS } from "../data/blogData";
 import {
   ArrowLeft,
@@ -42,8 +43,38 @@ export default function BlogPost() {
     alert("სტატიის ბმული დაკოპირებულია!");
   };
 
+  const articleJsonLd = useMemo(() => {
+    if (!post) return null;
+    return {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.title,
+      image: [post.image],
+      datePublished: post.date,
+      dateModified: post.date,
+      author: {
+        "@type": "Organization",
+        name: "MONOLITH.GE",
+        url: "https://concrete-products-rho.vercel.app/",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "MONOLITH.GE",
+      },
+      description: post.excerpt,
+    };
+  }, [post]);
+
   return (
     <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen py-8 sm:py-14 transition-colors duration-200">
+      <SEO
+        title={post.title}
+        description={post.excerpt}
+        keywords={`${post.tags?.join(", ") || ""}, ბეტონის ბლოგი, არქიტექტურული ბეტონი`}
+        image={post.image}
+        type="article"
+        jsonLd={articleJsonLd}
+      />
       <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         
         {/* Top Breadcrumb & Back */}

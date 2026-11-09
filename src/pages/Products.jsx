@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { CATEGORIES } from "../data/initialData";
 import ProductCard from "../components/ui/ProductCard";
+import SEO from "../components/common/SEO";
 import {
   Search,
   ArrowUpDown,
@@ -90,8 +91,24 @@ export default function Products() {
     ...(categories && categories.length > 0 ? categories : CATEGORIES),
   ];
 
+  const currentCategoryObj = categoryList.find((c) => c.id === selectedCategory);
+  const pageTitle =
+    selectedCategory === "all" || !currentCategoryObj
+      ? "პროდუქციის კატალოგი & ფასები | ბეტონის საფეხურები და ფილები"
+      : `${currentCategoryObj.label || currentCategoryObj.title} — კატალოგი & ფასები`;
+
+  const pageDescription =
+    selectedCategory === "all" || !currentCategoryObj
+      ? "არქიტექტურული და დეკორატიული ბეტონის ნაკეთობების სრული კატალოგი: კიბის მონოლითური საფეხურები, დიდფორმატიანი ეზოს ფილები, ქოთნები და ურბანული ავეჯი."
+      : `${currentCategoryObj.label || currentCategoryObj.title}: ${currentCategoryObj.description || "არქიტექტურული ბეტონის ნაკეთობები"}. უმაღლესი სიმტკიცე (M500), F300 ყინვაგამძლეობა. საწარმოო ფასები.`;
+
   return (
     <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen pt-3 sm:pt-6 pb-20 transition-colors duration-200">
+      <SEO
+        title={pageTitle}
+        description={pageDescription}
+        keywords="ბეტონის საფეხურები, კიბის საფეხურები ფასი, ეზოს ფილები, ბეტონის საყვავილეები, ურბანული ავეჯი, არქიტექტურული ბეტონი თბილისი"
+      />
       <div className="max-w-[1720px] mx-auto px-3.5 sm:px-6 lg:px-10 xl:px-12">
         {/* Page Header */}
         <div className="mb-4 sm:mb-8">

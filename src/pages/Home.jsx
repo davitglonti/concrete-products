@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import ProductCard from "../components/ui/ProductCard";
+import SEO from "../components/common/SEO";
 import { CATEGORIES, HERO_SLIDES } from "../data/initialData";
 import { getFeatureIcon } from "../components/admin/HomeSectionsManager";
 import {
@@ -175,6 +176,11 @@ export default function Home() {
 
   return (
     <div className="flex flex-col w-full bg-[#fbfbf9] dark:bg-stone-950 transition-colors duration-200">
+      <SEO
+        title="არქიტექტურული ბეტონის ნაკეთობები | საფეხურები, ფილები, საყვავილეები"
+        description="უმაღლესი ხარისხის (M500 / F300) არქიტექტურული და დეკორატიული ბეტონის საწარმო საქართველოში: მონოლითური საფეხურები, დიდფორმატიანი ეზოს ფილები, ქოთნები და ურბანული ავეჯი."
+        keywords="ბეტონის საფეხურები, კიბის საფეხურები, ეზოს ფილები, ბეტონის საყვავილეები, ურბანული ავეჯი, არქიტექტურული ბეტონი, ბეტონის ნაკეთობები თბილისი, M500 ბეტონი, F300 ყინვაგამძლეობა"
+      />
       {/* 1. CLASSIC FULL-BLEED ARCHITECTURAL HERO CAROUSEL (Simple, Beautiful & Centered) */}
       <section
         className="relative w-full h-[85vh] min-h-[560px] max-h-[780px] lg:h-[82vh] overflow-hidden bg-stone-950 flex flex-col justify-center select-none"

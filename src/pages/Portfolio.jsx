@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
+import SEO from "../components/common/SEO";
 import { MapPin, ArrowRight, Image as ImageIcon } from "lucide-react";
 
 export default function Portfolio() {
@@ -8,6 +9,11 @@ export default function Portfolio() {
 
   return (
     <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen pt-4 sm:pt-6 pb-20 transition-colors duration-200">
+      <SEO
+        title="შესრულებული პროექტები | არქიტექტურული ბეტონი ობიექტებზე"
+        description="იხილეთ ჩვენი დამზადებული მონოლითური საფეხურები, ტერასის ფილები და საყვავილეები რეალურ საცხოვრებელ და კომერციულ ობიექტებზე საქართველოში."
+        keywords="არქიტექტურული ბეტონი პროექტები, ბეტონის საფეხურები ობიექტზე, ეზოს მოწყობა, ბეტონის ნაკეთობები პორტფოლიო"
+      />
       <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12">
         <div className="mb-8 sm:mb-10">
           <span className="text-stone-500 dark:text-stone-400 text-xs font-bold uppercase tracking-widest block">

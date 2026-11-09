@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
+import SEO from "../components/common/SEO";
 import {
   ArrowLeft,
   MapPin,
@@ -94,6 +95,12 @@ export default function ProjectDetails() {
 
   return (
     <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen pt-3 sm:pt-5 pb-20 transition-colors duration-200">
+      <SEO
+        title={`${project.title} — პროექტი (${project.location || "საქართველო"})`}
+        description={`${project.title}: ${project.description || "არქიტექტურული ბეტონით შესრულებული ობიექტი"}. ლოკაცია: ${project.location}, წელი: ${project.year}.`}
+        keywords={`${project.title}, ${project.location}, ბეტონის საფეხურები, ფილები, არქიტექტურული ბეტონი ობიექტი`}
+        image={images[0]}
+      />
       <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12">
         
         {/* Luxury Breadcrumb Bar */}

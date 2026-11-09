@@ -4,6 +4,7 @@ import { useData } from "../context/DataContext";
 import { useFavorites } from "../context/FavoritesContext";
 import { useCompare } from "../context/CompareContext";
 import ProductCard from "../components/ui/ProductCard";
+import SEO from "../components/common/SEO";
 import { CONCRETE_TEXTURES, findColorDetails } from "../data/textureData";
 import {
   ArrowLeft,
@@ -326,8 +327,112 @@ export default function ProductDetails() {
     setForm({ name: "", phone: "", comment: "" });
   };
 
+  const productJsonLd = useMemo(() => {
+    if (!product) return null;
+    const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Product",
+          "@id": `${currentUrl}#product`,
+          name: product.name,
+          image: images,
+          description: product.shortDesc || product.description || product.name,
+          sku: product.id,
+          category: product.categoryLabel,
+          brand: {
+            "@type": "Brand",
+            name: "MONOLITH",
+          },
+          offers: {
+            "@type": "Offer",
+            url: currentUrl,
+            priceCurrency: "GEL",
+            price: product.price || 0,
+            availability: "https://schema.org/InStock",
+            itemCondition: "https://schema.org/NewCondition",
+            priceValidUntil: "2027-12-31",
+            seller: {
+              "@type": "Organization",
+              name: "MONOLITH.GE",
+            },
+          },
+          additionalProperty: [
+            ...(product.dimensions
+              ? [{ "@type": "PropertyValue", name: "ზომები", value: product.dimensions }]
+              : []),
+            ...(product.weight
+              ? [{ "@type": "PropertyValue", name: "წონა", value: product.weight }]
+              : []),
+            {
+              "@type": "PropertyValue",
+              name: "ბეტონის მარკა",
+              value: product.concreteGrade || "B35 (M450)",
+            },
+            {
+              "@type": "PropertyValue",
+              name: "ყინვაგამძლეობა",
+              value: product.frostResistance || "F300",
+            },
+          ],
+        },
+        {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "მთავარი",
+              item: "https://concrete-products-rho.vercel.app/",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "პროდუქცია",
+              item: "https://concrete-products-rho.vercel.app/products",
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: product.categoryLabel || "კატეგორია",
+              item: `https://concrete-products-rho.vercel.app/products?category=${product.category}`,
+            },
+            {
+              "@type": "ListItem",
+              position: 4,
+              name: product.name,
+              item: currentUrl,
+            },
+          ],
+        },
+      ],
+    };
+  }, [product, images]);
+
+  const seoDescription = useMemo(() => {
+    if (!product) return "";
+    const specs = [
+      product.dimensions ? `ზომები: ${product.dimensions}` : "",
+      product.concreteGrade ? `მარკა: ${product.concreteGrade}` : "B35 (M450)",
+      product.frostResistance ? `ყინვაგამძლეობა: ${product.frostResistance}` : "F300",
+      product.price ? `ფასი: ${product.price}₾` : "შეთანხმებით",
+    ]
+      .filter(Boolean)
+      .join(" | ");
+    return `${product.name} — ${product.shortDesc || product.description || "არქიტექტურული ბეტონის ნაკეთობა"}. ${specs}. წარმოება საქართველოში.`;
+  }, [product]);
+
   return (
     <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen pt-2 sm:pt-4 pb-16 lg:pb-24 transition-colors duration-200">
+      <SEO
+        title={`${product.name} — ${product.categoryLabel || "ბეტონის ნაკეთობა"}`}
+        description={seoDescription}
+        keywords={`${product.name}, ${product.categoryLabel}, ბეტონის საფეხურები, ეზოს ფილები, საყვავილეები, ფასი, არქიტექტურული ბეტონი თბილისი`}
+        image={images[0]}
+        type="product"
+        jsonLd={productJsonLd}
+      />
       <div className="w-full px-2 sm:px-4 lg:px-6 xl:px-8">
         
         {/* Luxury Breadcrumb Bar */}

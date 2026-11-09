@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import SEO from "../components/common/SEO";
 import {
   HelpCircle,
   Search,
@@ -112,8 +113,30 @@ export default function FAQ() {
     });
   }, [activeCategory, searchQuery]);
 
+  const faqJsonLd = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: FAQ_ITEMS.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.answer,
+        },
+      })),
+    }),
+    []
+  );
+
   return (
     <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen pt-4 sm:pt-6 pb-20 transition-colors duration-200">
+      <SEO
+        title="ხშირად დასმული კითხვები (FAQ) | არქიტექტურული ბეტონი"
+        description="პასუხები ყველაზე გავრცელებულ კითხვებზე: ბეტონის საფეხურების მონტაჟი, მოვლა, ყინვაგამძლეობა, დამზადების ვადები და მიწოდება საქართველოში."
+        keywords="ბეტონის საფეხურები კითხვა პასუხი, არქიტექტურული ბეტონი FAQ, საფეხურების მონტაჟი, ბეტონის ყინვაგამძლეობა"
+        jsonLd={faqJsonLd}
+      />
       <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400 mb-6 sm:mb-8">
