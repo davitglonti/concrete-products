@@ -1,8 +1,5 @@
 import React, { useState, useRef } from "react";
 import { useData } from "../../context/DataContext";
-import HomeSectionsManager from "./HomeSectionsManager";
-import SEOManager from "./SEOManager";
-import CalculatorManager from "./CalculatorManager";
 import { DEFAULT_SITE_SETTINGS, applyFavicon } from "../../data/initialSettings";
 import {
   Sliders,
@@ -275,45 +272,6 @@ export default function SiteSettingsManager() {
         >
           <Phone className="w-4 h-4" />
           <span>საკონტაქტო მონაცემები</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSubTab("homepage")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
-            activeSubTab === "homepage"
-              ? "bg-amber-500 text-stone-950 shadow-sm"
-              : "text-stone-300 hover:bg-stone-800 hover:text-white"
-          }`}
-        >
-          <Layers className="w-4 h-4" />
-          <span>მთავარი გვერდის ბლოკები</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSubTab("seo")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
-            activeSubTab === "seo"
-              ? "bg-amber-500 text-stone-950 shadow-sm"
-              : "text-stone-300 hover:bg-stone-800 hover:text-white"
-          }`}
-        >
-          <Globe className="w-4 h-4" />
-          <span>SEO & Google</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSubTab("calculator")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
-            activeSubTab === "calculator"
-              ? "bg-amber-500 text-stone-950 shadow-sm"
-              : "text-stone-300 hover:bg-stone-800 hover:text-white"
-          }`}
-        >
-          <CalcIcon className="w-4 h-4" />
-          <span>კალკულატორი</span>
         </button>
 
         <div className="ml-auto flex items-center gap-2">
@@ -1481,15 +1439,6 @@ export default function SiteSettingsManager() {
           </div>
         </div>
       )}
-
-      {/* SUB-TAB 5: HOMEPAGE SECTIONS */}
-      {activeSubTab === "homepage" && <HomeSectionsManager />}
-
-      {/* SUB-TAB 6: SEO & GOOGLE */}
-      {activeSubTab === "seo" && <SEOManager />}
-
-      {/* SUB-TAB 7: CALCULATOR */}
-      {activeSubTab === "calculator" && <CalculatorManager />}
     </div>
   );
 }

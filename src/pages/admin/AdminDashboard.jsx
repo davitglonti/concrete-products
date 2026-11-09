@@ -24,12 +24,17 @@ import {
   Cloud,
   Star,
   FolderPlus,
+  FolderTree,
   Tag,
   Layers,
   Sliders,
   Palette,
   Search,
   Calculator as CalcIcon,
+  Package,
+  MessageSquare,
+  Sparkles,
+  Settings,
 } from "lucide-react";
 import { findColorDetails } from "../../data/textureData";
 
@@ -933,92 +938,160 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap gap-2 mb-8 border-b border-stone-800 pb-4">
-          <button
-            onClick={() => setTab("products")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition ${
-              tab === "products"
-                ? "bg-white text-stone-950 font-bold shadow-sm"
-                : "bg-stone-900 text-stone-300 hover:bg-stone-800"
-            }`}
-          >
-            პროდუქცია ({products.length})
-          </button>
-          <button
-            onClick={() => setTab("categories")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition ${
-              tab === "categories"
-                ? "bg-white text-stone-950 font-bold shadow-sm"
-                : "bg-stone-900 text-stone-300 hover:bg-stone-800"
-            }`}
-          >
-            კატეგორიები ({(categories || []).length})
-          </button>
-          <button
-            onClick={() => setTab("projects")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition ${
-              tab === "projects"
-                ? "bg-white text-stone-950 font-bold shadow-sm"
-                : "bg-stone-900 text-stone-300 hover:bg-stone-800"
-            }`}
-          >
-            შესრულებული სამუშაოები ({projects.length})
-          </button>
-          <button
-            onClick={() => setTab("homeSections")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 ${
-              tab === "homeSections"
-                ? "bg-amber-500 text-stone-950 font-bold shadow-sm"
-                : "bg-stone-900 text-stone-300 hover:bg-stone-800 hover:text-white"
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            <span>მთავარი გვერდის ბლოკები</span>
-          </button>
-          <button
-            onClick={() => setTab("seo")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 ${
-              tab === "seo"
-                ? "bg-amber-500 text-stone-950 font-bold shadow-sm"
-                : "bg-stone-900 text-stone-300 hover:bg-stone-800 hover:text-white"
-            }`}
-          >
-            <Search className="w-4 h-4" />
-            <span>SEO & Google</span>
-          </button>
-          <button
-            onClick={() => setTab("calculator")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 ${
-              tab === "calculator"
-                ? "bg-amber-500 text-stone-950 font-bold shadow-sm"
-                : "bg-stone-900 text-stone-300 hover:bg-stone-800 hover:text-white"
-            }`}
-          >
-            <CalcIcon className="w-4 h-4" />
-            <span>კალკულატორი</span>
-          </button>
-          <button
-            onClick={() => setTab("inquiries")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition ${
-              tab === "inquiries"
-                ? "bg-white text-stone-950 font-bold shadow-sm"
-                : "bg-stone-900 text-stone-300 hover:bg-stone-800"
-            }`}
-          >
-            შემოსული მოთხოვნები ({inquiries.length})
-          </button>
-          <button
-            onClick={() => setTab("settings")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 ${
-              tab === "settings"
-                ? "bg-amber-500 text-stone-950 font-bold shadow-sm"
-                : "bg-stone-900 text-stone-300 hover:bg-stone-800 hover:text-white"
-            }`}
-          >
-            <Sliders className="w-4 h-4" />
-            <span>საიტის მართვა & ნავიგაცია</span>
-          </button>
+        {/* Navigation Tabs - Clean, Logically Grouped & Decoupled */}
+        <div className="mb-8 space-y-3">
+          <div className="bg-stone-900 border border-stone-800 p-2 rounded-2xl flex flex-wrap items-center gap-2 shadow-sm">
+            
+            {/* GROUP 1: კატალოგი */}
+            <div className="flex items-center gap-1 bg-stone-950/70 p-1 rounded-xl border border-stone-800/80">
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-500/80 px-2 select-none hidden sm:inline">
+                კატალოგი
+              </span>
+
+              <button
+                onClick={() => setTab("products")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition ${
+                  tab === "products"
+                    ? "bg-amber-500 text-stone-950 shadow-sm"
+                    : "text-stone-300 hover:text-white hover:bg-stone-800/80"
+                }`}
+              >
+                <Package className="w-4 h-4" />
+                <span>პროდუქცია</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                    tab === "products"
+                      ? "bg-stone-950/20 text-stone-950 font-bold"
+                      : "bg-stone-800 text-stone-400"
+                  }`}
+                >
+                  {products.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setTab("categories")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition ${
+                  tab === "categories"
+                    ? "bg-amber-500 text-stone-950 shadow-sm"
+                    : "text-stone-300 hover:text-white hover:bg-stone-800/80"
+                }`}
+              >
+                <FolderTree className="w-4 h-4" />
+                <span>კატეგორიები</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                    tab === "categories"
+                      ? "bg-stone-950/20 text-stone-950 font-bold"
+                      : "bg-stone-800 text-stone-400"
+                  }`}
+                >
+                  {(categories || []).length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setTab("projects")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition ${
+                  tab === "projects"
+                    ? "bg-amber-500 text-stone-950 shadow-sm"
+                    : "text-stone-300 hover:text-white hover:bg-stone-800/80"
+                }`}
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>პროექტები</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                    tab === "projects"
+                      ? "bg-stone-950/20 text-stone-950 font-bold"
+                      : "bg-stone-800 text-stone-400"
+                  }`}
+                >
+                  {projects.length}
+                </span>
+              </button>
+            </div>
+
+            {/* GROUP 2: საიტი & ხელსაწყოები */}
+            <div className="flex items-center gap-1 bg-stone-950/70 p-1 rounded-xl border border-stone-800/80">
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-500/80 px-2 select-none hidden sm:inline">
+                საიტი & ხელსაწყოები
+              </span>
+
+              <button
+                onClick={() => setTab("homeSections")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition ${
+                  tab === "homeSections"
+                    ? "bg-amber-500 text-stone-950 shadow-sm"
+                    : "text-stone-300 hover:text-white hover:bg-stone-800/80"
+                }`}
+              >
+                <Layers className="w-4 h-4" />
+                <span>მთავარი გვერდის ბლოკები</span>
+              </button>
+
+              <button
+                onClick={() => setTab("calculator")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition ${
+                  tab === "calculator"
+                    ? "bg-amber-500 text-stone-950 shadow-sm"
+                    : "text-stone-300 hover:text-white hover:bg-stone-800/80"
+                }`}
+              >
+                <CalcIcon className="w-4 h-4" />
+                <span>კალკულატორი</span>
+              </button>
+
+              <button
+                onClick={() => setTab("seo")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition ${
+                  tab === "seo"
+                    ? "bg-amber-500 text-stone-950 shadow-sm"
+                    : "text-stone-300 hover:text-white hover:bg-stone-800/80"
+                }`}
+              >
+                <Search className="w-4 h-4" />
+                <span>SEO & Google</span>
+              </button>
+            </div>
+
+            {/* GROUP 3: მართვა & პარამეტრები */}
+            <div className="flex items-center gap-1 bg-stone-950/70 p-1 rounded-xl border border-stone-800/80 ml-auto">
+              <button
+                onClick={() => setTab("inquiries")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition ${
+                  tab === "inquiries"
+                    ? "bg-amber-500 text-stone-950 shadow-sm"
+                    : "text-stone-300 hover:text-white hover:bg-stone-800/80"
+                }`}
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>მოთხოვნები</span>
+                {inquiries.length > 0 ? (
+                  <span className="bg-rose-500 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded-full animate-pulse">
+                    {inquiries.length}
+                  </span>
+                ) : (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full font-mono bg-stone-800 text-stone-500">
+                    0
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setTab("settings")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition ${
+                  tab === "settings"
+                    ? "bg-amber-500 text-stone-950 shadow-sm"
+                    : "text-stone-300 hover:text-white hover:bg-stone-800/80"
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                <span>საიტის პარამეტრები</span>
+              </button>
+            </div>
+
+          </div>
         </div>
 
         {/* TAB 1: PRODUCTS */}
