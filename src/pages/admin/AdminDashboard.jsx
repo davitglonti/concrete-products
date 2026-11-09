@@ -4,6 +4,7 @@ import { useData } from "../../context/DataContext";
 import AdminLogin from "./AdminLogin";
 import SiteSettingsManager from "../../components/admin/SiteSettingsManager";
 import HomeSectionsManager from "../../components/admin/HomeSectionsManager";
+import SEOManager from "../../components/admin/SEOManager";
 import {
   Trash2,
   Plus,
@@ -971,6 +972,17 @@ export default function AdminDashboard() {
           >
             <Layers className="w-4 h-4" />
             <span>მთავარი გვერდის ბლოკები</span>
+          </button>
+          <button
+            onClick={() => setTab("seo")}
+            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 ${
+              tab === "seo"
+                ? "bg-amber-500 text-stone-950 font-bold shadow-sm"
+                : "bg-stone-900 text-stone-300 hover:bg-stone-800 hover:text-white"
+            }`}
+          >
+            <Search className="w-4 h-4" />
+            <span>SEO & Google</span>
           </button>
           <button
             onClick={() => setTab("inquiries")}
@@ -2408,6 +2420,9 @@ export default function AdminDashboard() {
 
         {/* TAB: HOMEPAGE SECTIONS */}
         {tab === "homeSections" && <HomeSectionsManager />}
+
+        {/* TAB: SEO & GOOGLE */}
+        {tab === "seo" && <SEOManager />}
 
         {/* TAB 5: SITE SETTINGS & NAVIGATION */}
         {tab === "settings" && <SiteSettingsManager />}

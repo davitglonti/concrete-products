@@ -1,9 +1,10 @@
 import { useEffect } from "react";
+import { useData } from "../../context/DataContext";
 
 /**
  * Universal SEO component that dynamically manages page Title, Meta Description,
- * Meta Keywords, OpenGraph (Facebook/WhatsApp/Telegram), Twitter Cards, Canonical URL,
- * and Schema.org JSON-LD Structured Data for search engines (Googlebot).
+ * Meta Keywords, OpenGraph, Twitter Cards, Canonical URL, Google Verification,
+ * and Schema.org JSON-LD Structured Data, reading overrides directly from Site Settings.
  */
 export default function SEO({
   title,
@@ -14,9 +15,13 @@ export default function SEO({
   type = "website",
   jsonLd,
 }) {
+  const { siteSettings } = useData();
+  const seoConfig = siteSettings?.seo || {};
+
   useEffect(() => {
-    const brandName = "MONOLITH.GE";
-    const defaultTitle = "MONOLITH.GE — არქიტექტურული ბეტონის ნაკეთობები საქართველოში";
+    const brandName = siteSettings?.brandName || "MONOLITH.GE";
+    const defaultTitle =
+      seoConfig.siteTitle || `${brandName} — არქიტექტურული ბეტონის ნაკეთობები საქართველოში`;
     const fullTitle = title
       ? title.includes(brandName)
         ? title
@@ -38,30 +43,33 @@ export default function SEO({
       el.setAttribute("content", content);
     };
 
+    const finalDesc = description || seoConfig.siteDescription;
+    const finalKeywords = keywords || seoConfig.keywords;
+    const finalImage = image || seoConfig.ogImage;
+
     // 2. Standard Meta Tags
-    if (description) {
-      setMeta("name", "description", description);
-    }
-    if (keywords) {
-      setMeta("name", "keywords", keywords);
+    if (finalDesc) setMeta("name", "description", finalDesc);
+    if (finalKeywords) setMeta("name", "keywords", finalKeywords);
+
+    // Google Search Console Verification Meta Tag
+    if (seoConfig.googleVerification) {
+      setMeta("name", "google-site-verification", seoConfig.googleVerification);
     }
 
     const currentUrl = url || window.location.href;
 
-    // 3. OpenGraph Tags (Facebook, Messenger, WhatsApp, Viber, LinkedIn)
+    // 3. OpenGraph Tags (Facebook, Messenger, WhatsApp, Viber, Telegram, LinkedIn)
     setMeta("property", "og:title", fullTitle);
-    if (description) setMeta("property", "og:description", description);
+    if (finalDesc) setMeta("property", "og:description", finalDesc);
     setMeta("property", "og:type", type);
     setMeta("property", "og:url", currentUrl);
-    if (image) {
-      setMeta("property", "og:image", image);
-    }
+    if (finalImage) setMeta("property", "og:image", finalImage);
 
     // 4. Twitter Card Tags
     setMeta("name", "twitter:card", "summary_large_image");
     setMeta("name", "twitter:title", fullTitle);
-    if (description) setMeta("name", "twitter:description", description);
-    if (image) setMeta("name", "twitter:image", image);
+    if (finalDesc) setMeta("name", "twitter:description", finalDesc);
+    if (finalImage) setMeta("name", "twitter:image", finalImage);
 
     // 5. Canonical Link
     let canonical = document.querySelector('link[rel="canonical"]');
@@ -70,9 +78,28 @@ export default function SEO({
       canonical.setAttribute("rel", "canonical");
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute("href", currentUrl.split("?")[0]); // clean canonical without query params
+    canonical.setAttribute("href", currentUrl.split("?")[0]);
 
-    // 6. Schema.org JSON-LD Structured Data
+    // 6. Google Analytics gtag injection if provided
+    if (seoConfig.googleAnalyticsId && !document.getElementById("google-gtag-script")) {
+      const gtagScript = document.createElement("script");
+      gtagScript.id = "google-gtag-script";
+      gtagScript.async = true;
+      gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${seoConfig.googleAnalyticsId}`;
+      document.head.appendChild(gtagScript);
+
+      const inlineScript = document.createElement("script");
+      inlineScript.id = "google-gtag-inline";
+      inlineScript.textContent = `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '${seoConfig.googleAnalyticsId}');
+      `;
+      document.head.appendChild(inlineScript);
+    }
+
+    // 7. Schema.org JSON-LD Structured Data
     const scriptId = "dynamic-page-jsonld";
     let scriptTag = document.getElementById(scriptId);
     if (jsonLd) {
@@ -92,7 +119,7 @@ export default function SEO({
       const existingScript = document.getElementById(scriptId);
       if (existingScript) existingScript.remove();
     };
-  }, [title, description, keywords, image, url, type, jsonLd]);
+  }, [title, description, keywords, image, url, type, jsonLd, siteSettings, seoConfig]);
 
   return null;
 }

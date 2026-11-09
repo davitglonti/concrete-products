@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useData } from "../../context/DataContext";
 import HomeSectionsManager from "./HomeSectionsManager";
+import SEOManager from "./SEOManager";
 import {
   Sliders,
   Image as ImageIcon,
@@ -283,6 +284,19 @@ export default function SiteSettingsManager() {
         >
           <Layers className="w-4 h-4" />
           <span>მთავარი გვერდის ბლოკები</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSubTab("seo")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
+            activeSubTab === "seo"
+              ? "bg-amber-500 text-stone-950 shadow-sm"
+              : "text-stone-300 hover:bg-stone-800 hover:text-white"
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          <span>SEO & Google</span>
         </button>
 
         <div className="ml-auto flex items-center gap-2">
@@ -1290,6 +1304,9 @@ export default function SiteSettingsManager() {
 
       {/* SUB-TAB 5: HOMEPAGE SECTIONS */}
       {activeSubTab === "homepage" && <HomeSectionsManager />}
+
+      {/* SUB-TAB 6: SEO & GOOGLE */}
+      {activeSubTab === "seo" && <SEOManager />}
     </div>
   );
 }
