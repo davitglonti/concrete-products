@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Background Gradient: Deep architectural concrete stone -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1917" />
+      <stop offset="100%" stop-color="#0c0a09" />
+    </linearGradient>
+
+    <!-- Amber Gold Accent Gradient for Architectural Monolith -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+
+    <!-- Concrete Accent Gradient -->
+    <linearGradient id="stoneGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#78716c" />
+      <stop offset="100%" stop-color="#a8a29e" />
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle Base with Gold Rim -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bgGrad)" stroke="#f59e0b" stroke-width="2.5" stroke-opacity="0.85" />
+
+  <!-- Geometric Architectural Monolith Pillars / "M" Symbol -->
+  <!-- Left Monolith Pillar -->
+  <path d="M 14 48 L 14 20 L 22 20 L 22 48 Z" fill="url(#stoneGrad)" />
+
+  <!-- Diagonal Facet Left to Center -->
+  <path d="M 22 20 L 32 36 L 27 40 L 22 30 Z" fill="url(#goldGrad)" opacity="0.9" />
+
+  <!-- Center Monolith Peak / Monolithic Block -->
+  <path d="M 28 48 L 32 36 L 36 48 Z" fill="#b45309" />
+
+  <!-- Diagonal Facet Right to Center -->
+  <path d="M 42 20 L 32 36 L 37 40 L 42 30 Z" fill="url(#goldGrad)" />
+
+  <!-- Right Monolith Pillar -->
+  <path d="M 42 20 L 50 20 L 50 48 L 42 48 Z" fill="url(#stoneGrad)" />
+
+  <!-- Top Architectural Stepped Capstone -->
+  <rect x="18" y="14" width="28" height="3.5" rx="1.75" fill="url(#goldGrad)" />
+</svg>

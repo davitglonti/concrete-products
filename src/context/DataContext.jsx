@@ -207,12 +207,12 @@ export const DataProvider = ({ children }) => {
 
   // Apply dynamic favicon to the browser tab
   useEffect(() => {
-    if (siteSettings.syncFaviconWithLogo && siteSettings.logoImage) {
-      applyFavicon(siteSettings.logoImage);
-    } else if (siteSettings.favicon) {
-      applyFavicon(siteSettings.favicon);
-    }
-  }, [siteSettings.logoImage, siteSettings.favicon, siteSettings.syncFaviconWithLogo]);
+    const iconToApply =
+      siteSettings?.syncFaviconWithLogo && siteSettings?.logoImage
+        ? siteSettings.logoImage
+        : siteSettings?.favicon || "/favicon.svg";
+    applyFavicon(iconToApply);
+  }, [siteSettings?.logoImage, siteSettings?.favicon, siteSettings?.syncFaviconWithLogo]);
 
   // Firebase Auth state: only initialize on /admin to keep public routes 100% fast
   useEffect(() => {

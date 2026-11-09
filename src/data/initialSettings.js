@@ -15,7 +15,7 @@ export const DEFAULT_SITE_SETTINGS = {
   showBrandTextWithLogo: true, // show brand text next to custom logo image
 
   // 2. Favicon
-  favicon: "", // Custom favicon URL or data URL
+  favicon: "/favicon.svg", // Custom favicon URL or data URL (defaults to /favicon.svg)
   syncFaviconWithLogo: true, // if true, uses logoImage as the browser tab favicon
 
   // 3. Navbar Navigation Links & CTA
@@ -231,28 +231,51 @@ export const DEFAULT_SITE_SETTINGS = {
 };
 
 /**
- * Dynamically updates the browser's favicon tag (<link rel="shortcut icon"> and <link rel="apple-touch-icon">)
+ * Dynamically updates the browser's favicon tag (<link rel="icon">, <link rel="shortcut icon">, and <link rel="apple-touch-icon">)
+ * with reliable mime-type resolution and Chrome cache-busting/immediate redraw support.
  */
 export const applyFavicon = (iconUrl) => {
   if (typeof document === "undefined" || !iconUrl) return;
 
   try {
-    let link = document.querySelector("link[rel*='icon']");
-    if (!link) {
-      link = document.createElement("link");
-      link.rel = "shortcut icon";
-      document.getElementsByTagName("head")[0].appendChild(link);
-    }
-    link.type = iconUrl.startsWith("data:image/svg") ? "image/svg+xml" : "image/x-icon";
-    link.href = iconUrl;
+    const rawUrl = String(iconUrl).trim();
+    if (!rawUrl) return;
 
-    let appleLink = document.querySelector("link[rel='apple-touch-icon']");
-    if (!appleLink) {
-      appleLink = document.createElement("link");
-      appleLink.rel = "apple-touch-icon";
-      document.getElementsByTagName("head")[0].appendChild(appleLink);
+    // Detect proper MIME type for maximum browser compatibility
+    let mimeType = "image/png";
+    if (rawUrl.startsWith("data:image/svg") || rawUrl.includes(".svg")) {
+      mimeType = "image/svg+xml";
+    } else if (rawUrl.startsWith("data:image/webp") || rawUrl.includes(".webp")) {
+      mimeType = "image/webp";
+    } else if (rawUrl.startsWith("data:image/jpeg") || rawUrl.includes(".jpg") || rawUrl.includes(".jpeg")) {
+      mimeType = "image/jpeg";
+    } else if (rawUrl.includes(".ico")) {
+      mimeType = "image/x-icon";
     }
-    appleLink.href = iconUrl;
+
+    // Remove existing favicon links to force browsers like Chrome to invalidate cache and redraw
+    const existingFavicons = document.querySelectorAll("link[rel*='icon']");
+    existingFavicons.forEach((el) => el.remove());
+
+    // 1. Primary standard icon
+    const linkIcon = document.createElement("link");
+    linkIcon.rel = "icon";
+    linkIcon.type = mimeType;
+    linkIcon.href = rawUrl;
+    document.head.appendChild(linkIcon);
+
+    // 2. Shortcut icon for legacy browsers
+    const linkShortcut = document.createElement("link");
+    linkShortcut.rel = "shortcut icon";
+    linkShortcut.type = mimeType;
+    linkShortcut.href = rawUrl;
+    document.head.appendChild(linkShortcut);
+
+    // 3. Apple Touch Icon for iOS Safari / Mac
+    const linkApple = document.createElement("link");
+    linkApple.rel = "apple-touch-icon";
+    linkApple.href = rawUrl;
+    document.head.appendChild(linkApple);
   } catch (err) {
     console.error("Failed to update favicon:", err);
   }

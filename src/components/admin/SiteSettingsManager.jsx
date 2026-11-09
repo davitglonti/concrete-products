@@ -3,6 +3,7 @@ import { useData } from "../../context/DataContext";
 import HomeSectionsManager from "./HomeSectionsManager";
 import SEOManager from "./SEOManager";
 import CalculatorManager from "./CalculatorManager";
+import { DEFAULT_SITE_SETTINGS, applyFavicon } from "../../data/initialSettings";
 import {
   Sliders,
   Image as ImageIcon,
@@ -26,6 +27,7 @@ import {
   Save,
   CheckCircle2,
   Info,
+  RefreshCw,
   Calculator as CalcIcon,
 } from "lucide-react";
 
@@ -413,9 +415,18 @@ export default function SiteSettingsManager() {
                       const file = e.target.files?.[0];
                       if (file) {
                         handleImageFile(file, (dataUrl) => {
-                          const upd = { ...formData, logoImage: dataUrl };
+                          const shouldSync = formData.syncFaviconWithLogo !== false;
+                          const upd = {
+                            ...formData,
+                            logoType: "image",
+                            logoImage: dataUrl,
+                            favicon: shouldSync ? dataUrl : formData.favicon || "/favicon.svg",
+                          };
                           setFormData(upd);
                           handleSave(upd);
+                          if (shouldSync) {
+                            applyFavicon(dataUrl);
+                          }
                         });
                       }
                     }}
@@ -433,9 +444,15 @@ export default function SiteSettingsManager() {
                     <button
                       type="button"
                       onClick={() => {
-                        const upd = { ...formData, logoImage: "" };
+                        const shouldSync = formData.syncFaviconWithLogo !== false;
+                        const upd = {
+                          ...formData,
+                          logoImage: "",
+                          favicon: shouldSync ? "/favicon.svg" : formData.favicon || "/favicon.svg",
+                        };
                         setFormData(upd);
                         handleSave(upd);
+                        applyFavicon(upd.favicon || "/favicon.svg");
                       }}
                       className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 font-semibold transition"
                     >
@@ -455,10 +472,22 @@ export default function SiteSettingsManager() {
                     placeholder="https://example.com/logo.png"
                     value={formData.logoImage || ""}
                     onChange={(e) => {
-                      const upd = { ...formData, logoImage: e.target.value };
+                      const val = e.target.value;
+                      const shouldSync = formData.syncFaviconWithLogo !== false;
+                      const upd = {
+                        ...formData,
+                        logoImage: val,
+                        logoType: val ? "image" : formData.logoType,
+                        favicon: shouldSync ? (val || "/favicon.svg") : formData.favicon || "/favicon.svg",
+                      };
                       setFormData(upd);
                     }}
-                    onBlur={() => handleSave()}
+                    onBlur={() => {
+                      handleSave();
+                      if (formData.syncFaviconWithLogo !== false && formData.logoImage) {
+                        applyFavicon(formData.logoImage);
+                      }
+                    }}
                     className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
                   />
                 </div>
@@ -502,81 +531,217 @@ export default function SiteSettingsManager() {
               </div>
             )}
 
-            {/* Favicon Settings */}
-            <div className="p-4 rounded-xl bg-stone-950 border border-stone-800 space-y-3">
-              <div className="flex items-center justify-between">
+            {/* Favicon Settings & Browser Tab Control */}
+            <div className="p-5 rounded-2xl bg-stone-950 border border-stone-800 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <span className="text-xs font-bold text-stone-200 block">
-                    ბრაუზერის ჩანართის ფავიკონი (Favicon)
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-white block">
+                      ბრაუზერის ჩანართის ფავიკონი (Favicon)
+                    </span>
+                    <span className="bg-amber-500/20 text-amber-400 text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-amber-500/30">
+                      Browser Tab
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-stone-400 mt-0.5 block">
+                    აიქონი, რომელიც გამოჩნდება ბრაუზერის ჩანართში საიტის დასახელებასთან ერთად
                   </span>
-                  <span className="text-[11px] text-stone-400">
-                    აიქონი, რომელიც ჩანს ბრაუზერის ჩანართში საიტის სახელთან
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const currentFav =
+                      formData.syncFaviconWithLogo !== false && formData.logoImage
+                        ? formData.logoImage
+                        : formData.favicon || "/favicon.svg";
+                    applyFavicon(currentFav);
+                    setSaveToast("ფავიკონი მომენტალურად განახლდა ბრაუზერის ჩანართში!");
+                    setTimeout(() => setSaveToast(null), 3000);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-750 text-stone-300 hover:text-white text-xs font-semibold border border-stone-700/80 transition shrink-0 self-start sm:self-auto"
+                  title="ჩანართის ფავიკონის იძულებითი განახლება"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
+                  <span>ჩანართზე გამოცდა</span>
+                </button>
+              </div>
+
+              {/* Realistic Chrome Tab Preview */}
+              <div className="bg-[#1e1f22] p-3 rounded-xl border border-stone-800/90 shadow-inner">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block mb-2">
+                  როგორ ჩანს ბრაუზერის ჩანართში:
+                </span>
+                <div className="inline-flex items-center gap-2.5 bg-[#2b2d30] px-3.5 py-2 rounded-t-xl border-t border-x border-[#383a40] text-xs text-stone-200 max-w-full sm:max-w-md shadow-md">
+                  <div className="w-4 h-4 rounded overflow-hidden flex items-center justify-center shrink-0 bg-stone-900 border border-stone-700/50">
+                    {formData.syncFaviconWithLogo !== false && formData.logoImage ? (
+                      <img
+                        src={formData.logoImage}
+                        alt="Favicon"
+                        className="w-4 h-4 object-contain"
+                      />
+                    ) : formData.favicon ? (
+                      <img
+                        src={formData.favicon}
+                        alt="Favicon"
+                        className="w-4 h-4 object-contain"
+                      />
+                    ) : (
+                      <img
+                        src="/favicon.svg"
+                        alt="Default Favicon"
+                        className="w-4 h-4 object-contain"
+                      />
+                    )}
+                  </div>
+                  <span className="font-semibold truncate text-[11px] sm:text-xs text-stone-100">
+                    {formData.brandName || "MONOLITH"}{formData.brandSuffix || ".GE"} — არქიტექტურული ბეტონი
+                  </span>
+                  <span className="ml-auto text-stone-500 hover:text-stone-300 text-xs font-bold cursor-default">
+                    ✕
                   </span>
                 </div>
               </div>
 
-              <label className="flex items-center gap-2.5 text-xs text-stone-300 cursor-pointer pt-1">
-                <input
-                  type="checkbox"
-                  checked={formData.syncFaviconWithLogo !== false}
-                  onChange={(e) => {
-                    const upd = { ...formData, syncFaviconWithLogo: e.target.checked };
-                    setFormData(upd);
-                    handleSave(upd);
-                  }}
-                  className="rounded border-stone-700 text-amber-500 focus:ring-0 w-4 h-4"
-                />
-                <span className="font-semibold text-white">
-                  ფავიკონის ავტომატური სინქრონიზაცია ლოგოსთან (რეკომენდებულია)
-                </span>
-              </label>
-
-              {/* Custom standalone favicon if auto-sync is off */}
-              {formData.syncFaviconWithLogo === false && (
-                <div className="pt-2 border-t border-stone-800/80 space-y-2">
-                  <span className="text-[11px] text-stone-400 block">
-                    ატვირთეთ დამოუკიდებელი ფავიკონის ფაილი:
-                  </span>
+              {/* Auto Sync Toggle */}
+              <div className="bg-stone-900/80 p-3.5 rounded-xl border border-stone-800 space-y-1.5">
+                <label className="flex items-center gap-3 text-xs text-stone-200 cursor-pointer">
                   <input
-                    ref={faviconFileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
+                    type="checkbox"
+                    checked={formData.syncFaviconWithLogo !== false}
                     onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        handleImageFile(file, (dataUrl) => {
-                          const upd = { ...formData, favicon: dataUrl };
-                          setFormData(upd);
-                          handleSave(upd);
-                        });
-                      }
+                      const isSync = e.target.checked;
+                      const newFavicon = isSync
+                        ? formData.logoImage || formData.favicon || "/favicon.svg"
+                        : formData.favicon || "/favicon.svg";
+                      const upd = {
+                        ...formData,
+                        syncFaviconWithLogo: isSync,
+                        favicon: newFavicon,
+                      };
+                      setFormData(upd);
+                      handleSave(upd);
+                      applyFavicon(newFavicon);
                     }}
+                    className="rounded border-stone-700 text-amber-500 focus:ring-0 w-4 h-4"
                   />
-                  <div className="flex items-center gap-3">
+                  <span className="font-bold text-white text-xs sm:text-sm">
+                    ფავიკონის ავტომატური სინქრონიზაცია ლოგოსთან (რეკომენდებულია)
+                  </span>
+                </label>
+                <p className="text-[11px] text-stone-400 pl-7 leading-relaxed">
+                  ჩართვის შემთხვევაში, როდესაც ლოგოს ატვირთავთ ან შეცვლით, ბრაუზერის ჩანართის ფავიკონიც
+                  ავტომატურად გახდება იგივე ლოგო.
+                </p>
+              </div>
+
+              {/* Custom standalone favicon controls */}
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-300">
+                    {formData.syncFaviconWithLogo !== false
+                      ? "ან აირჩიეთ დამოუკიდებელი ფავიკონი (ავტომატური სინქრონიზაციის გარეშე):"
+                      : "დამოუკიდებელი ფავიკონის მართვა:"}
+                  </span>
+                </div>
+
+                <input
+                  ref={faviconFileInputRef}
+                  type="file"
+                  accept="image/png,image/svg+xml,image/x-icon,image/webp,image/jpeg"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleImageFile(file, (dataUrl) => {
+                        const upd = {
+                          ...formData,
+                          syncFaviconWithLogo: false,
+                          favicon: dataUrl,
+                        };
+                        setFormData(upd);
+                        handleSave(upd);
+                        applyFavicon(dataUrl);
+                      });
+                    }
+                  }}
+                />
+
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => faviconFileInputRef.current?.click()}
+                    className="bg-stone-800 hover:bg-stone-750 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-2 border border-stone-700 shadow-sm"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-amber-400" />
+                    <span>ფავიკონის ფაილის ატვირთვა (PNG / SVG / ICO)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const upd = {
+                        ...formData,
+                        syncFaviconWithLogo: false,
+                        favicon: "/favicon.svg",
+                      };
+                      setFormData(upd);
+                      handleSave(upd);
+                      applyFavicon("/favicon.svg");
+                    }}
+                    className="bg-stone-800/80 hover:bg-stone-800 text-stone-300 hover:text-white text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5 border border-stone-700/60"
+                    title="დაბრუნება ქარხნულ არქიტექტურულ მონოლითის ფავიკონზე"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-stone-400" />
+                    <span>საწყისზე დაბრუნება</span>
+                  </button>
+
+                  {formData.favicon && formData.favicon !== "/favicon.svg" && (
                     <button
                       type="button"
-                      onClick={() => faviconFileInputRef.current?.click()}
-                      className="bg-stone-800 hover:bg-stone-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+                      onClick={() => {
+                        const upd = {
+                          ...formData,
+                          favicon: "/favicon.svg",
+                        };
+                        setFormData(upd);
+                        handleSave(upd);
+                        applyFavicon("/favicon.svg");
+                      }}
+                      className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1 font-semibold transition px-2 py-1"
                     >
-                      ფავიკონის ატვირთვა
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>წაშლა</span>
                     </button>
-                    {formData.favicon && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const upd = { ...formData, favicon: "" };
-                          setFormData(upd);
-                          handleSave(upd);
-                        }}
-                        className="text-xs text-red-400"
-                      >
-                        წაშლა
-                      </button>
-                    )}
-                  </div>
+                  )}
                 </div>
-              )}
+
+                {/* Direct Favicon URL */}
+                <div>
+                  <label className="text-[11px] text-stone-400 block mb-1">
+                    ან ჩასვით ფავიკონის პირდაპირი ბმული (URL):
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://example.com/favicon.png ან /favicon.svg"
+                    value={formData.favicon || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const upd = {
+                        ...formData,
+                        syncFaviconWithLogo: false,
+                        favicon: val,
+                      };
+                      setFormData(upd);
+                    }}
+                    onBlur={() => {
+                      handleSave();
+                      if (formData.favicon) applyFavicon(formData.favicon);
+                    }}
+                    className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Brand Text Settings */}
@@ -709,12 +874,12 @@ export default function SiteSettingsManager() {
                 </span>
                 <div className="bg-stone-950 p-2.5 rounded-xl border border-stone-800 flex items-center gap-2 text-xs text-stone-300">
                   <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                    {formData.syncFaviconWithLogo && formData.logoImage ? (
+                    {formData.syncFaviconWithLogo !== false && formData.logoImage ? (
                       <img src={formData.logoImage} alt="Favicon" className="w-4 h-4 object-contain" />
                     ) : formData.favicon ? (
                       <img src={formData.favicon} alt="Favicon" className="w-4 h-4 object-contain" />
                     ) : (
-                      <Layers className="w-3.5 h-3.5 text-amber-400" />
+                      <img src="/favicon.svg" alt="Favicon" className="w-4 h-4 object-contain" />
                     )}
                   </div>
                   <span className="font-medium truncate">
