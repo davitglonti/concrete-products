@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useData } from "../../context/DataContext";
 import HomeSectionsManager from "./HomeSectionsManager";
 import SEOManager from "./SEOManager";
+import CalculatorManager from "./CalculatorManager";
 import {
   Sliders,
   Image as ImageIcon,
@@ -25,6 +26,7 @@ import {
   Save,
   CheckCircle2,
   Info,
+  Calculator as CalcIcon,
 } from "lucide-react";
 
 export default function SiteSettingsManager() {
@@ -297,6 +299,19 @@ export default function SiteSettingsManager() {
         >
           <Globe className="w-4 h-4" />
           <span>SEO & Google</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSubTab("calculator")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
+            activeSubTab === "calculator"
+              ? "bg-amber-500 text-stone-950 shadow-sm"
+              : "text-stone-300 hover:bg-stone-800 hover:text-white"
+          }`}
+        >
+          <CalcIcon className="w-4 h-4" />
+          <span>კალკულატორი</span>
         </button>
 
         <div className="ml-auto flex items-center gap-2">
@@ -1307,6 +1322,9 @@ export default function SiteSettingsManager() {
 
       {/* SUB-TAB 6: SEO & GOOGLE */}
       {activeSubTab === "seo" && <SEOManager />}
+
+      {/* SUB-TAB 7: CALCULATOR */}
+      {activeSubTab === "calculator" && <CalculatorManager />}
     </div>
   );
 }

@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import SEO from "../components/common/SEO";
 import { CONCRETE_TEXTURES } from "../data/textureData";
+import { DEFAULT_SITE_SETTINGS } from "../data/initialSettings";
 import {
   Calculator as CalcIcon,
   Layers,
@@ -19,95 +20,120 @@ import {
 } from "lucide-react";
 
 export default function Calculator() {
-  const { addInquiry } = useData();
+  const { addInquiry, siteSettings } = useData();
 
   // Active Tab: 'steps' | 'pavers'
   const [activeTab, setActiveTab] = useState("steps");
 
+  // Dynamic configuration from siteSettings with rock-solid defaults
+  const calcConfig = siteSettings?.calculator || DEFAULT_SITE_SETTINGS.calculator;
+  const stepModelsList =
+    Array.isArray(calcConfig?.stepModels) && calcConfig.stepModels.length > 0
+      ? calcConfig.stepModels
+      : DEFAULT_SITE_SETTINGS.calculator.stepModels;
+  const paverSizesList =
+    Array.isArray(calcConfig?.paverSizes) && calcConfig.paverSizes.length > 0
+      ? calcConfig.paverSizes
+      : DEFAULT_SITE_SETTINGS.calculator.paverSizes;
+  const stepLengths =
+    Array.isArray(calcConfig?.stepLengths) && calcConfig.stepLengths.length > 0
+      ? calcConfig.stepLengths
+      : DEFAULT_SITE_SETTINGS.calculator.stepLengths;
+  const stepDepths =
+    Array.isArray(calcConfig?.stepDepths) && calcConfig.stepDepths.length > 0
+      ? calcConfig.stepDepths
+      : DEFAULT_SITE_SETTINGS.calculator.stepDepths;
+  const adhesiveRatio = Number(calcConfig?.adhesiveRatio) || 3.5;
+  const defaultReserve = Number(calcConfig?.defaultReserve) || 5;
+
   // --- STEPS CALCULATOR STATE ---
-  const [stepType, setStepType] = useState("l-step"); // 'l-step' | 'straight' | 'cantilever'
+  const [stepType, setStepType] = useState(() => stepModelsList[0]?.id || "l-step");
   const [stepCount, setStepCount] = useState(12);
-  const [stepLength, setStepLength] = useState(120); // cm
-  const [stepDepth, setStepDepth] = useState(35); // cm
-  const [stepColor, setStepColor] = useState(CONCRETE_TEXTURES[0].id);
+  const [stepLength, setStepLength] = useState(() => stepLengths[1] || 120); // cm
+  const [stepDepth, setStepDepth] = useState(() => stepDepths[1] || 35); // cm
+  const [stepColor, setStepColor] = useState(CONCRETE_TEXTURES[0]?.id || "c-light-grey");
 
   // --- PAVERS CALCULATOR STATE ---
   const [paverArea, setPaverArea] = useState(50); // m²
-  const [paverSize, setPaverSize] = useState("80x80"); // '60x60' | '80x80' | '100x100' | '120x60'
-  const [paverReserve, setPaverReserve] = useState(5); // %
-  const [paverColor, setPaverColor] = useState(CONCRETE_TEXTURES[0].id);
+  const [paverSize, setPaverSize] = useState(
+    () => paverSizesList[1]?.id || paverSizesList[0]?.id || "80x80"
+  );
+  const [paverReserve, setPaverReserve] = useState(() => defaultReserve || 5); // %
+  const [paverColor, setPaverColor] = useState(CONCRETE_TEXTURES[0]?.id || "c-light-grey");
+
+  // Keep selected IDs valid if models/sizes change from admin
+  useEffect(() => {
+    if (!stepModelsList.some((m) => m.id === stepType)) {
+      if (stepModelsList[0]?.id) setStepType(stepModelsList[0].id);
+    }
+  }, [stepModelsList, stepType]);
+
+  useEffect(() => {
+    if (!paverSizesList.some((s) => s.id === paverSize)) {
+      if (paverSizesList[0]?.id) setPaverSize(paverSizesList[0].id);
+    }
+  }, [paverSizesList, paverSize]);
+
+  useEffect(() => {
+    if (!stepLengths.includes(stepLength)) {
+      if (stepLengths[0]) setStepLength(stepLengths[0]);
+    }
+  }, [stepLengths, stepLength]);
+
+  useEffect(() => {
+    if (!stepDepths.includes(stepDepth)) {
+      if (stepDepths[0]) setStepDepth(stepDepths[0]);
+    }
+  }, [stepDepths, stepDepth]);
 
   // --- SUBMISSION FORM ---
   const [form, setForm] = useState({ name: "", phone: "", address: "", notes: "" });
   const [submitted, setSubmitted] = useState(false);
 
-  // Step types config
-  const STEP_MODELS = {
-    "l-step": {
-      name: "L-ფორმის მონოლითური საფეხური",
-      basePricePerMeter: 95,
-      weightPerMeter: 38, // kg per linear meter (approx M500 concrete)
-      desc: "საფეხური და ვერტიკალური ნაწილი (პადსტუპენოკი) ერთ მთლიან ნაჭერში, ნაკერის გარეშე.",
-    },
-    straight: {
-      name: "სწორი მასიური ბეტონის ფილა",
-      basePricePerMeter: 75,
-      weightPerMeter: 28,
-      desc: "მინიმალისტური ჰორიზონტალური ბეტონის ფილა გარე და შიდა კიბეებისთვის.",
-    },
-    cantilever: {
-      name: "მცურავი / კონსოლური საფეხური",
-      basePricePerMeter: 125,
-      weightPerMeter: 45,
-      desc: "გაძლიერებული შიდა კარკასით კედლიდან გამომავალი 'მცურავი' კიბის დიზაინისთვის.",
-    },
-  };
+  // Active step model object
+  const currentStepModel = useMemo(() => {
+    return (
+      stepModelsList.find((m) => m.id === stepType) ||
+      stepModelsList[0] || {
+        id: "default-step",
+        name: "საფეხური",
+        basePricePerMeter: 85,
+        weightPerMeter: 35,
+        desc: "",
+      }
+    );
+  }, [stepModelsList, stepType]);
 
-  // Paver sizes config
-  const PAVER_SIZES = {
-    "60x60": {
-      name: "60 × 60 × 5 სმ",
-      areaPerTile: 0.36,
-      basePricePerSqm: 60,
-      weightPerSqm: 115, // kg per m²
-      desc: "იდეალურია საცალფეხო ბილიკებისა და მცირე ეზოებისთვის.",
-    },
-    "80x80": {
-      name: "80 × 80 × 6 სმ",
-      areaPerTile: 0.64,
-      basePricePerSqm: 75,
-      weightPerSqm: 140,
-      desc: "ყველაზე მოთხოვნადი ფორმატი თანამედროვე ვილების ეზოებისთვის.",
-    },
-    "100x100": {
-      name: "100 × 100 × 8 სმ",
-      areaPerTile: 1.0,
-      basePricePerSqm: 95,
-      weightPerSqm: 190,
-      desc: "მასიური არქიტექტურული ფილა მსუბუქი საავტომობილო დატვირთვისთვისაც.",
-    },
-    "120x60": {
-      name: "120 × 60 × 6 სმ",
-      areaPerTile: 0.72,
-      basePricePerSqm: 85,
-      weightPerSqm: 145,
-      desc: "წაგრძელებული ელიტური გეომეტრია ტერასებისა და აუზის გარშემო სივრცისთვის.",
-    },
-  };
+  // Active paver format object
+  const currentPaverSize = useMemo(() => {
+    return (
+      paverSizesList.find((s) => s.id === paverSize) ||
+      paverSizesList[0] || {
+        id: "default-paver",
+        name: "ფილა",
+        areaPerTile: 0.5,
+        basePricePerSqm: 75,
+        weightPerSqm: 140,
+        desc: "",
+      }
+    );
+  }, [paverSizesList, paverSize]);
 
   // Calculations: Steps
   const stepsCalc = useMemo(() => {
-    const model = STEP_MODELS[stepType];
+    const model = currentStepModel;
     const texture = CONCRETE_TEXTURES.find((t) => t.id === stepColor) || CONCRETE_TEXTURES[0];
 
-    const totalLinearMeters = (stepCount * stepLength) / 100;
-    const estimatedWeightKg = Math.round(totalLinearMeters * model.weightPerMeter);
+    const currentLen = Number(stepLength) || 120;
+    const totalLinearMeters = (stepCount * currentLen) / 100;
+    const estimatedWeightKg = Math.round(totalLinearMeters * (model.weightPerMeter || 35));
     const estimatedCost = Math.round(
-      totalLinearMeters * model.basePricePerMeter * texture.priceMultiplier
+      totalLinearMeters * (model.basePricePerMeter || 85) * (texture?.priceMultiplier || 1)
     );
 
-    // Recommended adhesive: ~1 bag per 3-4 linear meters
-    const adhesiveBags = Math.ceil(totalLinearMeters / 3.5);
+    // Recommended adhesive: ~1 bag per adhesiveRatio linear meters
+    const ratio = adhesiveRatio > 0 ? adhesiveRatio : 3.5;
+    const adhesiveBags = Math.ceil(totalLinearMeters / ratio);
 
     return {
       totalLinearMeters: totalLinearMeters.toFixed(1),
@@ -117,18 +143,19 @@ export default function Calculator() {
       model,
       texture,
     };
-  }, [stepType, stepCount, stepLength, stepColor]);
+  }, [currentStepModel, stepCount, stepLength, stepColor, adhesiveRatio]);
 
   // Calculations: Pavers
   const paversCalc = useMemo(() => {
-    const size = PAVER_SIZES[paverSize];
+    const size = currentPaverSize;
     const texture = CONCRETE_TEXTURES.find((t) => t.id === paverColor) || CONCRETE_TEXTURES[0];
 
-    const effectiveArea = paverArea * (1 + paverReserve / 100);
-    const totalTiles = Math.ceil(effectiveArea / size.areaPerTile);
-    const estimatedWeightKg = Math.round(effectiveArea * size.weightPerSqm);
+    const effectiveArea = paverArea * (1 + (Number(paverReserve) || 0) / 100);
+    const tileArea = Number(size.areaPerTile) > 0 ? Number(size.areaPerTile) : 0.5;
+    const totalTiles = Math.ceil(effectiveArea / tileArea);
+    const estimatedWeightKg = Math.round(effectiveArea * (Number(size.weightPerSqm) || 140));
     const estimatedCost = Math.round(
-      effectiveArea * size.basePricePerSqm * texture.priceMultiplier
+      effectiveArea * (Number(size.basePricePerSqm) || 75) * (texture?.priceMultiplier || 1)
     );
 
     return {
@@ -140,7 +167,7 @@ export default function Calculator() {
       size,
       texture,
     };
-  }, [paverArea, paverSize, paverReserve, paverColor]);
+  }, [currentPaverSize, paverArea, paverReserve, paverColor]);
 
   const handleSubmitInquiry = (e) => {
     e.preventDefault();
@@ -176,13 +203,14 @@ export default function Calculator() {
         <div className="max-w-4xl mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-bold px-3 py-1 rounded-full mb-3 border border-amber-500/20">
             <CalcIcon className="w-3.5 h-3.5" />
-            <span>ონლაინ ხარჯთაღრიცხვის ხელსაწყო</span>
+            <span>{calcConfig?.badge || "ონლაინ ხარჯთაღრიცხვის ხელსაწყო"}</span>
           </div>
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-stone-900 dark:text-white tracking-tight leading-tight">
-            ბეტონის საფეხურებისა და ფილების კალკულატორი
+            {calcConfig?.title || "ბეტონის საფეხურებისა და ფილების კალკულატორი"}
           </h1>
           <p className="text-sm sm:text-base text-stone-600 dark:text-stone-400 mt-3 leading-relaxed">
-            მიუთითეთ თქვენი კიბის ზომები ან ეზოს ფართობი, მიიღეთ ზუსტი რაოდენობრივი გაანგარიშება, სავარაუდო წონა და ბიუჯეტი რეალურ დროში.
+            {calcConfig?.subtitle ||
+              "მიუთითეთ თქვენი კიბის ზომები ან ეზოს ფართობი, მიიღეთ ზუსტი რაოდენობრივი გაანგარიშება, სავარაუდო წონა და ბიუჯეტი რეალურ დროში."}
           </p>
         </div>
 
@@ -232,19 +260,24 @@ export default function Calculator() {
                     საფეხურის კონსტრუქციული მოდელი:
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {Object.entries(STEP_MODELS).map(([key, item]) => (
+                    {stepModelsList.map((item) => (
                       <button
-                        key={key}
+                        key={item.id}
                         type="button"
-                        onClick={() => setStepType(key)}
+                        onClick={() => setStepType(item.id)}
                         className={`p-3.5 rounded-2xl border text-left transition-all ${
-                          stepType === key
+                          stepType === item.id
                             ? "bg-amber-500/10 border-amber-500 ring-2 ring-amber-500/20 text-stone-900 dark:text-white"
                             : "bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:border-stone-400"
                         }`}
                       >
-                        <span className="text-xs font-bold block">{item.name}</span>
-                        <span className="text-[11px] text-stone-500 dark:text-stone-400 block mt-1 line-clamp-2">
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="text-xs font-bold block">{item.name}</span>
+                          <span className="text-[11px] font-mono text-amber-600 dark:text-amber-400 font-bold shrink-0">
+                            {item.basePricePerMeter} ₾/მ
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-stone-500 dark:text-stone-400 block line-clamp-2">
                           {item.desc}
                         </span>
                       </button>
@@ -283,7 +316,7 @@ export default function Calculator() {
                     საფეხურის სიგრძე:
                   </label>
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    {[100, 120, 150, 180, 200, 240].map((len) => (
+                    {stepLengths.map((len) => (
                       <button
                         key={len}
                         type="button"
@@ -306,7 +339,7 @@ export default function Calculator() {
                     საფეხურის სიღრმე / სიგანე:
                   </label>
                   <div className="grid grid-cols-3 gap-2.5">
-                    {[30, 35, 40].map((depth) => (
+                    {stepDepths.map((depth) => (
                       <button
                         key={depth}
                         type="button"
@@ -393,19 +426,24 @@ export default function Calculator() {
                     ფილის ფორმატი და ზომა:
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {Object.entries(PAVER_SIZES).map(([key, item]) => (
+                    {paverSizesList.map((item) => (
                       <button
-                        key={key}
+                        key={item.id}
                         type="button"
-                        onClick={() => setPaverSize(key)}
+                        onClick={() => setPaverSize(item.id)}
                         className={`p-3.5 rounded-2xl border text-left transition-all ${
-                          paverSize === key
+                          paverSize === item.id
                             ? "bg-amber-500/10 border-amber-500 ring-2 ring-amber-500/20 text-stone-900 dark:text-white"
                             : "bg-stone-50 dark:bg-stone-950 border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:border-stone-400"
                         }`}
                       >
-                        <span className="text-xs font-extrabold block">{item.name}</span>
-                        <span className="text-[11px] text-stone-500 dark:text-stone-400 block mt-1">
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="text-xs font-extrabold block">{item.name}</span>
+                          <span className="text-[11px] font-mono text-amber-600 dark:text-amber-400 font-bold shrink-0">
+                            {item.basePricePerSqm} ₾/მ²
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-stone-500 dark:text-stone-400 block line-clamp-2">
                           {item.desc}
                         </span>
                       </button>

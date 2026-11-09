@@ -5,6 +5,7 @@ import AdminLogin from "./AdminLogin";
 import SiteSettingsManager from "../../components/admin/SiteSettingsManager";
 import HomeSectionsManager from "../../components/admin/HomeSectionsManager";
 import SEOManager from "../../components/admin/SEOManager";
+import CalculatorManager from "../../components/admin/CalculatorManager";
 import {
   Trash2,
   Plus,
@@ -28,6 +29,7 @@ import {
   Sliders,
   Palette,
   Search,
+  Calculator as CalcIcon,
 } from "lucide-react";
 import { findColorDetails } from "../../data/textureData";
 
@@ -984,6 +986,17 @@ export default function AdminDashboard() {
           >
             <Search className="w-4 h-4" />
             <span>SEO & Google</span>
+          </button>
+          <button
+            onClick={() => setTab("calculator")}
+            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 ${
+              tab === "calculator"
+                ? "bg-amber-500 text-stone-950 font-bold shadow-sm"
+                : "bg-stone-900 text-stone-300 hover:bg-stone-800 hover:text-white"
+            }`}
+          >
+            <CalcIcon className="w-4 h-4" />
+            <span>კალკულატორი</span>
           </button>
           <button
             onClick={() => setTab("inquiries")}
@@ -2424,6 +2437,9 @@ export default function AdminDashboard() {
 
         {/* TAB: SEO & GOOGLE */}
         {tab === "seo" && <SEOManager />}
+
+        {/* TAB: CALCULATOR MANAGER */}
+        {tab === "calculator" && <CalculatorManager />}
 
         {/* TAB 5: SITE SETTINGS & NAVIGATION */}
         {tab === "settings" && <SiteSettingsManager />}

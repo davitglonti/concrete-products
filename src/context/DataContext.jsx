@@ -26,6 +26,42 @@ const DataContext = createContext();
 
 export const useData = () => useContext(DataContext);
 
+const mergeSiteSettings = (base, incoming) => {
+  if (!incoming) return base || DEFAULT_SITE_SETTINGS;
+  return {
+    ...base,
+    ...incoming,
+    calculator: {
+      ...(base?.calculator || DEFAULT_SITE_SETTINGS.calculator),
+      ...(incoming.calculator || {}),
+      stepModels:
+        Array.isArray(incoming.calculator?.stepModels) && incoming.calculator.stepModels.length > 0
+          ? incoming.calculator.stepModels
+          : base?.calculator?.stepModels || DEFAULT_SITE_SETTINGS.calculator.stepModels,
+      paverSizes:
+        Array.isArray(incoming.calculator?.paverSizes) && incoming.calculator.paverSizes.length > 0
+          ? incoming.calculator.paverSizes
+          : base?.calculator?.paverSizes || DEFAULT_SITE_SETTINGS.calculator.paverSizes,
+      stepLengths:
+        Array.isArray(incoming.calculator?.stepLengths) && incoming.calculator.stepLengths.length > 0
+          ? incoming.calculator.stepLengths
+          : base?.calculator?.stepLengths || DEFAULT_SITE_SETTINGS.calculator.stepLengths,
+      stepDepths:
+        Array.isArray(incoming.calculator?.stepDepths) && incoming.calculator.stepDepths.length > 0
+          ? incoming.calculator.stepDepths
+          : base?.calculator?.stepDepths || DEFAULT_SITE_SETTINGS.calculator.stepDepths,
+    },
+    seo: {
+      ...(base?.seo || DEFAULT_SITE_SETTINGS.seo),
+      ...(incoming.seo || {}),
+      pageMeta: {
+        ...(base?.seo?.pageMeta || DEFAULT_SITE_SETTINGS.seo.pageMeta),
+        ...(incoming.seo?.pageMeta || {}),
+      },
+    },
+  };
+};
+
 export const DataProvider = ({ children }) => {
   // Synchronous initial load with localStorage & smart merge with rich INITIAL_PRODUCTS
   const [products, setProducts] = useState(() => {
@@ -93,7 +129,7 @@ export const DataProvider = ({ children }) => {
       const saved = localStorage.getItem("monolith_site_settings");
       if (saved) {
         const parsed = JSON.parse(saved);
-        return { ...DEFAULT_SITE_SETTINGS, ...parsed };
+        return mergeSiteSettings(DEFAULT_SITE_SETTINGS, parsed);
       }
       return DEFAULT_SITE_SETTINGS;
     } catch {
@@ -140,7 +176,7 @@ export const DataProvider = ({ children }) => {
     });
     getPersistentItem("monolith_site_settings", null).then((saved) => {
       if (active && saved) {
-        setSiteSettings((prev) => ({ ...prev, ...saved }));
+        setSiteSettings((prev) => mergeSiteSettings(prev, saved));
       }
     });
     return () => {
@@ -273,7 +309,7 @@ export const DataProvider = ({ children }) => {
         },
         onSettings: (remoteSettings) => {
           if (!isMounted) return;
-          setSiteSettings((prev) => ({ ...prev, ...remoteSettings }));
+          setSiteSettings((prev) => mergeSiteSettings(prev, remoteSettings));
         },
       });
 

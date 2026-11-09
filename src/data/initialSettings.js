@@ -159,6 +159,75 @@ export const DEFAULT_SITE_SETTINGS = {
       },
     },
   },
+
+  // 10. Online Calculator Configuration
+  calculator: {
+    badge: "ონლაინ ხარჯთაღრიცხვის ხელსაწყო",
+    title: "ბეტონის საფეხურებისა და ფილების კალკულატორი",
+    subtitle:
+      "მიუთითეთ თქვენი კიბის ზომები ან ეზოს ფართობი, მიიღეთ ზუსტი რაოდენობრივი გაანგარიშება, სავარაუდო წონა და ბიუჯეტი რეალურ დროში.",
+    adhesiveRatio: 3.5, // 1 bag of adhesive per X linear meters
+    defaultReserve: 5, // % default reserve for pavers
+    stepLengths: [100, 120, 150, 180, 200, 240], // cm
+    stepDepths: [30, 35, 40], // cm
+    stepModels: [
+      {
+        id: "l-step",
+        name: "L-ფორმის მონოლითური საფეხური",
+        basePricePerMeter: 95,
+        weightPerMeter: 38,
+        desc: "საფეხური და ვერტიკალური ნაწილი (პადსტუპენოკი) ერთ მთლიან ნაჭერში, ნაკერის გარეშე.",
+      },
+      {
+        id: "straight",
+        name: "სწორი მასიური ბეტონის ფილა",
+        basePricePerMeter: 75,
+        weightPerMeter: 28,
+        desc: "მინიმალისტური ჰორიზონტალური ბეტონის ფილა გარე და შიდა კიბეებისთვის.",
+      },
+      {
+        id: "cantilever",
+        name: "მცურავი / კონსოლური საფეხური",
+        basePricePerMeter: 125,
+        weightPerMeter: 45,
+        desc: "გაძლიერებული შიდა კარკასით კედლიდან გამომავალი 'მცურავი' კიბის დიზაინისთვის.",
+      },
+    ],
+    paverSizes: [
+      {
+        id: "60x60",
+        name: "60 × 60 × 5 სმ",
+        areaPerTile: 0.36,
+        basePricePerSqm: 60,
+        weightPerSqm: 115,
+        desc: "იდეალურია საცალფეხო ბილიკებისა და მცირე ეზოებისთვის.",
+      },
+      {
+        id: "80x80",
+        name: "80 × 80 × 6 სმ",
+        areaPerTile: 0.64,
+        basePricePerSqm: 75,
+        weightPerSqm: 140,
+        desc: "ყველაზე მოთხოვნადი ფორმატი თანამედროვე ვილების ეზოებისთვის.",
+      },
+      {
+        id: "100x100",
+        name: "100 × 100 × 8 სმ",
+        areaPerTile: 1.0,
+        basePricePerSqm: 95,
+        weightPerSqm: 190,
+        desc: "მასიური არქიტექტურული ფილა მსუბუქი საავტომობილო დატვირთვისთვისაც.",
+      },
+      {
+        id: "120x60",
+        name: "120 × 60 × 6 სმ",
+        areaPerTile: 0.72,
+        basePricePerSqm: 85,
+        weightPerSqm: 145,
+        desc: "წაგრძელებული ელიტური გეომეტრია ტერასებისა და აუზის გარშემო სივრცისთვის.",
+      },
+    ],
+  },
 };
 
 /**
