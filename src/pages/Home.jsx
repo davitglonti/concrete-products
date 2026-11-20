@@ -169,7 +169,10 @@ export default function Home() {
     }, 3500);
   };
 
-  const featuredProducts = products.filter((p) => p.featured).slice(0, 4);
+  const featured = products.filter((p) => Boolean(p.featured));
+  const featuredProducts = (
+    featured.length > 0 ? featured : (products.length > 0 ? products : INITIAL_PRODUCTS)
+  ).slice(0, 4);
   const latestProjects = [...projects].slice(0, 3);
   const activeSlideIndex = currentSlide < heroSlides.length ? currentSlide : 0;
   const slide = heroSlides[activeSlideIndex] || heroSlides[0];

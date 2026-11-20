@@ -108,6 +108,7 @@ export default function AdminDashboard() {
     images: [],
     colors: [],
     colorVariants: [],
+    featured: false,
   });
 
   const [tempProductUrl, setTempProductUrl] = useState("");
@@ -604,6 +605,7 @@ export default function AdminDashboard() {
       colors: [baseColor, ...cleanedVariants.map((v) => v.colorName)],
       categoryLabel: categoryObj ? categoryObj.label : newProd.categoryLabel,
       price: newProd.price ? Number(newProd.price) : 0,
+      featured: Boolean(newProd.featured),
     };
 
     if (editingProductId) {
@@ -632,6 +634,7 @@ export default function AdminDashboard() {
       images: [],
       colors: [],
       colorVariants: [],
+      featured: false,
     });
     setTempProductUrl("");
     if (productFileInputRef.current) productFileInputRef.current.value = "";
@@ -703,6 +706,7 @@ export default function AdminDashboard() {
       images: initialBaseImages,
       colorVariants: initialVariants,
       colors: Array.isArray(item.colors) ? item.colors : [],
+      featured: Boolean(item.featured),
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -727,6 +731,7 @@ export default function AdminDashboard() {
       images: [],
       colors: [],
       colorVariants: [],
+      featured: false,
     });
     setTempProductUrl("");
     if (productFileInputRef.current) productFileInputRef.current.value = "";
@@ -1669,6 +1674,20 @@ export default function AdminDashboard() {
                 />
               </div>
 
+              {/* Featured checkbox */}
+              <label className="flex items-center gap-3 p-3 bg-stone-950 border border-stone-800 rounded-xl cursor-pointer hover:border-stone-700 transition">
+                <input
+                  type="checkbox"
+                  checked={Boolean(newProd.featured)}
+                  onChange={(e) => setNewProd({ ...newProd, featured: e.target.checked })}
+                  className="w-4 h-4 rounded text-amber-500 focus:ring-amber-500 focus:ring-offset-0 bg-stone-900 border-stone-700 cursor-pointer"
+                />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-stone-200">
+                  <Star className={`w-4 h-4 ${newProd.featured ? "text-amber-400 fill-amber-400" : "text-stone-500"}`} />
+                  <span>გამორჩეული პროდუქტი (ჩვენება მთავარ გვერდზე)</span>
+                </div>
+              </label>
+
               <button
                 type="submit"
                 className="w-full bg-white hover:bg-stone-200 text-stone-950 font-bold py-3 rounded-xl text-sm transition shadow-md"
@@ -1705,10 +1724,16 @@ export default function AdminDashboard() {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-[10px] bg-stone-800 text-stone-300 px-2 py-0.5 rounded font-medium">
                           {item.categoryLabel}
                         </span>
+                        {item.featured && (
+                          <span className="text-[10px] bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded font-bold flex items-center gap-1">
+                            <Star className="w-2.5 h-2.5 fill-amber-400" />
+                            რჩეული
+                          </span>
+                        )}
                         <h4 className="font-bold text-white text-sm sm:text-base truncate">
                           {item.name}
                         </h4>
@@ -1727,7 +1752,19 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => updateProduct(item.id, { featured: !item.featured })}
+                      className={`p-2 rounded-lg transition ${
+                        item.featured
+                          ? "text-amber-400 bg-amber-500/15 hover:bg-amber-500/25"
+                          : "text-stone-500 hover:text-stone-300 hover:bg-stone-800"
+                      }`}
+                      title={item.featured ? "მონიშნულია რჩეულად — დააჭირეთ მოსახსნელად" : "მონიშნეთ როგორც რჩეული (მთავარ გვერდზე ჩვენება)"}
+                    >
+                      <Star className={`w-4 h-4 ${item.featured ? "fill-amber-400" : ""}`} />
+                    </button>
                     <button
                       onClick={() => startEditProduct(item)}
                       className="p-2 text-stone-400 hover:text-white hover:bg-stone-800 rounded-lg transition"
