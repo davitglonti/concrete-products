@@ -116,12 +116,18 @@ export default function Navbar() {
                   </NavLink>
                 )
               )}
-            <button
-              onClick={() => setIsContactOpen(true)}
-              className="text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-300 dark:hover:text-white dark:hover:bg-stone-800/60 px-3.5 py-2 rounded-lg transition"
-            >
-              ჩვენ შესახებ & კონტაქტი
-            </button>
+
+            {/* Fallback direct links to dedicated /about and /contact pages */}
+            {!(siteSettings?.navbarLinks || []).some((l) => l.path === "/about") && (
+              <NavLink to="/about" className={navLinkClass}>
+                ჩვენს შესახებ
+              </NavLink>
+            )}
+            {!(siteSettings?.navbarLinks || []).some((l) => l.path === "/contact") && (
+              <NavLink to="/contact" className={navLinkClass}>
+                კონტაქტი
+              </NavLink>
+            )}
           </nav>
 
           {/* Right Actions: Favorites + Dark Mode + Contact CTA + Hamburger */}
@@ -159,15 +165,15 @@ export default function Navbar() {
               </button>
             )}
 
-            {/* Contact Button (Desktop / Tablet only) */}
+            {/* Contact Button (Desktop / Tablet only) -> navigates to /contact page */}
             {siteSettings?.showNavbarCta !== false && (
-              <button
-                onClick={() => setIsContactOpen(true)}
+              <Link
+                to="/contact"
                 className="hidden sm:inline-flex bg-stone-800 hover:bg-stone-700 text-white dark:bg-white dark:text-stone-950 dark:hover:bg-stone-100 font-semibold px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm transition shadow-sm items-center gap-2"
               >
                 <Phone className="w-4 h-4" />
                 <span>{siteSettings?.navbarCtaText || "დაგვიკავშირდით"}</span>
-              </button>
+              </Link>
             )}
 
             {/* Hamburger Button (Mobile only) */}
@@ -233,16 +239,40 @@ export default function Navbar() {
                   )
                 )}
 
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  setIsContactOpen(true);
-                }}
-                className="w-full text-left px-4 py-3 rounded-xl text-sm font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition flex items-center justify-between"
-              >
-                <span>ჩვენ შესახებ & კონტაქტი</span>
-                <ChevronRight className="w-4 h-4 opacity-40" />
-              </button>
+              {/* Fallback mobile links to /about and /contact */}
+              {!(siteSettings?.navbarLinks || []).some((l) => l.path === "/about") && (
+                <NavLink
+                  to="/about"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
+                      isActive
+                        ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
+                        : "text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800"
+                    }`
+                  }
+                >
+                  <span>ჩვენს შესახებ</span>
+                  <ChevronRight className="w-4 h-4 opacity-40" />
+                </NavLink>
+              )}
+
+              {!(siteSettings?.navbarLinks || []).some((l) => l.path === "/contact") && (
+                <NavLink
+                  to="/contact"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
+                      isActive
+                        ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
+                        : "text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800"
+                    }`
+                  }
+                >
+                  <span>კონტაქტი</span>
+                  <ChevronRight className="w-4 h-4 opacity-40" />
+                </NavLink>
+              )}
             </nav>
 
             <div className="pt-3 border-t border-stone-200 dark:border-stone-800 space-y-2">

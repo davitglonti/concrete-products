@@ -134,6 +134,20 @@ export default function Footer() {
                   )}
                 </li>
               ))}
+              {!(links || []).some((l) => l.path === "/about") && (
+                <li>
+                  <Link to="/about" className="hover:text-stone-900 dark:hover:text-white transition">
+                    ჩვენს შესახებ
+                  </Link>
+                </li>
+              )}
+              {!(links || []).some((l) => l.path === "/contact") && (
+                <li>
+                  <Link to="/contact" className="hover:text-stone-900 dark:hover:text-white transition">
+                    კონტაქტი & ლოკაცია
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -169,6 +183,15 @@ export default function Footer() {
                   <span>{address}</span>
                 </li>
               )}
+              <li className="pt-1">
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline"
+                >
+                  <span>სრული საკონტაქტო გვერდი & ფორმა</span>
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
