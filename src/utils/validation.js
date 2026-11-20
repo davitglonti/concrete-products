@@ -25,6 +25,11 @@ export const ProductSchema = z.object({
   colors: z.array(z.any()).optional().default([]),
   colorVariants: z.array(z.any()).optional().default([]),
   specs: z.record(z.any()).optional(),
+  metaTitle: z.string().optional().default(""),
+  metaDescription: z.string().optional().default(""),
+  metaKeywords: z.string().optional().default(""),
+  metaImage: z.string().optional().default(""),
+  sku: z.string().optional().default(""),
   createdAt: z.string().optional(),
 });
 

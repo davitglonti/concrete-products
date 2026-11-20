@@ -43,6 +43,10 @@ import {
   MessageSquare,
   Sparkles,
   Settings,
+  Globe,
+  ChevronDown,
+  ChevronUp,
+  Zap,
 } from "lucide-react";
 import { findColorDetails } from "../../data/textureData";
 
@@ -109,8 +113,15 @@ export default function AdminDashboard() {
     colors: [],
     colorVariants: [],
     featured: false,
+    metaTitle: "",
+    metaDescription: "",
+    metaKeywords: "",
+    metaImage: "",
+    sku: "",
   });
 
+  const [showProductSeoPanel, setShowProductSeoPanel] = useState(false);
+  const [seoGenSuccess, setSeoGenSuccess] = useState(false);
   const [tempProductUrl, setTempProductUrl] = useState("");
 
   const [newCat, setNewCat] = useState({
@@ -566,6 +577,53 @@ export default function AdminDashboard() {
     }
   };
 
+  // 1-Click Smart Product SEO Generator
+  const handleAutoGenerateProductSEO = () => {
+    if (!newProd.name.trim()) {
+      alert("გთხოვთ ჯერ მიუთითოთ პროდუქტის დასახელება!");
+      return;
+    }
+    const catLabel = newProd.categoryLabel || "ბეტონის ნაკეთობა";
+    const specsList = [
+      newProd.dimensions ? `ზომები: ${newProd.dimensions}` : "",
+      newProd.concreteGrade ? `მარკა: ${newProd.concreteGrade}` : "მარკა B35",
+      newProd.frostResistance ? `ყინვაგამძლეობა: ${newProd.frostResistance}` : "F300",
+      newProd.price ? `ფასი: ${newProd.price} ₾` : "",
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    const autoTitle = `${newProd.name.trim()} — ${catLabel} | MONOLITH.GE`;
+    const autoDesc = `შეიძინეთ უმაღლესი ხარისხის ${newProd.name.trim()} მწარმოებლისგან. ${specsList ? specsList + ". " : ""}საუკეთესო ფასი, ევროპული სტანდარტი და მიწოდება მთელ საქართველოში.`;
+    const autoKeywords = [
+      newProd.name.trim(),
+      catLabel,
+      "ბეტონის ნაკეთობები",
+      "არქიტექტურული ბეტონი",
+      `${newProd.name.trim()} ფასი`,
+      "თბილისი",
+      "საქართველო",
+    ].join(", ");
+
+    const autoSku =
+      newProd.sku?.trim() ||
+      `MNL-${(newProd.category || "PRD").toUpperCase().slice(0, 4)}-${Math.floor(100 + Math.random() * 900)}`;
+
+    const autoImage = newProd.metaImage || (newProd.images?.[0] || newProd.image || "");
+
+    setNewProd((prev) => ({
+      ...prev,
+      metaTitle: autoTitle,
+      metaDescription: autoDesc,
+      metaKeywords: autoKeywords,
+      sku: autoSku,
+      metaImage: autoImage,
+    }));
+
+    setSeoGenSuccess(true);
+    setTimeout(() => setSeoGenSuccess(false), 2500);
+  };
+
   // Product submit (Add or Edit)
   const handleSaveProduct = (e) => {
     e.preventDefault();
@@ -606,6 +664,11 @@ export default function AdminDashboard() {
       categoryLabel: categoryObj ? categoryObj.label : newProd.categoryLabel,
       price: newProd.price ? Number(newProd.price) : 0,
       featured: Boolean(newProd.featured),
+      metaTitle: newProd.metaTitle?.trim() || "",
+      metaDescription: newProd.metaDescription?.trim() || "",
+      metaKeywords: newProd.metaKeywords?.trim() || "",
+      metaImage: newProd.metaImage?.trim() || "",
+      sku: newProd.sku?.trim() || "",
     };
 
     if (editingProductId) {
@@ -635,6 +698,11 @@ export default function AdminDashboard() {
       colors: [],
       colorVariants: [],
       featured: false,
+      metaTitle: "",
+      metaDescription: "",
+      metaKeywords: "",
+      metaImage: "",
+      sku: "",
     });
     setTempProductUrl("");
     if (productFileInputRef.current) productFileInputRef.current.value = "";
@@ -707,7 +775,16 @@ export default function AdminDashboard() {
       colorVariants: initialVariants,
       colors: Array.isArray(item.colors) ? item.colors : [],
       featured: Boolean(item.featured),
+      metaTitle: item.metaTitle || "",
+      metaDescription: item.metaDescription || "",
+      metaKeywords: item.metaKeywords || "",
+      metaImage: item.metaImage || "",
+      sku: item.sku || "",
     });
+    // If product has custom SEO, expand SEO panel by default on edit
+    if (item.metaTitle || item.metaDescription) {
+      setShowProductSeoPanel(true);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -732,6 +809,11 @@ export default function AdminDashboard() {
       colors: [],
       colorVariants: [],
       featured: false,
+      metaTitle: "",
+      metaDescription: "",
+      metaKeywords: "",
+      metaImage: "",
+      sku: "",
     });
     setTempProductUrl("");
     if (productFileInputRef.current) productFileInputRef.current.value = "";
@@ -1688,6 +1770,255 @@ export default function AdminDashboard() {
                 </div>
               </label>
 
+              {/* SEO & Google Search Parameters Section */}
+              <div className="rounded-2xl border border-stone-800 bg-stone-950/70 overflow-hidden transition-all">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setShowProductSeoPanel((v) => !v)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setShowProductSeoPanel((v) => !v);
+                    }
+                  }}
+                  className="w-full p-4 flex items-center justify-between hover:bg-stone-900/60 transition cursor-pointer select-none"
+                >
+                  <div className="flex items-center gap-2.5 text-left">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+                      <Search className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-white">SEO & Google პარამეტრები</span>
+                        {newProd.metaTitle || newProd.metaDescription ? (
+                          <span className="text-[10px] bg-emerald-500/15 text-emerald-400 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">
+                            მორგებულია
+                          </span>
+                        ) : (
+                          <span className="text-[10px] bg-stone-800 text-stone-400 px-1.5 py-0.5 rounded">
+                            ავტომატური
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-stone-400 mt-0.5">
+                        სათაური, აღწერა, Google Snippet და Rich Data
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAutoGenerateProductSEO();
+                      }}
+                      className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition flex items-center gap-1 border shadow-sm ${
+                        seoGenSuccess
+                          ? "bg-emerald-600 text-white border-emerald-500"
+                          : "bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-stone-950 border-amber-500/30 hover:border-amber-500"
+                      }`}
+                      title="ავტომატური SEO გენერირება პროდუქტის მონაცემებიდან"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>{seoGenSuccess ? "✓ გენერირებულია!" : "⚡ SEO გენერირება"}</span>
+                    </button>
+
+                    <div className="p-1 text-stone-400">
+                      {showProductSeoPanel ? (
+                        <ChevronUp className="w-4 h-4" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {showProductSeoPanel && (
+                  <div className="p-4 pt-1 space-y-4 border-t border-stone-800/80">
+                    {/* Live Google Search Card Preview */}
+                    <div className="bg-stone-900 border border-stone-800/90 rounded-xl p-3.5 space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] text-stone-400 pb-1.5 border-b border-stone-800">
+                        <span className="flex items-center gap-1.5 font-bold text-stone-300">
+                          <Globe className="w-3.5 h-3.5 text-blue-400" />
+                          Google-ის ძიების გადახედვა (Live SERP Preview)
+                        </span>
+                        <span className="text-[10px] text-stone-500 font-mono">Live Snippet</span>
+                      </div>
+
+                      {/* Google SERP simulation */}
+                      <div className="pt-1 space-y-1 font-sans">
+                        {/* Breadcrumb URL */}
+                        <div className="flex items-center gap-1.5 text-[11px] text-stone-400 overflow-hidden text-ellipsis whitespace-nowrap">
+                          <div className="w-4 h-4 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-[9px] font-bold text-amber-400">
+                            M
+                          </div>
+                          <span className="text-stone-300">monolith.ge</span>
+                          <span className="text-stone-500">›</span>
+                          <span>პროდუქცია</span>
+                          <span className="text-stone-500">›</span>
+                          <span className="text-stone-400">{newProd.categoryLabel || "კატეგორია"}</span>
+                        </div>
+
+                        {/* Blue Title Link */}
+                        <h4 className="text-sm font-medium text-blue-400 hover:underline cursor-pointer leading-snug line-clamp-1">
+                          {newProd.metaTitle || `${newProd.name || "პროდუქტის დასახელება"} — ${newProd.categoryLabel || "კატეგორია"} | MONOLITH.GE`}
+                        </h4>
+
+                        {/* Rich Snippet Details (Ratings, Price, Stock) */}
+                        <div className="flex items-center gap-2 text-[11px] text-stone-400 flex-wrap">
+                          <span className="text-amber-400 font-semibold flex items-center gap-0.5">
+                            ★ 4.9 <span className="text-stone-500 font-normal">(18)</span>
+                          </span>
+                          <span className="text-stone-600">•</span>
+                          <span className="text-stone-200 font-medium">
+                            {newProd.price ? `${newProd.price} ₾` : "ფასი შეთანხმებით"}
+                          </span>
+                          <span className="text-stone-600">•</span>
+                          <span className="text-emerald-400 font-medium">მარაგშია (In Stock)</span>
+                          {newProd.sku && (
+                            <>
+                              <span className="text-stone-600">•</span>
+                              <span className="font-mono text-stone-400">SKU: {newProd.sku}</span>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Snippet Description */}
+                        <p className="text-xs text-stone-400 leading-relaxed line-clamp-2">
+                          {newProd.metaDescription || (newProd.shortDesc || newProd.description || "შეიძინეთ უმაღლესი ხარისხის არქიტექტურული ბეტონის ნაკეთობა მწარმოებლისგან. საუკეთესო ფასი, ევროპული სტანდარტი და მიწოდება მთელ საქართველოში.")}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Meta Title */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs text-stone-300 font-bold flex items-center gap-1.5">
+                          Meta Title (სათაური Google-ში)
+                        </label>
+                        <div className="flex items-center gap-2 text-[11px]">
+                          <span
+                            className={`font-mono font-bold ${
+                              (newProd.metaTitle || "").length >= 50 && (newProd.metaTitle || "").length <= 60
+                                ? "text-emerald-400"
+                                : (newProd.metaTitle || "").length > 60
+                                ? "text-red-400"
+                                : "text-stone-400"
+                            }`}
+                          >
+                            {(newProd.metaTitle || "").length} / 60
+                          </span>
+                          {(newProd.metaTitle || "").length >= 50 && (newProd.metaTitle || "").length <= 60 && (
+                            <span className="text-emerald-400 text-[10px] font-medium hidden sm:inline">✓ ოპტიმალურია</span>
+                          )}
+                          {(newProd.metaTitle || "").length > 60 && (
+                            <span className="text-red-400 text-[10px] font-medium hidden sm:inline">⚠ გრძელია (&gt;60)</span>
+                          )}
+                        </div>
+                      </div>
+                      <input
+                        placeholder={`მაგ: ${newProd.name || "მონოლითური საფეხური"} — ფასი და მახასიათებლები | MONOLITH`}
+                        value={newProd.metaTitle || ""}
+                        onChange={(e) => setNewProd({ ...newProd, metaTitle: e.target.value })}
+                        className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500"
+                      />
+                      <span className="text-[10px] text-stone-500 mt-1 block">
+                        თუ ცარიელს დატოვებთ, ავტომატურად გამოყენებული იქნება: "{newProd.name || "დასახელება"} — {newProd.categoryLabel || "კატეგორია"}"
+                      </span>
+                    </div>
+
+                    {/* Meta Description */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs text-stone-300 font-bold">
+                          Meta Description (აღწერა ძიების შედეგებში)
+                        </label>
+                        <div className="flex items-center gap-2 text-[11px]">
+                          <span
+                            className={`font-mono font-bold ${
+                              (newProd.metaDescription || "").length >= 130 && (newProd.metaDescription || "").length <= 160
+                                ? "text-emerald-400"
+                                : (newProd.metaDescription || "").length > 160
+                                ? "text-red-400"
+                                : "text-stone-400"
+                            }`}
+                          >
+                            {(newProd.metaDescription || "").length} / 160
+                          </span>
+                          {(newProd.metaDescription || "").length >= 130 && (newProd.metaDescription || "").length <= 160 && (
+                            <span className="text-emerald-400 text-[10px] font-medium hidden sm:inline">✓ იდეალურია</span>
+                          )}
+                          {(newProd.metaDescription || "").length > 160 && (
+                            <span className="text-red-400 text-[10px] font-medium hidden sm:inline">⚠ გრძელია (&gt;160)</span>
+                          )}
+                        </div>
+                      </div>
+                      <textarea
+                        rows={3}
+                        placeholder="მაგ: შეიძინეთ უმაღლესი ხარისხის ბეტონის ნაკეთობა. მარკა B35, ყინვაგამძლეობა F300, ოფიციალური გარანტია და მიწოდება მთელ საქართველოში."
+                        value={newProd.metaDescription || ""}
+                        onChange={(e) => setNewProd({ ...newProd, metaDescription: e.target.value })}
+                        className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500 leading-relaxed"
+                      />
+                      <span className="text-[10px] text-stone-500 mt-1 block">
+                        Google-ის რეკომენდებული სიგრძეა 130-დან 160 სიმბოლომდე.
+                      </span>
+                    </div>
+
+                    {/* Meta Keywords */}
+                    <div>
+                      <label className="text-xs text-stone-300 font-bold block mb-1">
+                        საძიებო საკვანძო სიტყვები (Meta Keywords)
+                      </label>
+                      <input
+                        placeholder="მაგ: ბეტონის საფეხური, ეზოს ფილა, არქიტექტურული ბეტონი, ფასი თბილისი"
+                        value={newProd.metaKeywords || ""}
+                        onChange={(e) => setNewProd({ ...newProd, metaKeywords: e.target.value })}
+                        className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500"
+                      />
+                      <span className="text-[10px] text-stone-500 mt-1 block">
+                        გამოყავით მძიმეებით (,) საძიებო ფრაზები.
+                      </span>
+                    </div>
+
+                    {/* SKU & OG Image */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-stone-300 font-bold block mb-1">
+                          უნიკალური არტიკული (SKU)
+                        </label>
+                        <input
+                          placeholder="მაგ: MNL-STP-120"
+                          value={newProd.sku || ""}
+                          onChange={(e) => setNewProd({ ...newProd, sku: e.target.value })}
+                          className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white font-mono placeholder-stone-600 focus:outline-none focus:border-amber-500"
+                        />
+                        <span className="text-[10px] text-stone-500 mt-0.5 block">
+                          Google Shopping & Rich Snippets ინდექსირებისთვის
+                        </span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-stone-300 font-bold block mb-1">
+                          სოც. ქსელის სურათი (OG Image URL)
+                        </label>
+                        <input
+                          placeholder="თუ ცარიელია, გამოიყენება პირველი ფოტო"
+                          value={newProd.metaImage || ""}
+                          onChange={(e) => setNewProd({ ...newProd, metaImage: e.target.value })}
+                          className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500"
+                        />
+                        <span className="text-[10px] text-stone-500 mt-0.5 block">
+                          Facebook, WhatsApp, LinkedIn გაზიარებისას
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <button
                 type="submit"
                 className="w-full bg-white hover:bg-stone-200 text-stone-950 font-bold py-3 rounded-xl text-sm transition shadow-md"
@@ -1734,6 +2065,17 @@ export default function AdminDashboard() {
                             რჩეული
                           </span>
                         )}
+                        {item.metaTitle || item.metaDescription ? (
+                          <span className="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded font-bold flex items-center gap-1" title="მორგებული SEO ჩაწერილია">
+                            <Search className="w-2.5 h-2.5" />
+                            SEO ✓
+                          </span>
+                        ) : (
+                          <span className="text-[10px] bg-stone-800 text-stone-400 px-1.5 py-0.5 rounded font-medium flex items-center gap-1" title="ავტომატური SEO">
+                            <Search className="w-2.5 h-2.5" />
+                            SEO ავტო
+                          </span>
+                        )}
                         <h4 className="font-bold text-white text-sm sm:text-base truncate">
                           {item.name}
                         </h4>
@@ -1764,6 +2106,17 @@ export default function AdminDashboard() {
                       title={item.featured ? "მონიშნულია რჩეულად — დააჭირეთ მოსახსნელად" : "მონიშნეთ როგორც რჩეული (მთავარ გვერდზე ჩვენება)"}
                     >
                       <Star className={`w-4 h-4 ${item.featured ? "fill-amber-400" : ""}`} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        startEditProduct(item);
+                        setShowProductSeoPanel(true);
+                      }}
+                      className="p-2 text-stone-400 hover:text-amber-400 hover:bg-stone-800 rounded-lg transition"
+                      title="SEO & Google პარამეტრების მართვა"
+                    >
+                      <Search className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => startEditProduct(item)}

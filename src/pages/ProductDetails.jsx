@@ -337,9 +337,9 @@ export default function ProductDetails() {
           "@type": "Product",
           "@id": `${currentUrl}#product`,
           name: product.name,
-          image: images,
-          description: product.shortDesc || product.description || product.name,
-          sku: product.id,
+          image: product.metaImage ? [product.metaImage, ...images] : images,
+          description: product.metaDescription || product.shortDesc || product.description || product.name,
+          sku: product.sku || product.id,
           category: product.categoryLabel,
           brand: {
             "@type": "Brand",
@@ -426,10 +426,10 @@ export default function ProductDetails() {
   return (
     <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen pt-2 sm:pt-4 pb-16 lg:pb-24 transition-colors duration-200">
       <SEO
-        title={`${product.name} — ${product.categoryLabel || "ბეტონის ნაკეთობა"}`}
-        description={seoDescription}
-        keywords={`${product.name}, ${product.categoryLabel}, ბეტონის საფეხურები, ეზოს ფილები, საყვავილეები, ფასი, არქიტექტურული ბეტონი თბილისი`}
-        image={images[0]}
+        title={product.metaTitle || `${product.name} — ${product.categoryLabel || "ბეტონის ნაკეთობა"}`}
+        description={product.metaDescription || seoDescription}
+        keywords={product.metaKeywords || `${product.name}, ${product.categoryLabel}, ბეტონის საფეხურები, ეზოს ფილები, საყვავილეები, ფასი, არქიტექტურული ბეტონი თბილისი`}
+        image={product.metaImage || images[0]}
         type="product"
         jsonLd={productJsonLd}
       />
