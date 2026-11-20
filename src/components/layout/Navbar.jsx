@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import {
   Layers,
@@ -30,6 +30,16 @@ export default function Navbar() {
 
   const [form, setForm] = useState({ name: "", phone: "", comment: "" });
   const [sent, setSent] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Get favorite products
   const favoriteProducts = products.filter((p) => favoriteIds.includes(p.id));
@@ -64,7 +74,13 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/95 dark:bg-stone-950/95 backdrop-blur border-b border-stone-200/90 dark:border-stone-800 transition-colors duration-200">
+      <header
+        className={`sticky top-0 z-50 transition-all duration-200 ${
+          isScrolled
+            ? "bg-white/95 dark:bg-stone-950/95 backdrop-blur-md shadow-md border-b border-stone-200/90 dark:border-stone-800"
+            : "bg-white/90 dark:bg-stone-950/90 backdrop-blur border-b border-stone-200/60 dark:border-stone-800/60"
+        }`}
+      >
         <div className="max-w-[1720px] mx-auto px-3.5 sm:px-8 lg:px-12 xl:px-16 h-16 sm:h-20 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
