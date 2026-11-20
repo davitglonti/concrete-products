@@ -352,35 +352,46 @@ export default function Navbar() {
                 favoriteProducts.map((p) => (
                   <div
                     key={p.id}
-                    className="flex items-center gap-3 bg-stone-50 dark:bg-stone-950/60 p-3 rounded-2xl border border-stone-200 dark:border-stone-800"
+                    className="group relative flex items-center justify-between gap-3 bg-stone-50 hover:bg-stone-100/90 dark:bg-stone-950/60 dark:hover:bg-stone-800/60 p-3 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-amber-500/40 dark:hover:border-amber-500/40 transition-all duration-200 shadow-sm"
                   >
-                    <img
-                      src={p.images?.[0] || p.image}
-                      alt={p.name}
-                      className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
-                    />
-                    <div className="flex-grow min-w-0">
-                      <h4 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-white truncate">
-                        {p.name}
-                      </h4>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                        {p.dimensions}
-                      </p>
-                      <div className="mt-1 flex items-baseline gap-1">
-                        <span className="font-extrabold text-sm text-stone-900 dark:text-white">
-                          {p.price ? `${p.price} ₾` : "შეთანხმებით"}
-                        </span>
-                        {p.priceUnit && (
-                          <span className="text-[10px] text-stone-500">
-                            {p.priceUnit.replace("₾", "").trim()}
+                    <Link
+                      to={`/products/${p.id}`}
+                      onClick={() => setIsFavoritesOpen(false)}
+                      className="flex items-center gap-3 flex-grow min-w-0"
+                    >
+                      <img
+                        src={p.images?.[0] || p.image}
+                        alt={p.name}
+                        className="w-16 h-16 rounded-xl object-cover flex-shrink-0 group-hover:scale-105 transition-transform duration-200 bg-stone-200 dark:bg-stone-800"
+                      />
+                      <div className="flex-grow min-w-0">
+                        <h4 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-white group-hover:text-amber-500 transition-colors truncate">
+                          {p.name}
+                        </h4>
+                        <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 truncate">
+                          {p.dimensions}
+                        </p>
+                        <div className="mt-1 flex items-baseline gap-1">
+                          <span className="font-extrabold text-sm text-stone-900 dark:text-white">
+                            {p.price ? `${p.price} ₾` : "შეთანხმებით"}
                           </span>
-                        )}
+                          {p.priceUnit && (
+                            <span className="text-[10px] text-stone-500">
+                              {p.priceUnit.replace("₾", "").trim()}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                     <button
-                      onClick={() => removeFavorite(p.id)}
-                      className="p-2 text-stone-400 hover:text-red-500 rounded-lg hover:bg-white dark:hover:bg-stone-800 transition"
-                      title="წაშლა"
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeFavorite(p.id);
+                      }}
+                      className="p-2 text-stone-400 hover:text-red-500 rounded-lg hover:bg-white dark:hover:bg-stone-800 transition shrink-0"
+                      title="ფავორიტებიდან წაშლა"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
