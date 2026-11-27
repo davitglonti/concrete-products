@@ -20,13 +20,10 @@ export const DEFAULT_SITE_SETTINGS = {
 
   // 3. Navbar Navigation Links & CTA
   navbarLinks: [
-    { id: "nav-home", label: "მთავარი", path: "/", enabled: true, isExternal: false },
     { id: "nav-products", label: "პროდუქცია", path: "/products", enabled: true, isExternal: false },
-    { id: "nav-calc", label: "კალკულატორი", path: "/calculator", enabled: true, isExternal: false },
     { id: "nav-portfolio", label: "შესრულებული სამუშაოები", path: "/portfolio", enabled: true, isExternal: false },
     { id: "nav-about", label: "ჩვენს შესახებ", path: "/about", enabled: true, isExternal: false },
     { id: "nav-contact", label: "კონტაქტი", path: "/contact", enabled: true, isExternal: false },
-    { id: "nav-blog", label: "ბლოგი", path: "/blog", enabled: true, isExternal: false },
     { id: "nav-faq", label: "კითხვა-პასუხი", path: "/faq", enabled: false, isExternal: false },
   ],
   navbarCtaText: "დაგვიკავშირდით",

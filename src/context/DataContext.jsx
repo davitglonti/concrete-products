@@ -29,9 +29,19 @@ export const useData = () => useContext(DataContext);
 
 const mergeSiteSettings = (base, incoming) => {
   if (!incoming) return base || DEFAULT_SITE_SETTINGS;
+  const rawLinks = incoming.navbarLinks || base?.navbarLinks || DEFAULT_SITE_SETTINGS.navbarLinks;
+  const filteredNavbarLinks = Array.isArray(rawLinks)
+    ? rawLinks.filter(
+        (l) =>
+          !["nav-home", "nav-calc", "nav-blog"].includes(l.id) &&
+          !["/", "/calculator", "/blog"].includes(l.path)
+      )
+    : DEFAULT_SITE_SETTINGS.navbarLinks;
+
   return {
     ...base,
     ...incoming,
+    navbarLinks: filteredNavbarLinks,
     calculator: {
       ...(base?.calculator || DEFAULT_SITE_SETTINGS.calculator),
       ...(incoming.calculator || {}),

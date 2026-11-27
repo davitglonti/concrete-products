@@ -44,6 +44,14 @@ export default function Navbar() {
   // Get favorite products
   const favoriteProducts = products.filter((p) => favoriteIds.includes(p.id));
 
+  // Navbar visible links: exclude removed pages (home, calculator, blog)
+  const navLinks = (siteSettings?.navbarLinks || []).filter(
+    (l) =>
+      l.enabled &&
+      !["nav-home", "nav-calc", "nav-blog"].includes(l.id) &&
+      !["/", "/calculator", "/blog"].includes(l.path)
+  );
+
   const handleSubmit = (e) => {
     e.preventDefault();
     addInquiry({ ...form, source: "Navbar Contact Modal" });
@@ -113,33 +121,31 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-            {(siteSettings?.navbarLinks || [])
-              .filter((l) => l.enabled)
-              .map((link) =>
-                link.isExternal ? (
-                  <a
-                    key={link.id}
-                    href={link.path}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-300 dark:hover:text-white dark:hover:bg-stone-800/60 px-3.5 py-2 rounded-lg transition"
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <NavLink key={link.id} to={link.path} className={navLinkClass}>
-                    {link.label}
-                  </NavLink>
-                )
-              )}
+            {navLinks.map((link) =>
+              link.isExternal ? (
+                <a
+                  key={link.id}
+                  href={link.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-300 dark:hover:text-white dark:hover:bg-stone-800/60 px-3.5 py-2 rounded-lg transition"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <NavLink key={link.id} to={link.path} className={navLinkClass}>
+                  {link.label}
+                </NavLink>
+              )
+            )}
 
             {/* Fallback direct links to dedicated /about and /contact pages */}
-            {!(siteSettings?.navbarLinks || []).some((l) => l.path === "/about") && (
+            {!navLinks.some((l) => l.path === "/about") && (
               <NavLink to="/about" className={navLinkClass}>
                 ჩვენს შესახებ
               </NavLink>
             )}
-            {!(siteSettings?.navbarLinks || []).some((l) => l.path === "/contact") && (
+            {!navLinks.some((l) => l.path === "/contact") && (
               <NavLink to="/contact" className={navLinkClass}>
                 კონტაქტი
               </NavLink>
@@ -221,42 +227,40 @@ export default function Navbar() {
           {/* Menu Panel */}
           <div className="fixed top-20 left-0 right-0 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 shadow-2xl p-5 space-y-4 max-h-[calc(100vh-5rem)] overflow-y-auto">
             <nav className="flex flex-col space-y-1">
-              {(siteSettings?.navbarLinks || [])
-                .filter((l) => l.enabled)
-                .map((link) =>
-                  link.isExternal ? (
-                    <a
-                      key={link.id}
-                      href={link.path}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="px-4 py-3 rounded-xl text-sm font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition flex items-center justify-between"
-                    >
-                      <span>{link.label}</span>
-                      <ExternalLink className="w-4 h-4 opacity-40" />
-                    </a>
-                  ) : (
-                    <NavLink
-                      key={link.id}
-                      to={link.path}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={({ isActive }) =>
-                        `px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
-                          isActive
-                            ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
-                            : "text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800"
-                        }`
-                      }
-                    >
-                      <span>{link.label}</span>
-                      <ChevronRight className="w-4 h-4 opacity-40" />
-                    </NavLink>
-                  )
-                )}
+              {navLinks.map((link) =>
+                link.isExternal ? (
+                  <a
+                    key={link.id}
+                    href={link.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="px-4 py-3 rounded-xl text-sm font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition flex items-center justify-between"
+                  >
+                    <span>{link.label}</span>
+                    <ExternalLink className="w-4 h-4 opacity-40" />
+                  </a>
+                ) : (
+                  <NavLink
+                    key={link.id}
+                    to={link.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
+                        isActive
+                          ? "bg-stone-900 text-white dark:bg-white dark:text-stone-950 shadow-sm"
+                          : "text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800"
+                      }`
+                    }
+                  >
+                    <span>{link.label}</span>
+                    <ChevronRight className="w-4 h-4 opacity-40" />
+                  </NavLink>
+                )
+              )}
 
               {/* Fallback mobile links to /about and /contact */}
-              {!(siteSettings?.navbarLinks || []).some((l) => l.path === "/about") && (
+              {!navLinks.some((l) => l.path === "/about") && (
                 <NavLink
                   to="/about"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -273,7 +277,7 @@ export default function Navbar() {
                 </NavLink>
               )}
 
-              {!(siteSettings?.navbarLinks || []).some((l) => l.path === "/contact") && (
+              {!navLinks.some((l) => l.path === "/contact") && (
                 <NavLink
                   to="/contact"
                   onClick={() => setIsMobileMenuOpen(false)}
