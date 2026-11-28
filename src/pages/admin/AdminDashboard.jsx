@@ -615,10 +615,14 @@ export default function AdminDashboard() {
     const autoImage = newProd.metaImage || (newProd.images?.[0] || newProd.image || "");
 
     setIsGeneratingSeo(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8500);
+
     try {
       const response = await fetch("/api/generate-seo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           name: newProd.name.trim(),
           categoryLabel: catLabel,
@@ -654,6 +658,8 @@ export default function AdminDashboard() {
       }
     } catch {
       // Fallback to local smart generator below
+    } finally {
+      clearTimeout(timeoutId);
     }
 
     // Deterministic local fallback if AI endpoint is unavailable
