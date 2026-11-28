@@ -80,23 +80,32 @@ export default function SEO({
     }
     canonical.setAttribute("href", currentUrl.split("?")[0]);
 
-    // 6. Google Analytics gtag injection if provided
-    if (seoConfig.googleAnalyticsId && !document.getElementById("google-gtag-script")) {
-      const gtagScript = document.createElement("script");
-      gtagScript.id = "google-gtag-script";
-      gtagScript.async = true;
-      gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${seoConfig.googleAnalyticsId}`;
-      document.head.appendChild(gtagScript);
+    // 6. Google Analytics (GA4) gtag injection & SPA route tracking
+    const gaId = (seoConfig.googleAnalyticsId || "").trim();
+    if (gaId && /^[A-Z0-9-]+$/i.test(gaId)) {
+      if (!document.getElementById("google-gtag-script")) {
+        const gtagScript = document.createElement("script");
+        gtagScript.id = "google-gtag-script";
+        gtagScript.async = true;
+        gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`;
+        document.head.appendChild(gtagScript);
 
-      const inlineScript = document.createElement("script");
-      inlineScript.id = "google-gtag-inline";
-      inlineScript.textContent = `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '${seoConfig.googleAnalyticsId}');
-      `;
-      document.head.appendChild(inlineScript);
+        const inlineScript = document.createElement("script");
+        inlineScript.id = "google-gtag-inline";
+        inlineScript.textContent = `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', '${gaId}');
+        `;
+        document.head.appendChild(inlineScript);
+      } else if (typeof window.gtag === "function") {
+        window.gtag("config", gaId, {
+          page_path: window.location.pathname + window.location.search,
+          page_title: fullTitle,
+        });
+      }
     }
 
     // 7. Schema.org JSON-LD Structured Data
