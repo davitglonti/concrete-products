@@ -473,7 +473,7 @@ export default function ProductDetails() {
             {/* LEFT COLUMN: ARCHITECTURAL GALLERY (7 / 12 cols on desktop) */}
             <div className="lg:col-span-7 xl:col-span-7 flex flex-col lg:sticky lg:top-24 h-fit">
               {/* Main Image Stage */}
-              <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 dark:border-stone-800 bg-stone-100 dark:bg-stone-950 h-[320px] sm:h-[420px] lg:h-[calc(100vh-260px)] min-h-[320px] max-h-[560px] group select-none shadow-inner">
+              <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 dark:border-stone-800 bg-stone-100 dark:bg-stone-950 h-[320px] sm:h-[420px] lg:h-[calc(100vh-215px)] min-h-[320px] max-h-[610px] group select-none shadow-inner">
                 <img
                   src={activeImage}
                   alt={product.name}
