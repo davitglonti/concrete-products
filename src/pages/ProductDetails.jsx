@@ -473,7 +473,7 @@ export default function ProductDetails() {
             {/* LEFT COLUMN: ARCHITECTURAL GALLERY (7 / 12 cols on desktop) */}
             <div className="lg:col-span-7 xl:col-span-7 flex flex-col lg:sticky lg:top-24 h-fit">
               {/* Main Image Stage */}
-              <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 dark:border-stone-800 bg-stone-100 dark:bg-stone-950 h-[320px] sm:h-[420px] lg:h-[calc(100vh-215px)] min-h-[320px] max-h-[610px] group select-none shadow-inner">
+              <div className="relative rounded-2xl overflow-hidden border border-stone-200/90 dark:border-stone-800 bg-stone-100 dark:bg-stone-950 h-[320px] sm:h-[420px] lg:h-[calc(100vh-245px)] min-h-[320px] max-h-[820px] group select-none shadow-inner">
                 <img
                   src={activeImage}
                   alt={product.name}
@@ -946,10 +946,17 @@ export default function ProductDetails() {
 
       {/* Fullscreen Lightbox Modal */}
       {isLightboxOpen && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 select-none">
+        <div
+          onClick={() => setIsLightboxOpen(false)}
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 select-none"
+        >
           {/* Close button */}
           <button
-            onClick={() => setIsLightboxOpen(false)}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsLightboxOpen(false);
+            }}
             className="absolute top-6 right-6 p-3 rounded-full bg-stone-900/80 hover:bg-stone-800 text-white transition z-10"
             aria-label="Close"
           >
@@ -979,7 +986,10 @@ export default function ProductDetails() {
           )}
 
           {/* Lightbox Main Image */}
-          <div className="max-w-6xl max-h-[85vh] flex flex-col items-center">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-6xl max-h-[85vh] flex flex-col items-center"
+          >
             <img
               src={activeImage}
               alt={product.name}
@@ -987,7 +997,8 @@ export default function ProductDetails() {
             />
             {currentGalleryImages.length > 1 && (
               <p className="text-stone-400 text-xs mt-4">
-                ფოტო {selectedImageIndex + 1} / {currentGalleryImages.length} • {product.name} ({activeColorOption?.name})
+                ფოტო {selectedImageIndex + 1} / {currentGalleryImages.length} • {product.name}
+                {activeVariant?.name ? ` (${activeVariant.name})` : ""}
               </p>
             )}
           </div>
