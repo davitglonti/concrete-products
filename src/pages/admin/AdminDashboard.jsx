@@ -131,6 +131,7 @@ export default function AdminDashboard() {
 
   const [showProductSeoPanel, setShowProductSeoPanel] = useState(false);
   const [seoGenSuccess, setSeoGenSuccess] = useState(false);
+  const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
   const [tempProductUrl, setTempProductUrl] = useState("");
 
   const [newCat, setNewCat] = useState({
@@ -599,13 +600,63 @@ export default function AdminDashboard() {
     }
   };
 
-  // 1-Click Smart Product SEO Generator
-  const handleAutoGenerateProductSEO = () => {
+  // 1-Click Smart AI Product SEO Generator (Gemini API with deterministic fallback)
+  const handleAutoGenerateProductSEO = async () => {
     if (!newProd.name.trim()) {
       alert("გთხოვთ ჯერ მიუთითოთ პროდუქტის დასახელება!");
       return;
     }
+
     const catLabel = newProd.categoryLabel || "ბეტონის ნაკეთობა";
+    const brandFull = `${siteSettings?.brandName || "MONOLITH"}${siteSettings?.brandSuffix || ".GE"}`;
+    const autoSku =
+      newProd.sku?.trim() ||
+      `MNL-${(newProd.category || "PRD").toUpperCase().slice(0, 4)}-${Math.floor(100 + Math.random() * 900)}`;
+    const autoImage = newProd.metaImage || (newProd.images?.[0] || newProd.image || "");
+
+    setIsGeneratingSeo(true);
+    try {
+      const response = await fetch("/api/generate-seo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newProd.name.trim(),
+          categoryLabel: catLabel,
+          dimensions: newProd.dimensions,
+          concreteGrade: newProd.concreteGrade,
+          frostResistance: newProd.frostResistance,
+          surface: newProd.surface,
+          price: newProd.price,
+          priceUnit: newProd.priceUnit,
+          brandName: brandFull,
+        }),
+      });
+
+      if (response.ok) {
+        const json = await response.json();
+        if (json?.success && json?.data) {
+          setNewProd((prev) => ({
+            ...prev,
+            metaTitle: json.data.metaTitle || prev.metaTitle,
+            metaDescription: json.data.metaDescription || prev.metaDescription,
+            metaKeywords: json.data.metaKeywords || prev.metaKeywords,
+            shortDesc: prev.shortDesc?.trim() ? prev.shortDesc : json.data.shortDesc || "",
+            description: prev.description?.trim() ? prev.description : json.data.description || "",
+            sku: autoSku,
+            metaImage: autoImage,
+          }));
+          setIsGeneratingSeo(false);
+          setSeoGenSuccess(true);
+          showAdminToast("✨ Gemini AI-მ წარმატებით დააგენერირა SEO და აღწერა!");
+          setTimeout(() => setSeoGenSuccess(false), 2500);
+          return;
+        }
+      }
+    } catch {
+      // Fallback to local smart generator below
+    }
+
+    // Deterministic local fallback if AI endpoint is unavailable
     const specsList = [
       newProd.dimensions ? `ზომები: ${newProd.dimensions}` : "",
       newProd.concreteGrade ? `მარკა: ${newProd.concreteGrade}` : "მარკა B35",
@@ -615,7 +666,6 @@ export default function AdminDashboard() {
       .filter(Boolean)
       .join(", ");
 
-    const brandFull = `${siteSettings?.brandName || "MONOLITH"}${siteSettings?.brandSuffix || ".GE"}`;
     const autoTitle = `${newProd.name.trim()} — ${catLabel} | ${brandFull}`;
     let autoDesc = `${newProd.name.trim()} მწარმოებლისგან (${specsList}). მაღალი ხარისხი, საუკეთესო ფასი და მიწოდება საქართველოში.`;
     if (autoDesc.length > 158) {
@@ -634,12 +684,6 @@ export default function AdminDashboard() {
       "საქართველო",
     ].join(", ");
 
-    const autoSku =
-      newProd.sku?.trim() ||
-      `MNL-${(newProd.category || "PRD").toUpperCase().slice(0, 4)}-${Math.floor(100 + Math.random() * 900)}`;
-
-    const autoImage = newProd.metaImage || (newProd.images?.[0] || newProd.image || "");
-
     setNewProd((prev) => ({
       ...prev,
       metaTitle: autoTitle,
@@ -649,6 +693,7 @@ export default function AdminDashboard() {
       metaImage: autoImage,
     }));
 
+    setIsGeneratingSeo(false);
     setSeoGenSuccess(true);
     setTimeout(() => setSeoGenSuccess(false), 2500);
   };
@@ -1933,19 +1978,26 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
+                      disabled={isGeneratingSeo}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAutoGenerateProductSEO();
                       }}
-                      className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition flex items-center gap-1 border shadow-sm ${
+                      className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition flex items-center gap-1 border shadow-sm disabled:opacity-60 ${
                         seoGenSuccess
                           ? "bg-emerald-600 text-white border-emerald-500"
                           : "bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-stone-950 border-amber-500/30 hover:border-amber-500"
                       }`}
-                      title="ავტომატური SEO გენერირება პროდუქტის მონაცემებიდან"
+                      title="Gemini AI-ით SEO ტექსტებისა და აღწერის გენერირება"
                     >
-                      <Sparkles className="w-3 h-3" />
-                      <span>{seoGenSuccess ? "✓ გენერირებულია!" : "⚡ SEO გენერირება"}</span>
+                      <Sparkles className={`w-3 h-3 ${isGeneratingSeo ? "animate-spin" : ""}`} />
+                      <span>
+                        {isGeneratingSeo
+                          ? "AI წერს..."
+                          : seoGenSuccess
+                          ? "✓ გენერირებულია!"
+                          : "✨ AI SEO გენერირება"}
+                      </span>
                     </button>
 
                     <div className="p-1 text-stone-400">
