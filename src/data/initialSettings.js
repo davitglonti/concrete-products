@@ -45,7 +45,6 @@ export const DEFAULT_SITE_SETTINGS = {
     { id: "foot-contact", label: "კონტაქტი & ლოკაცია", path: "/contact", enabled: true, isExternal: false },
     { id: "foot-blog", label: "ბლოგი & გზამკვლევი", path: "/blog", enabled: true, isExternal: false },
     { id: "foot-faq", label: "კითხვა-პასუხი (FAQ)", path: "/faq", enabled: true, isExternal: false },
-    { id: "foot-admin", label: "ადმინ პანელი (/admin)", path: "/admin", enabled: true, isExternal: false },
   ],
 
   // 5. Contact Information (Navbar modal, Footer, FAQ, etc.)

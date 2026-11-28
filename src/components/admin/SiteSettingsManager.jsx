@@ -479,7 +479,7 @@ export default function SiteSettingsManager() {
                     }}
                     className="rounded border-stone-700 text-amber-500 focus:ring-0 w-4 h-4"
                   />
-                  <span>ტექსტის ჩვენება ლოგოს გვერდით (MONOLITH.GE)</span>
+                  <span>ტექსტის ჩვენება ლოგოს გვერდით ({formData.brandName || "MONOLITH"}{formData.brandSuffix || ".GE"})</span>
                 </label>
               </div>
             )}

@@ -189,7 +189,7 @@ export default function SEOManager() {
     setTimeout(() => setCopiedSitemap(false), 2500);
   };
 
-  const currentHost = typeof window !== "undefined" ? window.location.host : "monolith.ge";
+  const currentHost = typeof window !== "undefined" ? window.location.host : "naketobebi.ge";
 
   return (
     <div className="space-y-6">
@@ -245,11 +245,11 @@ export default function SEOManager() {
         <div className="bg-white dark:bg-[#202124] rounded-xl p-4 sm:p-5 border border-stone-200 dark:border-stone-800 shadow-sm max-w-2xl">
           <div className="flex items-center gap-2 mb-1.5">
             <div className="w-6 h-6 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-xs font-bold text-amber-500">
-              M
+              {(siteSettings?.brandName || "M").charAt(0).toUpperCase()}
             </div>
             <div className="text-xs text-stone-600 dark:text-stone-300 leading-tight">
               <span className="font-semibold block text-stone-900 dark:text-stone-100">
-                {siteSettings?.brandName || "MONOLITH.GE"}
+                {siteSettings?.brandName || "MONOLITH"}{siteSettings?.brandSuffix || ".GE"}
               </span>
               <span className="text-[11px] text-stone-500 dark:text-stone-400 font-mono">
                 https://{currentHost}
@@ -258,7 +258,7 @@ export default function SEOManager() {
           </div>
 
           <h3 className="text-base sm:text-lg font-medium text-[#1a0dab] dark:text-[#8ab4f8] hover:underline cursor-pointer leading-snug line-clamp-1">
-            {seo.siteTitle || "MONOLITH.GE — არქიტექტურული ბეტონის ნაკეთობები"}
+            {seo.siteTitle || `${siteSettings?.brandName || "MONOLITH"}${siteSettings?.brandSuffix || ".GE"} — არქიტექტურული ბეტონის ნაკეთობები`}
           </h3>
 
           <p className="text-xs sm:text-sm text-stone-600 dark:text-[#bdc1c6] mt-1.5 leading-relaxed line-clamp-2">
@@ -360,7 +360,7 @@ export default function SEOManager() {
               type="text"
               value={seo.siteTitle || ""}
               onChange={(e) => setSeo((prev) => ({ ...prev, siteTitle: e.target.value }))}
-              placeholder="MONOLITH.GE — არქიტექტურული ბეტონის ნაკეთობები საქართველოში"
+              placeholder={`${siteSettings?.brandName || "MONOLITH"}${siteSettings?.brandSuffix || ".GE"} — არქიტექტურული ბეტონის ნაკეთობები საქართველოში`}
               className="w-full bg-stone-950 border border-stone-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"
             />
             <p className="text-[11px] text-stone-500">

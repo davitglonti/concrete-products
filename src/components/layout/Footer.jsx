@@ -27,7 +27,9 @@ export default function Footer() {
 
   const madeIn = siteSettings?.footerMadeInText || "დამზადებულია საქართველოში 🇬🇪";
 
-  const links = (siteSettings?.footerLinks || []).filter((l) => l.enabled !== false);
+  const links = (siteSettings?.footerLinks || []).filter(
+    (l) => l.enabled !== false && l.path !== "/admin" && !l.path?.startsWith("/admin")
+  );
   const socials = siteSettings?.socials || {};
 
   return (

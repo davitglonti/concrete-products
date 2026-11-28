@@ -602,7 +602,8 @@ export default function AdminDashboard() {
       .filter(Boolean)
       .join(", ");
 
-    const autoTitle = `${newProd.name.trim()} — ${catLabel} | MONOLITH.GE`;
+    const brandFull = `${siteSettings?.brandName || "MONOLITH"}${siteSettings?.brandSuffix || ".GE"}`;
+    const autoTitle = `${newProd.name.trim()} — ${catLabel} | ${brandFull}`;
     const autoDesc = `შეიძინეთ უმაღლესი ხარისხის ${newProd.name.trim()} მწარმოებლისგან. ${specsList ? specsList + ". " : ""}საუკეთესო ფასი, ევროპული სტანდარტი და მიწოდება მთელ საქართველოში.`;
     const autoKeywords = [
       newProd.name.trim(),
@@ -930,7 +931,7 @@ export default function AdminDashboard() {
       <header className="border-b border-stone-800 bg-stone-900 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-40">
         <div>
           <h1 className="text-base sm:text-lg font-bold text-white flex items-center gap-1.5 sm:gap-2">
-            <span>MONOLITH</span>
+            <span>{siteSettings?.brandName || "MONOLITH"}</span>
             <span className="text-[11px] sm:text-xs bg-stone-800 text-stone-300 font-mono px-2 py-0.5 rounded">
               /admin
             </span>
@@ -1876,9 +1877,11 @@ export default function AdminDashboard() {
                         {/* Breadcrumb URL */}
                         <div className="flex items-center gap-1.5 text-[11px] text-stone-400 overflow-hidden text-ellipsis whitespace-nowrap">
                           <div className="w-4 h-4 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-[9px] font-bold text-amber-400">
-                            M
+                            {(siteSettings?.brandName || "M").charAt(0).toUpperCase()}
                           </div>
-                          <span className="text-stone-300">monolith.ge</span>
+                          <span className="text-stone-300">
+                            {typeof window !== "undefined" ? window.location.host : "naketobebi.ge"}
+                          </span>
                           <span className="text-stone-500">›</span>
                           <span>პროდუქცია</span>
                           <span className="text-stone-500">›</span>
@@ -1887,7 +1890,7 @@ export default function AdminDashboard() {
 
                         {/* Blue Title Link */}
                         <h4 className="text-sm font-medium text-blue-400 hover:underline cursor-pointer leading-snug line-clamp-1">
-                          {newProd.metaTitle || `${newProd.name || "პროდუქტის დასახელება"} — ${newProd.categoryLabel || "კატეგორია"} | MONOLITH.GE`}
+                          {newProd.metaTitle || `${newProd.name || "პროდუქტის დასახელება"} — ${newProd.categoryLabel || "კატეგორია"} | ${siteSettings?.brandName || "MONOLITH"}${siteSettings?.brandSuffix || ".GE"}`}
                         </h4>
 
                         {/* Rich Snippet Details (Ratings, Price, Stock) */}
@@ -1943,7 +1946,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <input
-                        placeholder={`მაგ: ${newProd.name || "მონოლითური საფეხური"} — ფასი და მახასიათებლები | MONOLITH`}
+                        placeholder={`მაგ: ${newProd.name || "მონოლითური საფეხური"} — ფასი და მახასიათებლები | ${siteSettings?.brandName || "MONOLITH"}`}
                         value={newProd.metaTitle || ""}
                         onChange={(e) => setNewProd({ ...newProd, metaTitle: e.target.value })}
                         className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500"

@@ -4,7 +4,8 @@ import { useData } from "../../context/DataContext";
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 
 export default function AdminLogin() {
-  const { loginAdmin, loginWithGoogle, isAdminAuthenticated, authLoading } = useData();
+  const { loginAdmin, loginWithGoogle, isAdminAuthenticated, authLoading, siteSettings } = useData();
+  const brandName = siteSettings?.brandName || "MONOLITH";
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/admin";
@@ -77,7 +78,7 @@ export default function AdminLogin() {
           </div>
           <div>
             <h1 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2">
-              <span>MONOLITH</span>
+              <span>{brandName}</span>
               <span className="text-xs bg-stone-800 text-amber-400 font-mono px-2 py-0.5 rounded">
                 /admin
               </span>
@@ -108,7 +109,7 @@ export default function AdminLogin() {
                 type="email"
                 required
                 autoComplete="email"
-                placeholder="მაგ: admin@monolith.ge"
+                placeholder={siteSettings?.contactEmail ? `მაგ: ${siteSettings.contactEmail}` : "მაგ: admin@naketobebi.ge"}
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
