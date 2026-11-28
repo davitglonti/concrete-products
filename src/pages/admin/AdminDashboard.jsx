@@ -617,7 +617,13 @@ export default function AdminDashboard() {
 
     const brandFull = `${siteSettings?.brandName || "MONOLITH"}${siteSettings?.brandSuffix || ".GE"}`;
     const autoTitle = `${newProd.name.trim()} — ${catLabel} | ${brandFull}`;
-    const autoDesc = `შეიძინეთ უმაღლესი ხარისხის ${newProd.name.trim()} მწარმოებლისგან. ${specsList ? specsList + ". " : ""}საუკეთესო ფასი, ევროპული სტანდარტი და მიწოდება მთელ საქართველოში.`;
+    let autoDesc = `${newProd.name.trim()} მწარმოებლისგან (${specsList}). მაღალი ხარისხი, საუკეთესო ფასი და მიწოდება საქართველოში.`;
+    if (autoDesc.length > 158) {
+      autoDesc = `${newProd.name.trim()} — ${specsList}. მწარმოებლის გარანტია და მიწოდება მთელ საქართველოში.`;
+    }
+    if (autoDesc.length > 160) {
+      autoDesc = autoDesc.slice(0, 157).trim() + "...";
+    }
     const autoKeywords = [
       newProd.name.trim(),
       catLabel,
@@ -1985,12 +1991,8 @@ export default function AdminDashboard() {
                           {newProd.metaTitle || `${newProd.name || "პროდუქტის დასახელება"} — ${newProd.categoryLabel || "კატეგორია"} | ${siteSettings?.brandName || "MONOLITH"}${siteSettings?.brandSuffix || ".GE"}`}
                         </h4>
 
-                        {/* Rich Snippet Details (Ratings, Price, Stock) */}
+                        {/* Rich Snippet Details (Price, Stock) */}
                         <div className="flex items-center gap-2 text-[11px] text-stone-400 flex-wrap">
-                          <span className="text-amber-400 font-semibold flex items-center gap-0.5">
-                            ★ 4.9 <span className="text-stone-500 font-normal">(18)</span>
-                          </span>
-                          <span className="text-stone-600">•</span>
                           <span className="text-stone-200 font-medium">
                             {newProd.price ? `${newProd.price} ₾` : "ფასი შეთანხმებით"}
                           </span>
