@@ -357,6 +357,36 @@ export const dbSignInAdmin = async (email, password) => {
   }
 };
 
+export const dbSignInWithGoogle = async () => {
+  try {
+    const { auth, GoogleAuthProvider, signInWithPopup } = await loadFirebase();
+    if (!auth) {
+      return { success: false, message: "Firebase Auth ინიციალიზებული არ არის." };
+    }
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const userCredential = await signInWithPopup(auth, provider);
+    return { success: true, user: userCredential.user };
+  } catch (error) {
+    console.error("Firebase Google Login Error:", error);
+    let message = "Google-ით ავტორიზაცია ვერ მოხერხდა.";
+    if (error.code === "auth/popup-closed-by-user") {
+      message = "Google-ის ფანჯარა დაიხურა ავტორიზაციის დასრულებამდე.";
+    } else if (error.code === "auth/popup-blocked") {
+      message = "ბრაუზერმა დაბლოკა pop-up ფანჯარა. გთხოვთ დაუშვათ pop-up ამ საიტისთვის.";
+    } else if (error.code === "auth/cancelled-popup-request") {
+      message = "ავტორიზაციის მოთხოვნა გაუქმდა.";
+    } else if (error.code === "auth/unauthorized-domain") {
+      message = "ეს დომენი ავტორიზებული არ არის Firebase Console-ში (Authorized Domains).";
+    } else if (error.code === "auth/network-request-failed") {
+      message = "ინტერნეტთან კავშირი შეფერხებულია. შეამოწმეთ ქსელი.";
+    } else if (error.code === "auth/operation-not-allowed") {
+      message = "Google Sign-in ჩართული არ არის Firebase Console-ში (Authentication -> Sign-in method -> Google).";
+    }
+    return { success: false, message, code: error.code };
+  }
+};
+
 export const dbSignOutAdmin = async () => {
   try {
     const { auth, signOut } = await loadFirebase();

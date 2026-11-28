@@ -20,6 +20,7 @@ import {
   dbSeedAll,
   dbSubscribeToAuth,
   dbSignInAdmin,
+  dbSignInWithGoogle,
   dbSignOutAdmin,
 } from "../services/firebaseService";
 
@@ -495,6 +496,15 @@ export const DataProvider = ({ children }) => {
     return res;
   }, []);
 
+  const loginWithGoogle = useCallback(async () => {
+    const res = await dbSignInWithGoogle();
+    if (res.success) {
+      setAdminUser(res.user);
+      setIsAdminAuthenticated(true);
+    }
+    return res;
+  }, []);
+
   const logoutAdmin = useCallback(async () => {
     await dbSignOutAdmin();
     setAdminUser(null);
@@ -528,6 +538,7 @@ export const DataProvider = ({ children }) => {
       adminUser,
       authLoading,
       loginAdmin,
+      loginWithGoogle,
       logoutAdmin,
       siteSettings,
       updateSiteSettings,
@@ -557,6 +568,7 @@ export const DataProvider = ({ children }) => {
       adminUser,
       authLoading,
       loginAdmin,
+      loginWithGoogle,
       logoutAdmin,
       siteSettings,
       updateSiteSettings,
