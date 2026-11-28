@@ -973,9 +973,19 @@ export default function AdminDashboard() {
               </span>
             )}
             {firebaseStatus === "error" && (
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                საჭიროებს Firestore ბაზის შექმნას
+              <span
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                title={firebaseErrorMsg || "Firestore კავშირის შეცდომა"}
+              >
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  {firebaseErrorMsg?.toLowerCase().includes("permission")
+                    ? "წვდომა აკრძალულია (Firestore Rules-ს შემოწმება სჭირდება)"
+                    : firebaseErrorMsg?.toLowerCase().includes("not-found") ||
+                      firebaseErrorMsg?.toLowerCase().includes("does not exist")
+                    ? "საჭიროებს Firestore ბაზის შექმნას"
+                    : `Firestore შეცდომა: ${firebaseErrorMsg || "კავშირი ვერ მოხერხდა"}`}
+                </span>
               </span>
             )}
             {firebaseStatus === "disabled" && (
