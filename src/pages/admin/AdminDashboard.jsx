@@ -613,10 +613,11 @@ export default function AdminDashboard() {
       newProd.sku?.trim() ||
       `MNL-${(newProd.category || "PRD").toUpperCase().slice(0, 4)}-${Math.floor(100 + Math.random() * 900)}`;
     const autoImage = newProd.metaImage || (newProd.images?.[0] || newProd.image || "");
+    const visionImage = newProd.images?.[0] || newProd.image || newProd.cardImage || "";
 
     setIsGeneratingSeo(true);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8500);
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
 
     try {
       const response = await fetch("/api/generate-seo", {
@@ -633,6 +634,7 @@ export default function AdminDashboard() {
           price: newProd.price,
           priceUnit: newProd.priceUnit,
           brandName: brandFull,
+          image: visionImage,
         }),
       });
 

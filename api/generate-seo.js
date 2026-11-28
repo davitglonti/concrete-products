@@ -5,13 +5,57 @@ const MODELS = [
   "gemini-3.8-flash",
 ];
 
-async function callGemini(apiKey, model, prompt) {
+async function resolveImagePart(image) {
+  if (!image || typeof image !== "string") return null;
+
+  // Base64 Data URI (e.g. data:image/webp;base64,...)
+  if (image.startsWith("data:image/")) {
+    const match = image.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,(.+)$/);
+    if (match && match[2].length < 4_000_000) {
+      return {
+        inlineData: {
+          mimeType: match[1],
+          data: match[2],
+        },
+      };
+    }
+    return null;
+  }
+
+  // External HTTPS URL
+  if (image.startsWith("https://") || image.startsWith("http://")) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    try {
+      const res = await fetch(image, { signal: controller.signal });
+      if (!res.ok) return null;
+      const contentType = res.headers.get("content-type") || "image/jpeg";
+      if (!contentType.startsWith("image/")) return null;
+      const arrayBuf = await res.arrayBuffer();
+      if (arrayBuf.byteLength > 3_000_000) return null;
+      return {
+        inlineData: {
+          mimeType: contentType.split(";")[0],
+          data: Buffer.from(arrayBuf).toString("base64"),
+        },
+      };
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  return null;
+}
+
+async function callGemini(apiKey, model, parts) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(
     apiKey
   )}`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 7000); // 7s per model timeout
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
   try {
     const response = await fetch(url, {
@@ -19,7 +63,7 @@ async function callGemini(apiKey, model, prompt) {
       headers: { "Content-Type": "application/json" },
       signal: controller.signal,
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        contents: [{ parts }],
         generationConfig: {
           temperature: 0.7,
           responseMimeType: "application/json",
@@ -63,16 +107,19 @@ export default async function handler(req, res) {
     price,
     priceUnit,
     brandName,
+    image,
   } = req.body || {};
 
   if (!name || !String(name).trim()) {
     return res.status(400).json({ success: false, message: "Product name is required." });
   }
 
+  const imagePart = await resolveImagePart(image);
   const brand = brandName || "Naketobebi.GE";
-  const prompt = `შენ ხარ ქართველი SEO სპეციალისტი და არქიტექტურული ბეტონის საწარმოს (${brand}) კოპირაიტერი.
-მოცემული პროდუქტის მონაცემებზე დაყრდნობით დააგენერირე უნიკალური, მაღალკონვერსიული SEO მეტა-ტეგები და აღწერა ქართულ ენაზე.
 
+  const prompt = `შენ ხარ ქართველი SEO სპეციალისტი და არქიტექტურული ბეტონის საწარმოს (${brand}) კოპირაიტერი.
+მოცემული პროდუქტის მონაცემებზე${imagePart ? " და თანდართულ ფოტოზე" : ""} დაყრდნობით დააგენერირე უნიკალური, მაღალკონვერსიული SEO მეტა-ტეგები და აღწერა ქართულ ენაზე.
+${imagePart ? "\nყურადღებით დაათვალიერე პროდუქტის ფოტო (ფორმა, ფერი, ფაქტურა, სტილი, დანიშნულება) და ბუნებრივად ასახე რეალური ვიზუალური დეტალები აღწერაში.\n" : ""}
 პროდუქტის მონაცემები:
 - დასახელება: ${name}
 - კატეგორია: ${categoryLabel || "ბეტონის ნაკეთობა"}
@@ -92,10 +139,12 @@ export default async function handler(req, res) {
   "description": "2-3 წინადადებიანი სრული, მიმზიდველი პროფესიონალური აღწერა პროდუქტის გვერდისთვის."
 }`;
 
+  const parts = imagePart ? [imagePart, { text: prompt }] : [{ text: prompt }];
+
   let lastError = null;
   for (const model of MODELS) {
     try {
-      const result = await callGemini(apiKey, model, prompt);
+      const result = await callGemini(apiKey, model, parts);
       const cleanTitle = String(result.metaTitle || "").trim().slice(0, 60);
       let cleanDesc = String(result.metaDescription || "").trim();
       if (cleanDesc.length > 160) {
@@ -105,6 +154,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         success: true,
         model,
+        usedVision: Boolean(imagePart),
         data: {
           metaTitle: cleanTitle,
           metaDescription: cleanDesc,
