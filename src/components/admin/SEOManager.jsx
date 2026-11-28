@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useData } from "../../context/DataContext";
+import AdminToast from "./AdminToast";
 import {
   Search,
   Globe,
@@ -192,13 +193,8 @@ export default function SEOManager() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Notification */}
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-amber-500 text-stone-950 px-5 py-3 rounded-xl font-bold shadow-2xl flex items-center gap-2 animate-bounce">
-          <Check className="w-5 h-5 stroke-[3]" />
-          <span>{toast}</span>
-        </div>
-      )}
+      {/* Floating Bottom-Right Toast Notification */}
+      <AdminToast message={toast} type="success" onClose={() => setToast(null)} />
 
       {/* Top Header Card */}
       <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">

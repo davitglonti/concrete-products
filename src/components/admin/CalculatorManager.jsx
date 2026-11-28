@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { DEFAULT_SITE_SETTINGS } from "../../data/initialSettings";
+import AdminToast from "./AdminToast";
 import {
   Calculator as CalcIcon,
   Layers,
@@ -300,21 +301,8 @@ export default function CalculatorManager() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Notification */}
-      {saveToast && (
-        <div className="p-4 bg-emerald-950/90 border border-emerald-500/50 rounded-2xl flex items-center justify-between gap-3 text-emerald-300 text-sm shadow-xl animate-fade-in">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-            <span className="font-semibold">{saveToast}</span>
-          </div>
-          <button
-            onClick={() => setSaveToast(null)}
-            className="text-xs text-emerald-400 hover:text-white font-bold"
-          >
-            ✕
-          </button>
-        </div>
-      )}
+      {/* Floating Bottom-Right Toast Notification */}
+      <AdminToast message={saveToast} type="success" onClose={() => setSaveToast(null)} />
 
       {/* Top Banner / Actions Header */}
       <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 shadow-sm">

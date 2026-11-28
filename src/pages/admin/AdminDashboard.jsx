@@ -49,6 +49,7 @@ import {
   Zap,
 } from "lucide-react";
 import { findColorDetails } from "../../data/textureData";
+import AdminToast from "../../components/admin/AdminToast";
 
 export default function AdminDashboard() {
   const {
@@ -78,6 +79,12 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState("products");
   const [isSeeding, setIsSeeding] = useState(false);
   const [seedNotice, setSeedNotice] = useState(null);
+  const [adminToast, setAdminToast] = useState(null);
+
+  const showAdminToast = (msg) => {
+    setAdminToast(msg);
+    setTimeout(() => setAdminToast(null), 3500);
+  };
 
   const handleSeedFirebase = async () => {
     if (!window.confirm("გსურთ საწყისი კატალოგის და პროექტების Firebase-ში ატვირთვა?")) return;
@@ -525,8 +532,10 @@ export default function AdminDashboard() {
     if (editingCategoryId) {
       updateCategory(editingCategoryId, catPayload);
       setEditingCategoryId(null);
+      showAdminToast("კატეგორია წარმატებით განახლდა!");
     } else {
       addCategory(catPayload);
+      showAdminToast("ახალი კატეგორია დაემატა!");
     }
 
     setNewCat({
@@ -674,8 +683,10 @@ export default function AdminDashboard() {
     if (editingProductId) {
       updateProduct(editingProductId, prodPayload);
       setEditingProductId(null);
+      showAdminToast("პროდუქტის ცვლილებები შენახულია!");
     } else {
       addProduct(prodPayload);
+      showAdminToast("ახალი პროდუქტი დაემატა!");
     }
 
     // Reset
@@ -843,8 +854,10 @@ export default function AdminDashboard() {
     if (editingProjectId) {
       updateProject(editingProjectId, payload);
       setEditingProjectId(null);
+      showAdminToast("პროექტი წარმატებით განახლდა!");
     } else {
       addProject(payload);
+      showAdminToast("ახალი პროექტი დაემატა!");
     }
 
     // Reset
@@ -952,6 +965,7 @@ export default function AdminDashboard() {
 
       {/* Main Admin Area */}
       <div className="max-w-[1720px] mx-auto p-4 sm:p-6 lg:p-8">
+        <AdminToast message={adminToast} type="success" onClose={() => setAdminToast(null)} />
         {/* Compact Firestore Status Bar */}
         <div className="mb-5 px-3.5 py-2.5 rounded-xl bg-stone-900/70 border border-stone-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center flex-wrap gap-2.5">
