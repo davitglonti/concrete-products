@@ -5,6 +5,28 @@
       "destination": "/api/sitemap"
     },
     {
+      "source": "/products/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|WhatsApp|Viber|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|Pinterest|vkShare|SkypeUriPreview).*"
+        }
+      ],
+      "destination": "/api/product-og?id=:id"
+    },
+    {
+      "source": "/product/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|WhatsApp|Viber|TelegramBot|Twitterbot|LinkedInBot|Slackbot|Discordbot|Pinterest|vkShare|SkypeUriPreview).*"
+        }
+      ],
+      "destination": "/api/product-og?id=:id"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
