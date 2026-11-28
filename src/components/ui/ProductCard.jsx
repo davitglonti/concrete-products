@@ -10,7 +10,7 @@ export default function ProductCard({ product }) {
   const favorited = isFavorite(product.id);
   const compared = isInCompare(product.id);
 
-  // Multi-image handling (if cardImage is set, use it strictly as the card cover)
+  // Multi-image handling (if cardImage is set, show it as cover and reveal real product photo on hover)
   const allImages =
     product.images && product.images.length > 0
       ? product.images
@@ -18,7 +18,11 @@ export default function ProductCard({ product }) {
       ? [product.image]
       : [];
   const primaryImage = product.cardImage || allImages[0] || product.image;
-  const secondaryImage = product.cardImage ? null : allImages[1] || null;
+  const secondaryImage = product.cardImage
+    ? allImages[0] && allImages[0] !== product.cardImage
+      ? allImages[0]
+      : allImages[1] || null
+    : allImages[1] || null;
   const hasMultiple = Boolean(secondaryImage);
 
   // States for desktop hover and mobile touch toggle
