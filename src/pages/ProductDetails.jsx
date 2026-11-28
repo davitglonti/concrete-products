@@ -384,19 +384,19 @@ export default function ProductDetails() {
               "@type": "ListItem",
               position: 1,
               name: "მთავარი",
-              item: "https://concrete-products-rho.vercel.app/",
+              item: "https://naketobebi.ge/",
             },
             {
               "@type": "ListItem",
               position: 2,
               name: "პროდუქცია",
-              item: "https://concrete-products-rho.vercel.app/products",
+              item: "https://naketobebi.ge/products",
             },
             {
               "@type": "ListItem",
               position: 3,
               name: product.categoryLabel || "კატეგორია",
-              item: `https://concrete-products-rho.vercel.app/products?category=${product.category}`,
+              item: `https://naketobebi.ge/products?category=${product.category}`,
             },
             {
               "@type": "ListItem",

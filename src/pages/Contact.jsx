@@ -80,8 +80,15 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-[#fbfbf9] dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors duration-200">
       <SEO
-        title="კონტაქტი & ლოკაცია | MONOLITH არქიტექტურული ბეტონი"
-        description="დაგვიკავშირდით უფასო საინჟინრო კონსულტაციისა და ხარჯთაღრიცხვის მისაღებად. საწარმო და შოურუმი თბილისში, ტელეფონი: +995 593 37 20 56."
+        title={
+          siteSettings?.seo?.pageMeta?.contact?.title ||
+          `კონტაქტი & ლოკაცია | ${siteSettings?.brandName || "MONOLITH"} არქიტექტურული ბეტონი`
+        }
+        description={
+          siteSettings?.seo?.pageMeta?.contact?.description ||
+          `დაგვიკავშირდით უფასო საინჟინრო კონსულტაციისა და ხარჯთაღრიცხვის მისაღებად. ${address}, ტელეფონი: ${phone}.`
+        }
+        keywords={siteSettings?.seo?.pageMeta?.contact?.keywords}
       />
 
       {/* HEADER SECTION */}

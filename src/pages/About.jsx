@@ -81,8 +81,15 @@ export default function About() {
   return (
     <div className="min-h-screen bg-[#fbfbf9] dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors duration-200">
       <SEO
-        title="ჩვენს შესახებ | არქიტექტურული ბეტონის საწარმო MONOLITH"
-        description="გაიგეთ მეტი MONOLITH-ის საწარმოო შესაძლებლობებზე: M500 / B40 მარკის არქიტექტურული ბეტონი, მონოლითური საფეხურები, ფილები და ინდივიდუალური პროექტები 10 წლიანი გარანტიით."
+        title={
+          siteSettings?.seo?.pageMeta?.about?.title ||
+          `ჩვენს შესახებ | არქიტექტურული ბეტონის საწარმო ${brandName}`
+        }
+        description={
+          siteSettings?.seo?.pageMeta?.about?.description ||
+          `გაიგეთ მეტი ${brandName}-ის საწარმოო შესაძლებლობებზე: M500 / B40 მარკის არქიტექტურული ბეტონი, მონოლითური საფეხურები, ფილები და ინდივიდუალური პროექტები 10 წლიანი გარანტიით.`
+        }
+        keywords={siteSettings?.seo?.pageMeta?.about?.keywords}
       />
 
       {/* 1. HERO SECTION */}

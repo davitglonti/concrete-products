@@ -83,6 +83,24 @@ export default function SEOManager() {
             rawSeo.pageMeta?.blog?.description ||
             "პროფესიონალური სტატიები ბეტონის საფეხურების შერჩევის, ექსპლუატაციის, ფილების მონტაჟისა და თანამედროვე ლანდშაფტის დიზაინის შესახებ.",
         },
+        about: {
+          title:
+            rawSeo.pageMeta?.about?.title ||
+            "ჩვენს შესახებ | არქიტექტურული ბეტონის საწარმო",
+          description:
+            rawSeo.pageMeta?.about?.description ||
+            "გაიგეთ მეტი ჩვენი საწარმოო შესაძლებლობების შესახებ: M500 / B40 მარკის არქიტექტურული ბეტონი, მონოლითური საფეხურები და 10 წლიანი გარანტია.",
+          keywords: rawSeo.pageMeta?.about?.keywords || "",
+        },
+        contact: {
+          title:
+            rawSeo.pageMeta?.contact?.title ||
+            "კონტაქტი & ლოკაცია | არქიტექტურული ბეტონი",
+          description:
+            rawSeo.pageMeta?.contact?.description ||
+            "დაგვიკავშირდით უფასო საინჟინრო კონსულტაციისა და ხარჯთაღრიცხვის მისაღებად. საწარმო და შოურუმი თბილისში.",
+          keywords: rawSeo.pageMeta?.contact?.keywords || "",
+        },
       },
     };
   });
@@ -109,8 +127,12 @@ export default function SEOManager() {
       ...siteSettings,
       seo,
     };
-    await updateSiteSettings(updated);
+    const res = await updateSiteSettings(updated);
     setIsSaving(false);
+    if (res && res.success === false) {
+      alert(`SEO პარამეტრების შენახვა ვერ მოხერხდა: ${res.message}`);
+      return;
+    }
     setToast("SEO პარამეტრები წარმატებით შეინახა!");
     setTimeout(() => setToast(null), 3500);
   };
@@ -540,7 +562,7 @@ export default function SEOManager() {
               <input
                 type="text"
                 readOnly
-                value={`${typeof window !== "undefined" ? window.location.origin : "https://concrete-products-rho.vercel.app"}/sitemap.xml`}
+                value={`${typeof window !== "undefined" ? window.location.origin : "https://naketobebi.ge"}/sitemap.xml`}
                 className="flex-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-300 font-mono select-all"
               />
               <button
@@ -585,8 +607,10 @@ export default function SEOManager() {
           <div className="flex flex-wrap gap-2">
             {[
               { id: "products", label: "📦 პროდუქცია (/products)" },
-              { id: "calculator", label: "🧮 კალკულატორი (/calculator)" },
               { id: "portfolio", label: "🏗️ პროექტები (/portfolio)" },
+              { id: "about", label: "🏢 ჩვენს შესახებ (/about)" },
+              { id: "contact", label: "📞 კონტაქტი (/contact)" },
+              { id: "calculator", label: "🧮 კალკულატორი (/calculator)" },
               { id: "faq", label: "❓ კითხვა-პასუხი (/faq)" },
               { id: "blog", label: "📰 ბლოგი (/blog)" },
             ].map((page) => (
@@ -606,12 +630,17 @@ export default function SEOManager() {
           </div>
 
           {/* Form for Active Page */}
-          {seo.pageMeta && seo.pageMeta[activePageKey] && (
+          {seo.pageMeta && (
             <div className="bg-stone-950 border border-stone-800 rounded-xl p-5 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-stone-200">
-                  გვერდის Meta Title:
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-stone-200">
+                    გვერდის Meta Title:
+                  </label>
+                  <span className="text-[11px] font-mono text-stone-400">
+                    {(seo.pageMeta[activePageKey]?.title || "").length} / 60 სიმბოლო
+                  </span>
+                </div>
                 <input
                   type="text"
                   value={seo.pageMeta[activePageKey]?.title || ""}
@@ -622,7 +651,7 @@ export default function SEOManager() {
                       pageMeta: {
                         ...prev.pageMeta,
                         [activePageKey]: {
-                          ...prev.pageMeta[activePageKey],
+                          ...(prev.pageMeta?.[activePageKey] || {}),
                           title: val,
                         },
                       },
@@ -633,9 +662,14 @@ export default function SEOManager() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-stone-200">
-                  გვერდის Meta Description:
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-stone-200">
+                    გვერდის Meta Description:
+                  </label>
+                  <span className="text-[11px] font-mono text-stone-400">
+                    {(seo.pageMeta[activePageKey]?.description || "").length} / 160 სიმბოლო
+                  </span>
+                </div>
                 <textarea
                   rows={3}
                   value={seo.pageMeta[activePageKey]?.description || ""}
@@ -646,13 +680,38 @@ export default function SEOManager() {
                       pageMeta: {
                         ...prev.pageMeta,
                         [activePageKey]: {
-                          ...prev.pageMeta[activePageKey],
+                          ...(prev.pageMeta?.[activePageKey] || {}),
                           description: val,
                         },
                       },
                     }));
                   }}
                   className="w-full bg-stone-900 border border-stone-800 rounded-xl p-3 text-xs text-stone-200 focus:outline-none focus:border-amber-500 leading-relaxed"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-stone-200">
+                  საკვანძო სიტყვები (Meta Keywords - არასავალდებულო):
+                </label>
+                <input
+                  type="text"
+                  placeholder="მაგ: ბეტონის საფეხურები, ეზოს ფილები თბილისი, ფასები"
+                  value={seo.pageMeta[activePageKey]?.keywords || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSeo((prev) => ({
+                      ...prev,
+                      pageMeta: {
+                        ...prev.pageMeta,
+                        [activePageKey]: {
+                          ...(prev.pageMeta?.[activePageKey] || {}),
+                          keywords: val,
+                        },
+                      },
+                    }));
+                  }}
+                  className="w-full bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-stone-600 focus:outline-none focus:border-amber-500"
                 />
               </div>
             </div>

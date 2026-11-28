@@ -55,7 +55,7 @@ export default function BlogPost() {
       author: {
         "@type": "Organization",
         name: "MONOLITH.GE",
-        url: "https://concrete-products-rho.vercel.app/",
+        url: "https://naketobebi.ge/",
       },
       publisher: {
         "@type": "Organization",
