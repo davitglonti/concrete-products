@@ -74,6 +74,7 @@ export default function AdminDashboard() {
     firebaseStatus,
     firebaseErrorMsg,
     isFirebaseConfigured,
+    siteSettings,
   } = useData();
 
   const [tab, setTab] = useState("products");
