@@ -266,9 +266,18 @@ export default function Calculator() {
   return (
     <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen py-8 sm:py-12 transition-colors duration-200">
       <SEO
-        title="ბეტონის საფეხურებისა და ფილების ონლაინ კალკულატორი"
-        description="დაითვალეთ კიბის საფეხურების, ეზოს ფილებისა და ბორდიურების საჭირო რაოდენობა, საერთო წონა და ხარჯთაღრიცხვა ონლაინ რეჟიმში. მიიღეთ მყისიერი შეთავაზება."
-        keywords="ბეტონის კალკულატორი, საფეხურების დათვლა, ეზოს ფილების კალკულატორი, კიბის ხარჯთაღრიცხვა, ბეტონის ნაკეთობები ფასი"
+        title={
+          siteSettings?.seo?.pageMeta?.calculator?.title ||
+          "ბეტონის საფეხურებისა და ფილების ონლაინ კალკულატორი"
+        }
+        description={
+          siteSettings?.seo?.pageMeta?.calculator?.description ||
+          "დაითვალეთ კიბის საფეხურების, ეზოს ფილებისა და ბორდიურების საჭირო რაოდენობა, საერთო წონა და ხარჯთაღრიცხვა ონლაინ რეჟიმში. მიიღეთ მყისიერი შეთავაზება."
+        }
+        keywords={
+          siteSettings?.seo?.pageMeta?.calculator?.keywords ||
+          "ბეტონის კალკულატორი, საფეხურების დათვლა, ეზოს ფილების კალკულატორი, კიბის ხარჯთაღრიცხვა, ბეტონის ნაკეთობები ფასი"
+        }
       />
       <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         

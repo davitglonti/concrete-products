@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/common/SEO";
+import { useData } from "../context/DataContext";
 import {
   HelpCircle,
   Search,
@@ -93,6 +94,8 @@ const CATEGORIES = [
 ];
 
 export default function FAQ() {
+  const { siteSettings } = useData();
+  const faqMeta = siteSettings?.seo?.pageMeta?.faq || {};
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [openId, setOpenId] = useState("q1");
@@ -132,9 +135,15 @@ export default function FAQ() {
   return (
     <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen pt-4 sm:pt-6 pb-20 transition-colors duration-200">
       <SEO
-        title="ხშირად დასმული კითხვები (FAQ) | არქიტექტურული ბეტონი"
-        description="პასუხები ყველაზე გავრცელებულ კითხვებზე: ბეტონის საფეხურების მონტაჟი, მოვლა, ყინვაგამძლეობა, დამზადების ვადები და მიწოდება საქართველოში."
-        keywords="ბეტონის საფეხურები კითხვა პასუხი, არქიტექტურული ბეტონი FAQ, საფეხურების მონტაჟი, ბეტონის ყინვაგამძლეობა"
+        title={faqMeta.title || "ხშირად დასმული კითხვები (FAQ) | არქიტექტურული ბეტონი"}
+        description={
+          faqMeta.description ||
+          "პასუხები ყველაზე გავრცელებულ კითხვებზე: ბეტონის საფეხურების მონტაჟი, მოვლა, ყინვაგამძლეობა, დამზადების ვადები და მიწოდება საქართველოში."
+        }
+        keywords={
+          faqMeta.keywords ||
+          "ბეტონის საფეხურები კითხვა პასუხი, არქიტექტურული ბეტონი FAQ, საფეხურების მონტაჟი, ბეტონის ყინვაგამძლეობა"
+        }
         jsonLd={faqJsonLd}
       />
       <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12">

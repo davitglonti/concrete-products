@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import SEO from "../components/common/SEO";
+import { useData } from "../context/DataContext";
 import { BLOG_POSTS } from "../data/blogData";
 import {
   BookOpen,
@@ -14,6 +15,8 @@ import {
 } from "lucide-react";
 
 export default function Blog() {
+  const { siteSettings } = useData();
+  const blogMeta = siteSettings?.seo?.pageMeta?.blog || {};
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -39,9 +42,15 @@ export default function Blog() {
   return (
     <div className="bg-[#fbfbf9] dark:bg-stone-950 min-h-screen py-10 sm:py-16 transition-colors duration-200">
       <SEO
-        title="ბლოგი & გზამკვლევი | არქიტექტურული ბეტონი"
-        description="პროფესიონალური სტატიები ბეტონის საფეხურების შერჩევის, ექსპლუატაციის, ფილების მონტაჟისა და თანამედროვე ლანდშაფტის დიზაინის შესახებ."
-        keywords="ბეტონის ბლოგი, საფეხურების შერჩევა, ეზოს ფილების მონტაჟი, M500 ბეტონი, ბეტონის მოვლა"
+        title={blogMeta.title || "ბლოგი & გზამკვლევი | არქიტექტურული ბეტონი"}
+        description={
+          blogMeta.description ||
+          "პროფესიონალური სტატიები ბეტონის საფეხურების შერჩევის, ექსპლუატაციის, ფილების მონტაჟისა და თანამედროვე ლანდშაფტის დიზაინის შესახებ."
+        }
+        keywords={
+          blogMeta.keywords ||
+          "ბეტონის ბლოგი, საფეხურების შერჩევა, ეზოს ფილების მონტაჟი, M500 ბეტონი, ბეტონის მოვლა"
+        }
       />
       <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         
