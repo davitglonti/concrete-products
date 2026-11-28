@@ -118,6 +118,7 @@ export default function AdminDashboard() {
     baseColorName: "კლასიკური ნაცრისფერი",
     image: "",
     images: [],
+    cardImage: "",
     colors: [],
     colorVariants: [],
     featured: false,
@@ -163,6 +164,7 @@ export default function AdminDashboard() {
   const [projectImageMode, setProjectImageMode] = useState("file"); // 'file' | 'url'
 
   const productFileInputRef = useRef(null);
+  const cardImageFileInputRef = useRef(null);
   const projectFileInputRef = useRef(null);
 
   if (authLoading) {
@@ -223,6 +225,16 @@ export default function AdminDashboard() {
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+  };
+
+  // Card cover image upload (shown only in catalog cards, hidden on ProductDetails)
+  const handleCardImageFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processImageFile(file, (dataUrl) => {
+      setNewProd((prev) => ({ ...prev, cardImage: dataUrl }));
+      if (cardImageFileInputRef.current) cardImageFileInputRef.current.value = "";
+    });
   };
 
   // Multi-image upload for products
@@ -669,6 +681,7 @@ export default function AdminDashboard() {
       ...newProd,
       image: allImages[0],
       images: allImages,
+      cardImage: newProd.cardImage?.trim() || "",
       baseColorName: baseColor,
       colorVariants: cleanedVariants,
       colors: [baseColor, ...cleanedVariants.map((v) => v.colorName)],
@@ -708,6 +721,7 @@ export default function AdminDashboard() {
       baseColorName: "კლასიკური ნაცრისფერი",
       image: "",
       images: [],
+      cardImage: "",
       colors: [],
       colorVariants: [],
       featured: false,
@@ -719,6 +733,7 @@ export default function AdminDashboard() {
     });
     setTempProductUrl("");
     if (productFileInputRef.current) productFileInputRef.current.value = "";
+    if (cardImageFileInputRef.current) cardImageFileInputRef.current.value = "";
   };
 
   const startEditProduct = (item) => {
@@ -785,6 +800,7 @@ export default function AdminDashboard() {
       baseColorName,
       image: initialBaseImages[0] || "",
       images: initialBaseImages,
+      cardImage: item.cardImage || "",
       colorVariants: initialVariants,
       colors: Array.isArray(item.colors) ? item.colors : [],
       featured: Boolean(item.featured),
@@ -819,6 +835,7 @@ export default function AdminDashboard() {
       baseColorName: "კლასიკური ნაცრისფერი",
       image: "",
       images: [],
+      cardImage: "",
       colors: [],
       colorVariants: [],
       featured: false,
@@ -830,6 +847,7 @@ export default function AdminDashboard() {
     });
     setTempProductUrl("");
     if (productFileInputRef.current) productFileInputRef.current.value = "";
+    if (cardImageFileInputRef.current) cardImageFileInputRef.current.value = "";
   };
 
   // Project submit (Add or Edit)
@@ -1286,6 +1304,79 @@ export default function AdminDashboard() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* CARD COVER PHOTO (Shown ONLY in Catalog Cards, NOT on Product Details page) */}
+              <div className="p-4 rounded-xl bg-stone-950/70 border border-stone-800 space-y-3">
+                <div className="flex items-center justify-between gap-2 pb-1 border-b border-stone-800/60">
+                  <div>
+                    <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>საჩვენებელი ფოტო (კატალოგის ბარათისთვის)</span>
+                    </label>
+                    <span className="text-[10px] text-stone-400 block mt-0.5">
+                      გამოჩნდება მხოლოდ საერთო კატალოგში (ბარათზე). პროდუქტის გვერდზე გახსნისას ეს ფოტო არ გამოჩნდება.
+                    </span>
+                  </div>
+                </div>
+
+                <input
+                  type="file"
+                  ref={cardImageFileInputRef}
+                  accept="image/*"
+                  onChange={handleCardImageFileChange}
+                  className="hidden"
+                  id="product-card-image-upload"
+                />
+
+                {newProd.cardImage ? (
+                  <div className="flex items-center gap-3 bg-stone-900/70 p-2.5 rounded-xl border border-stone-800">
+                    <img
+                      src={newProd.cardImage}
+                      alt="Card Preview"
+                      className="w-16 h-16 object-contain rounded-lg bg-stone-950 border border-stone-800 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <span className="text-[11px] font-semibold text-emerald-400 block">
+                        ✓ საჩვენებელი ფოტო დამატებულია
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => cardImageFileInputRef.current?.click()}
+                          className="text-[11px] px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 font-medium transition"
+                        >
+                          შეცვლა
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNewProd((prev) => ({ ...prev, cardImage: "" }))}
+                          className="text-[11px] px-2.5 py-1 rounded-lg bg-red-950/60 hover:bg-red-900/60 text-red-400 font-medium transition"
+                        >
+                          წაშლა
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      onClick={() => cardImageFileInputRef.current?.click()}
+                      className="flex-1 flex items-center justify-center gap-2 border border-dashed border-stone-700 hover:border-emerald-500 rounded-xl px-3 py-2.5 text-xs font-semibold text-stone-300 hover:text-white bg-stone-950/60 hover:bg-stone-900 transition"
+                    >
+                      <Upload className="w-4 h-4 text-emerald-400" />
+                      <span>საჩვენებელი ფოტოს ატვირთვა</span>
+                    </button>
+                    <input
+                      type="text"
+                      placeholder="ან ჩასვით ფოტოს URL..."
+                      value={newProd.cardImage || ""}
+                      onChange={(e) => setNewProd({ ...newProd, cardImage: e.target.value })}
+                      className="sm:w-1/2 bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-white placeholder-stone-500 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* PRIMARY PRODUCT PHOTOS (Base Color) */}

@@ -10,15 +10,15 @@ export default function ProductCard({ product }) {
   const favorited = isFavorite(product.id);
   const compared = isInCompare(product.id);
 
-  // Multi-image handling
+  // Multi-image handling (if cardImage is set, use it strictly as the card cover)
   const allImages =
     product.images && product.images.length > 0
       ? product.images
       : product.image
       ? [product.image]
       : [];
-  const primaryImage = allImages[0] || product.image;
-  const secondaryImage = allImages[1] || null;
+  const primaryImage = product.cardImage || allImages[0] || product.image;
+  const secondaryImage = product.cardImage ? null : allImages[1] || null;
   const hasMultiple = Boolean(secondaryImage);
 
   // States for desktop hover and mobile touch toggle

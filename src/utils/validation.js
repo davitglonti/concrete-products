@@ -21,6 +21,7 @@ export const ProductSchema = z.object({
   baseColorName: z.string().optional().default("კლასიკური ნაცრისფერი"),
   image: z.string().optional().default(""),
   images: z.array(z.string()).optional().default([]),
+  cardImage: z.string().optional().default(""),
   featured: z.boolean().optional().default(false),
   colors: z.array(z.any()).optional().default([]),
   colorVariants: z.array(z.any()).optional().default([]),
