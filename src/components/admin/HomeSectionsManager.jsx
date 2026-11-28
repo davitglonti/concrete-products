@@ -60,8 +60,8 @@ const compressHeroImage = (file, callback) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      const MAX_WIDTH = 1600;
-      const MAX_HEIGHT = 1000;
+      const MAX_WIDTH = 1280;
+      const MAX_HEIGHT = 760;
       let width = img.width;
       let height = img.height;
 
@@ -84,12 +84,12 @@ const compressHeroImage = (file, callback) => {
 
       let compressedUrl;
       try {
-        compressedUrl = canvas.toDataURL("image/webp", 0.85);
+        compressedUrl = canvas.toDataURL("image/webp", 0.72);
         if (!compressedUrl.startsWith("data:image/webp")) {
-          compressedUrl = canvas.toDataURL("image/jpeg", 0.85);
+          compressedUrl = canvas.toDataURL("image/jpeg", 0.72);
         }
       } catch (err) {
-        compressedUrl = canvas.toDataURL("image/jpeg", 0.85);
+        compressedUrl = canvas.toDataURL("image/jpeg", 0.72);
       }
       callback(compressedUrl);
     };
@@ -195,8 +195,12 @@ export default function HomeSectionsManager() {
       whyChooseUs,
       trustSection,
     };
-    await updateSiteSettings(updated);
+    const res = await updateSiteSettings(updated);
     setIsSaving(false);
+    if (res && res.success === false) {
+      alert(`შენახვა ვერ მოხერხდა: ${res.message}`);
+      return;
+    }
     setToast("მთავარი გვერდის პარამეტრები წარმატებით შეინახა!");
     setTimeout(() => setToast(null), 3500);
   };

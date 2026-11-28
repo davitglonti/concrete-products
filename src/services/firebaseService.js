@@ -22,15 +22,23 @@ export const loadFirebase = () => {
   return firebasePromise;
 };
 
-// Helper to clean object for Firestore
-export const sanitizeForFirestore = (obj) => {
-  const clean = {};
-  Object.keys(obj).forEach((key) => {
-    if (obj[key] !== undefined) {
-      clean[key] = obj[key];
-    }
-  });
-  return clean;
+// Helper to recursively clean object/array for Firestore (strips all undefined values)
+export const sanitizeForFirestore = (value) => {
+  if (Array.isArray(value)) {
+    return value
+      .filter((item) => item !== undefined)
+      .map((item) => sanitizeForFirestore(item));
+  }
+  if (value !== null && typeof value === "object" && !(value instanceof Date)) {
+    const clean = {};
+    Object.keys(value).forEach((key) => {
+      if (value[key] !== undefined) {
+        clean[key] = sanitizeForFirestore(value[key]);
+      }
+    });
+    return clean;
+  }
+  return value;
 };
 
 // Real-time synchronization
@@ -256,12 +264,44 @@ export const dbSaveInquiry = async (inquiry) => {
 // Site Settings
 export const dbSaveSiteSettings = async (settings) => {
   try {
-    const { db, isFirebaseConfigured, doc, setDoc } = await loadFirebase();
-    if (db && isFirebaseConfigured) {
-      await setDoc(doc(db, "site_settings", "general"), sanitizeForFirestore(settings), { merge: true });
+    const { db, auth, isFirebaseConfigured, doc, setDoc } = await loadFirebase();
+    if (!db || !isFirebaseConfigured) {
+      return { success: false, message: "Firebase ბაზა არ არის კონფიგურირებული." };
     }
+    if (!auth || !auth.currentUser) {
+      return {
+        success: false,
+        message: "სესია არაავტორიზებულია. გთხოვთ ხელახლა გაიაროთ ავტორიზაცია (/admin/login).",
+      };
+    }
+
+    const cleaned = sanitizeForFirestore(settings);
+    const approxBytes = new Blob([JSON.stringify(cleaned)]).size;
+    if (approxBytes > 980000) {
+      return {
+        success: false,
+        message: `მონაცემების ზომა (${Math.round(approxBytes / 1024)} KB) აჭარბებს Firestore-ის 1 MB ლიმიტს. გთხოვთ გამოიყენოთ უფრო მცირე ზომის სურათები ან URL ბმულები.`,
+      };
+    }
+
+    await setDoc(doc(db, "site_settings", "general"), cleaned, { merge: true });
+    return { success: true };
   } catch (e) {
     console.error("dbSaveSiteSettings error:", e);
+    const msg = e?.message || "";
+    if (msg.includes("permission-denied") || msg.includes("PERMISSION_DENIED")) {
+      return {
+        success: false,
+        message: "წვდომა აკრძალულია (Firestore Permission Denied). შეამოწმეთ ავტორიზაცია.",
+      };
+    }
+    if (msg.includes("exceeds the maximum allowed size") || msg.includes("too large")) {
+      return {
+        success: false,
+        message: "ატვირთული სურათების ჯამური ზომა აჭარბებს Firestore-ის 1 MB ლიმიტს.",
+      };
+    }
+    return { success: false, message: msg || "შენახვის შეცდომა Firebase-ში." };
   }
 };
 

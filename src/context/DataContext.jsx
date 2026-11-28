@@ -148,6 +148,10 @@ export const DataProvider = ({ children }) => {
       return DEFAULT_SITE_SETTINGS;
     }
   });
+  const siteSettingsRef = useRef(siteSettings);
+  useEffect(() => {
+    siteSettingsRef.current = siteSettings;
+  }, [siteSettings]);
 
   const [adminUser, setAdminUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -464,17 +468,17 @@ export const DataProvider = ({ children }) => {
 
   // Site Settings
   const updateSiteSettings = useCallback(async (updates) => {
-    setSiteSettings((prev) => {
-      const merged = { ...prev, ...updates };
-      setPersistentItem("monolith_site_settings", merged);
-      try {
-        localStorage.setItem("monolith_site_settings", JSON.stringify(merged));
-      } catch (e) {
-        console.warn("localStorage site settings error:", e);
-      }
-      dbSaveSiteSettings(merged);
-      return merged;
-    });
+    const merged = mergeSiteSettings(siteSettingsRef.current, updates);
+    siteSettingsRef.current = merged;
+    setSiteSettings(merged);
+    setPersistentItem("monolith_site_settings", merged);
+    try {
+      localStorage.setItem("monolith_site_settings", JSON.stringify(merged));
+    } catch (e) {
+      console.warn("localStorage site settings error:", e);
+    }
+    const res = await dbSaveSiteSettings(merged);
+    return res || { success: true };
   }, []);
 
   const resetSiteSettings = useCallback(async () => {

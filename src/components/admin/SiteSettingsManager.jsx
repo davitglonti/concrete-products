@@ -41,6 +41,7 @@ export default function SiteSettingsManager() {
 
   const [activeSubTab, setActiveSubTab] = useState("branding");
   const [saveToast, setSaveToast] = useState(null);
+  const [saveError, setSaveError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
   // New Link input states
@@ -58,7 +59,7 @@ export default function SiteSettingsManager() {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const MAX = 600;
+        const MAX = 400;
         let w = img.width;
         let h = img.height;
         if (w > h) {
@@ -79,12 +80,12 @@ export default function SiteSettingsManager() {
         // Compress to WebP with transparency support (with PNG fallback)
         let dataUrl;
         try {
-          dataUrl = canvas.toDataURL("image/webp", 0.85);
+          dataUrl = canvas.toDataURL("image/webp", 0.8);
           if (!dataUrl.startsWith("data:image/webp")) {
-            dataUrl = canvas.toDataURL("image/png", 0.9);
+            dataUrl = canvas.toDataURL("image/png", 0.85);
           }
         } catch {
-          dataUrl = canvas.toDataURL("image/png", 0.9);
+          dataUrl = canvas.toDataURL("image/png", 0.85);
         }
         callback(dataUrl);
       };
@@ -95,9 +96,14 @@ export default function SiteSettingsManager() {
 
   const handleSave = async (customSettings = null) => {
     setIsSaving(true);
+    setSaveError(null);
     const toSave = customSettings || formData;
-    await updateSiteSettings(toSave);
+    const res = await updateSiteSettings(toSave);
     setIsSaving(false);
+    if (res && res.success === false) {
+      setSaveError(res.message || "შენახვა ვერ მოხერხდა Firebase-ში.");
+      return;
+    }
     setSaveToast("პარამეტრები წარმატებით შეინახა!");
     setTimeout(() => setSaveToast(null), 3500);
   };
@@ -214,6 +220,22 @@ export default function SiteSettingsManager() {
           <button
             onClick={() => setSaveToast(null)}
             className="text-xs text-emerald-400 hover:text-white font-bold"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Error Notification */}
+      {saveError && (
+        <div className="p-4 bg-red-950/80 border border-red-500/50 rounded-2xl flex items-center justify-between gap-3 text-red-200 text-sm shadow-xl animate-fade-in">
+          <div className="flex items-center gap-2.5">
+            <Info className="w-5 h-5 text-red-400 shrink-0" />
+            <span className="font-semibold">{saveError}</span>
+          </div>
+          <button
+            onClick={() => setSaveError(null)}
+            className="text-xs text-red-400 hover:text-white font-bold"
           >
             ✕
           </button>
