@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export default function Products() {
-  const { products, categories } = useData();
+  const { products, categories, siteSettings } = useData();
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get("category") || "all";
 
