@@ -1279,29 +1279,64 @@ export default function AdminDashboard() {
               onSubmit={handleSaveProduct}
               className="lg:col-span-5 bg-stone-900 border border-stone-800 p-6 rounded-2xl space-y-4 h-fit sticky top-24"
             >
-              <div className="flex items-center justify-between pb-2 border-b border-stone-800">
-                <h2 className="font-bold text-white flex items-center gap-2 text-base">
-                  {editingProductId ? (
-                    <>
-                      <Edit2 className="w-4 h-4 text-amber-400" />
-                      <span>პროდუქტის რედაქტირება</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4 text-white" />
-                      <span>ახალი პროდუქტის დამატება</span>
-                    </>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-800">
+                <div className="flex items-center justify-between w-full sm:w-auto">
+                  <h2 className="font-bold text-white flex items-center gap-2 text-base">
+                    {editingProductId ? (
+                      <>
+                        <Edit2 className="w-4 h-4 text-amber-400" />
+                        <span>პროდუქტის რედაქტირება</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 text-white" />
+                        <span>ახალი პროდუქტის დამატება</span>
+                      </>
+                    )}
+                  </h2>
+                  {editingProductId && (
+                    <button
+                      type="button"
+                      onClick={cancelEditProduct}
+                      className="text-xs text-stone-400 hover:text-white sm:hidden"
+                    >
+                      გაუქმება
+                    </button>
                   )}
-                </h2>
-                {editingProductId && (
+                </div>
+
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={cancelEditProduct}
-                    className="text-xs text-stone-400 hover:text-white"
+                    disabled={isGeneratingSeo}
+                    onClick={handleAutoGenerateProductSEO}
+                    className={`flex-1 sm:flex-none px-3.5 py-1.5 text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 border shadow-sm disabled:opacity-60 cursor-pointer ${
+                      seoGenSuccess
+                        ? "bg-emerald-600 text-white border-emerald-500 shadow-emerald-500/20"
+                        : "bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 hover:from-amber-500 hover:to-amber-400 text-amber-400 hover:text-stone-950 border-amber-500/40 hover:border-amber-400"
+                    }`}
+                    title="Gemini AI-ით აღწერებისა და SEO პარამეტრების ავტომატური შევსება (ფოტოსა და სახელის მიხედვით)"
                   >
-                    გაუქმება
+                    <Sparkles className={`w-3.5 h-3.5 ${isGeneratingSeo ? "animate-spin text-amber-400" : ""}`} />
+                    <span>
+                      {isGeneratingSeo
+                        ? "AI წერს აღწერას & SEO-ს..."
+                        : seoGenSuccess
+                        ? "✓ შევსებულია!"
+                        : "✨ AI ავტო-შევსება (აღწერა & SEO)"}
+                    </span>
                   </button>
-                )}
+
+                  {editingProductId && (
+                    <button
+                      type="button"
+                      onClick={cancelEditProduct}
+                      className="text-xs text-stone-400 hover:text-white hidden sm:inline-block px-2 py-1"
+                    >
+                      გაუქმება
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Title & Category */}
@@ -1991,20 +2026,20 @@ export default function AdminDashboard() {
                         e.stopPropagation();
                         handleAutoGenerateProductSEO();
                       }}
-                      className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition flex items-center gap-1 border shadow-sm disabled:opacity-60 ${
+                      className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition flex items-center gap-1.5 border shadow-sm disabled:opacity-60 cursor-pointer ${
                         seoGenSuccess
                           ? "bg-emerald-600 text-white border-emerald-500"
                           : "bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-stone-950 border-amber-500/30 hover:border-amber-500"
                       }`}
-                      title="Gemini AI-ით SEO ტექსტებისა და აღწერის გენერირება"
+                      title="Gemini AI-ით აღწერებისა და SEO პარამეტრების ავტომატური შევსება"
                     >
                       <Sparkles className={`w-3 h-3 ${isGeneratingSeo ? "animate-spin" : ""}`} />
                       <span>
                         {isGeneratingSeo
                           ? "AI წერს..."
                           : seoGenSuccess
-                          ? "✓ გენერირებულია!"
-                          : "✨ AI SEO გენერირება"}
+                          ? "✓ შევსებულია!"
+                          : "✨ AI ავტო-შევსება"}
                       </span>
                     </button>
 
